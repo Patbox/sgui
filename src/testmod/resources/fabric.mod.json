@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "sguitest",
+  "version": "0.0.0",
+
+  "name": "Test mod",
+  "description": "",
+  "authors": [],
+
+  "license": "LGPLv3",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "eu.pb4.sguitest.TestMod"
+    ]
+  },
+
+  "depends": {
+    "fabricloader": ">=0.7.4",
+    "fabric": "*",
+    "minecraft": "1.16.x"
+  }
+}
