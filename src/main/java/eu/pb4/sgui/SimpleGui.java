@@ -4,7 +4,6 @@ import eu.pb4.sgui.virtual.VirtualScreenHandlerFactory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
-import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -12,7 +11,7 @@ import net.minecraft.text.Text;
 
 import java.util.OptionalInt;
 
-public class SimpleGui {
+public class SimpleGui implements GuiInterface {
     protected final ServerPlayerEntity player;
     protected final int size;
     protected final int width;
@@ -24,6 +23,7 @@ public class SimpleGui {
     private Text title = null;
     private boolean open = false;
     private boolean autoUpdate = true;
+    protected boolean reOpen = false;
     private boolean lockPlayerInventory = false;
 
     private int syncId = -1;
@@ -88,6 +88,7 @@ public class SimpleGui {
         this.title = title;
 
         if (this.open) {
+            this.reOpen = true;
             this.sendGui();
         }
     }
@@ -106,7 +107,7 @@ public class SimpleGui {
         } else {
             this.open = true;
             this.onUpdate(true);
-
+            this.reOpen = false;
             return this.sendGui();
         }
     }
@@ -131,8 +132,7 @@ public class SimpleGui {
     }
 
     public void setSlot(int index, ItemStack itemStack) {
-        this.setSlot(index, new GuiElement(itemStack, (x, y, z) -> {
-        }));
+        this.setSlot(index, new GuiElement(itemStack, (x, y, z) -> {}));
     }
 
     public void setSlot(int index, ItemStack itemStack, GuiElement.ItemClickCallback callback) {
@@ -157,7 +157,7 @@ public class SimpleGui {
 
 
     public void close(boolean screenIsClosed) {
-        if (this.open) {
+        if (this.open && !this.reOpen) {
             if (!screenIsClosed && this.player.currentScreenHandler.syncId == this.syncId) {
                 this.player.closeHandledScreen();
             }
@@ -165,6 +165,8 @@ public class SimpleGui {
             this.player.networkHandler.sendPacket(new InventoryS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.getStacks()));
             this.open = false;
             this.onClose();
+        } else {
+            this.reOpen = false;
         }
     }
 

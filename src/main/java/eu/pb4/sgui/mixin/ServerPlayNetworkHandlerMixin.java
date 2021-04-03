@@ -1,15 +1,16 @@
 package eu.pb4.sgui.mixin;
 
+import eu.pb4.sgui.AnvilInputGui;
 import eu.pb4.sgui.ClickType;
 import eu.pb4.sgui.virtual.VirtualScreenHandler;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
+import net.minecraft.network.packet.c2s.play.RenameItemC2SPacket;
 import net.minecraft.network.packet.s2c.play.ConfirmScreenActionS2CPacket;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -65,6 +66,19 @@ public abstract class ServerPlayNetworkHandlerMixin {
 
             ci.cancel();
         }
+    }
 
+    @Inject(method = "onRenameItem", at = @At("TAIL"))
+    private void catchRenamingWithCustomGui(RenameItemC2SPacket packet, CallbackInfo ci) {
+        if (this.player.currentScreenHandler instanceof VirtualScreenHandler) {
+            try {
+                VirtualScreenHandler handler = (VirtualScreenHandler) this.player.currentScreenHandler;
+                if (handler.getGui() instanceof AnvilInputGui) {
+                    ((AnvilInputGui) handler.getGui()).input(packet.getName());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

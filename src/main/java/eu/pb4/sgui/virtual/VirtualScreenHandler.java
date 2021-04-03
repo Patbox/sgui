@@ -24,14 +24,15 @@ public class VirtualScreenHandler extends ScreenHandler {
         int m;
 
         for (n = 0; n < this.gui.getVirtualSize(); ++n) {
-            this.addSlot(new Slot(inventory, n, 0, 0));
+            this.addSlot(new VirtualSlot(inventory, n, 0, 0));
         }
 
         if (gui.isIncludingPlayer()) {
             int size = this.gui.getHeight() * this.gui.getWitdh();
             for (n = 0; n < 4; ++n) {
                 for (m = 0; m < 9; ++m) {
-                    this.addSlot(new Slot(inventory, m + n * 9 + size, 0, 0));
+                    this.addSlot(new VirtualSlot(
+                            inventory, m + n * 9 + size, 0, 0));
                 }
             }
         } else {
@@ -69,14 +70,6 @@ public class VirtualScreenHandler extends ScreenHandler {
     @Override
     public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
         return this.inventory != slot.inventory;
-    }
-
-    public static boolean canInsertItemIntoSlot(@Nullable Slot slot, ItemStack stack, boolean allowOverflow) {
-        if (slot.inventory instanceof VirtualInventory) {
-            return false;
-        } else {
-            return ScreenHandler.canInsertItemIntoSlot(slot, stack, allowOverflow);
-        }
     }
 
     @Override

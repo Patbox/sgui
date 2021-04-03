@@ -67,10 +67,15 @@ public class TestMod {
     private static int test2(CommandContext<ServerCommandSource> objectCommandContext) {
         try {
             ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
-            SimpleGui gui = new SimpleGui(ScreenHandlerType.SHULKER_BOX, player, false);
+            SimpleGui gui = new AnvilInputGui(player, true) {
+                @Override
+                public void onClose() {
+                    player.sendMessage(new LiteralText(this.getInput()), false);
+                }
+            };
 
             gui.setTitle(new LiteralText("Nice"));
-            gui.setSlot(0, new GuiElement(Items.DIAMOND_AXE.getDefaultStack(), (index, clickType, actionType) -> {
+            gui.setSlot(1, new GuiElement(Items.DIAMOND_AXE.getDefaultStack(), (index, clickType, actionType) -> {
                 ItemStack item = gui.getSlot(index).getItem();
                 if (clickType == ClickType.MOUSE_LEFT) {
                     item.setCount(item.getCount() == 1 ? item.getCount() : item.getCount() - 1);
