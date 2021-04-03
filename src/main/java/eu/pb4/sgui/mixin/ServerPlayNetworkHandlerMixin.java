@@ -29,13 +29,15 @@ public abstract class ServerPlayNetworkHandlerMixin {
     private void handleGuiClicks(ClickSlotC2SPacket packet, CallbackInfo ci) {
         if (this.player.currentScreenHandler instanceof VirtualScreenHandler) {
             try {
-
                 VirtualScreenHandler handler = (VirtualScreenHandler) this.player.currentScreenHandler;
 
                 int slot = packet.getSlot();
                 int button = packet.getClickData();
-
                 ClickType type = ClickType.toClickType(packet.getActionType(), button, slot);
+
+                if (!handler.getGui().getLockPlayerInventory() && (slot >= handler.getGui().getSize() || slot < 0) && !type.shift && !type.isDragging) {
+                    return;
+                }
 
                 boolean allow = handler.getGui().click(slot, type, packet.getActionType());
 

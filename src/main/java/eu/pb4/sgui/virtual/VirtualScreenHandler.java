@@ -3,6 +3,7 @@ package eu.pb4.sgui.virtual;
 import eu.pb4.sgui.SimpleGui;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
@@ -54,6 +55,28 @@ public class VirtualScreenHandler extends ScreenHandler {
     @Override
     public boolean canUse(PlayerEntity player) {
         return true;
+    }
+
+    @Override
+    public void setStackInSlot(int slot, ItemStack stack) {
+        if (this.gui.getSize() <= slot) {
+            this.getSlot(slot).setStack(stack);
+        } else {
+            this.getSlot(slot).setStack(ItemStack.EMPTY);
+        }
+    }
+
+    @Override
+    public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
+        return this.inventory != slot.inventory;
+    }
+
+    public static boolean canInsertItemIntoSlot(@Nullable Slot slot, ItemStack stack, boolean allowOverflow) {
+        if (slot.inventory instanceof VirtualInventory) {
+            return false;
+        } else {
+            return ScreenHandler.canInsertItemIntoSlot(slot, stack, allowOverflow);
+        }
     }
 
     @Override

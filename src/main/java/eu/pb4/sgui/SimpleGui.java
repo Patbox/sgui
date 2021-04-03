@@ -24,6 +24,7 @@ public class SimpleGui {
     private Text title = null;
     private boolean open = false;
     private boolean autoUpdate = true;
+    private boolean lockPlayerInventory = false;
 
     private int syncId = -1;
 
@@ -198,6 +199,14 @@ public class SimpleGui {
         }
 
         return false;
+    }
+
+    public boolean getLockPlayerInventory() {
+        return this.lockPlayerInventory || this.includePlayer;
+    }
+
+    public void setLockPlayerInventory(boolean value) {
+        this.lockPlayerInventory = value;
     }
 
     public boolean getAutoUpdate() {

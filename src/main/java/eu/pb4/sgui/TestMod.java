@@ -29,7 +29,7 @@ public class TestMod {
     private static int test(CommandContext<ServerCommandSource> objectCommandContext) {
         try {
             ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
-            SimpleGui gui = new SimpleGui(ScreenHandlerType.BREWING_STAND, player, true) {
+            SimpleGui gui = new SimpleGui(ScreenHandlerType.BREWING_STAND, player, false) {
                 @Override
                 public boolean onClick(int index, ClickType type, SlotActionType action, GuiElement element) {
                     this.player.sendMessage(new LiteralText(type.toString()), false);
@@ -67,7 +67,7 @@ public class TestMod {
     private static int test2(CommandContext<ServerCommandSource> objectCommandContext) {
         try {
             ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
-            SimpleGui gui = new SimpleGui(ScreenHandlerType.STONECUTTER, player, true);
+            SimpleGui gui = new SimpleGui(ScreenHandlerType.SHULKER_BOX, player, false);
 
             gui.setTitle(new LiteralText("Nice"));
             gui.setSlot(0, new GuiElement(Items.DIAMOND_AXE.getDefaultStack(), (index, clickType, actionType) -> {
