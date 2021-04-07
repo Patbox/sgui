@@ -20,6 +20,30 @@ repositories {
 	maven { url "https://jitpack.io" }
 }
 
+sourceSets {
+	testmod {
+		runtimeClasspath += main.runtimeClasspath
+		compileClasspath += main.compileClasspath
+	}
+}
+
+loom {
+	runs {
+		testmodClient {
+			client()
+			ideConfigGenerated project.rootProject == project
+			name = "Test Mod Client"
+			source sourceSets.testmod
+		}
+		testmodServer {
+			server()
+			ideConfigGenerated project.rootProject == project
+			name = "Test Mod Server"
+			source sourceSets.testmod
+		}
+	}
+}
+
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -33,6 +57,7 @@ dependencies {
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.
+	testmodImplementation sourceSets.main.output
 }
 
 processResources {

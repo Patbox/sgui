@@ -1,6 +1,8 @@
-package eu.pb4.sgui;
+package eu.pb4.sgui.testmod;
 
 import com.mojang.brigadier.context.CommandContext;
+import eu.pb4.sgui.*;
+import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -12,15 +14,14 @@ import net.minecraft.text.LiteralText;
 
 import static net.minecraft.server.command.CommandManager.literal;
 
-public class TestMod {
-
-    public static void onInitialize() {
+public class SGuiTest implements ModInitializer {
+    public void onInitialize() {
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
             dispatcher.register(
-                    literal("test").executes(TestMod::test)
+                literal("test").executes(SGuiTest::test)
             );
             dispatcher.register(
-                    literal("test2").executes(TestMod::test2)
+                literal("test2").executes(SGuiTest::test2)
             );
         });
     }
