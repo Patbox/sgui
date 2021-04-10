@@ -35,8 +35,13 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 int slot = packet.getSlot();
                 int button = packet.getClickData();
                 ClickType type = ClickType.toClickType(packet.getActionType(), button, slot);
+                boolean ignore = handler.getGui().onAnyClick(slot, type, packet.getActionType());
+                if (ignore && !handler.getGui().getLockPlayerInventory() && (slot >= handler.getGui().getSize() || slot < 0 || handler.getGui().getSlotRedirect(slot) != null) && !type.shift) {
+                    if (type == ClickType.MOUSE_DOUBLE_CLICK || (type.isDragging && type.value == 2)) {
+                        this.sendPacket(new InventoryS2CPacket(handler.syncId, handler.getStacks()));
+                        this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, -1, this.player.inventory.getCursorStack()));
+                    }
 
-                if (!handler.getGui().getLockPlayerInventory() && (slot >= handler.getGui().getSize() || slot < 0) && !type.shift && !type.isDragging) {
                     return;
                 }
 
@@ -67,6 +72,28 @@ public abstract class ServerPlayNetworkHandlerMixin {
             ci.cancel();
         }
     }
+
+    @Inject(method = "onClickSlot", at = @At("TAIL"))
+    private void resyncGui(ClickSlotC2SPacket packet, CallbackInfo ci) {
+        if (this.player.currentScreenHandler instanceof VirtualScreenHandler) {
+            try {
+                VirtualScreenHandler handler = (VirtualScreenHandler) this.player.currentScreenHandler;
+
+                int slot = packet.getSlot();
+                int button = packet.getClickData();
+                ClickType type = ClickType.toClickType(packet.getActionType(), button, slot);
+
+                if (type == ClickType.MOUSE_DOUBLE_CLICK || (type.isDragging && type.value == 2)) {
+                    this.sendPacket(new InventoryS2CPacket(handler.syncId, handler.getStacks()));
+                    this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, -1, this.player.inventory.getCursorStack()));
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     @Inject(method = "onRenameItem", at = @At("TAIL"))
     private void catchRenamingWithCustomGui(RenameItemC2SPacket packet, CallbackInfo ci) {

@@ -5,6 +5,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -16,8 +17,9 @@ public class SimpleGui implements GuiInterface {
     protected final int size;
     protected final int width;
     protected final int height;
-    protected final ScreenHandlerType type;
+    protected final ScreenHandlerType<?> type;
     protected final GuiElement[] elements;
+    protected final Slot[] slotRedirects;
     private final boolean includePlayer;
     private final int sizeCont;
     private Text title = null;
@@ -28,7 +30,7 @@ public class SimpleGui implements GuiInterface {
 
     private int syncId = -1;
 
-    public SimpleGui(ScreenHandlerType type, ServerPlayerEntity player, boolean includePlayer) {
+    public SimpleGui(ScreenHandlerType<?> type, ServerPlayerEntity player, boolean includePlayer) {
         int width1;
         this.player = player;
 
@@ -76,6 +78,8 @@ public class SimpleGui implements GuiInterface {
         this.size = this.width * this.height + tmp;
         this.sizeCont = this.width * this.height;
         this.elements = new GuiElement[this.size];
+        this.slotRedirects = new Slot[this.size];
+
 
         this.includePlayer = includePlayer;
     }
@@ -93,7 +97,7 @@ public class SimpleGui implements GuiInterface {
         }
     }
 
-    public ScreenHandlerType getType() {
+    public ScreenHandlerType<?> getType() {
         return this.type;
     }
 
@@ -135,8 +139,25 @@ public class SimpleGui implements GuiInterface {
         this.setSlot(index, new GuiElement(itemStack, (x, y, z) -> {}));
     }
 
+    public void setSlot(int index, GuiElementBuilder element) {
+        this.setSlot(index, element.build());
+    }
+
     public void setSlot(int index, ItemStack itemStack, GuiElement.ItemClickCallback callback) {
         this.setSlot(index, new GuiElement(itemStack, callback));
+    }
+
+    public void setSlotRedirect(int index, Slot slot) {
+        this.elements[index] = null;
+        this.slotRedirects[index] = slot;
+        if (this.open && this.autoUpdate) {
+            this.player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.syncId, index, slot.getStack()));
+        }
+    }
+
+    public void clearSlot(int index) {
+        this.elements[index] = null;
+        this.slotRedirects[index] = null;
     }
 
     public void updateSlot(int index, ItemStack itemStack) {
@@ -185,6 +206,13 @@ public class SimpleGui implements GuiInterface {
         return null;
     }
 
+    public Slot getSlotRedirect(int index) {
+        if (index >= 0 && index < this.size) {
+            return this.slotRedirects[index];
+        }
+        return null;
+    }
+
     public boolean click(int index, ClickType type, SlotActionType action) {
         GuiElement element = this.getSlot(index);
         if (element != null) {
@@ -224,6 +252,10 @@ public class SimpleGui implements GuiInterface {
 
     public boolean onClick(int index, ClickType type, SlotActionType action, GuiElement element) {
         return false;
+    }
+
+    public boolean onAnyClick(int index, ClickType type, SlotActionType action) {
+        return true;
     }
 
     public void onUpdate(boolean firstUpdate) {

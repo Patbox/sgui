@@ -5,6 +5,7 @@ import eu.pb4.sgui.SimpleGui;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.screen.slot.Slot;
 
 public class VirtualInventory implements Inventory {
     private final SimpleGui gui;
@@ -25,31 +26,48 @@ public class VirtualInventory implements Inventory {
 
     @Override
     public int getMaxCountPerStack() {
-        return 1;
+        return 64;
     }
 
     @Override
     public ItemStack getStack(int index) {
-        GuiElement element = this.gui.getSlot(index);
-        if (element == null) {
-            return ItemStack.EMPTY;
+        Slot slot = this.gui.getSlotRedirect(index);
+        if (slot != null) {
+            return slot.getStack();
+        } else {
+            GuiElement element = this.gui.getSlot(index);
+            if (element == null) {
+                return ItemStack.EMPTY;
+            }
+            return element.getItem();
         }
-        return element.getItem();
     }
 
     @Override
     public ItemStack removeStack(int index, int count) {
+        Slot slot = this.gui.getSlotRedirect(index);
+        if (slot != null) {
+            return slot.inventory.removeStack(index, count);
+        }
         return ItemStack.EMPTY;
     }
 
     @Override
     public ItemStack removeStack(int index) {
+        Slot slot = this.gui.getSlotRedirect(index);
+        if (slot != null) {
+            return slot.inventory.removeStack(index);
+        }
         return ItemStack.EMPTY;
     }
 
 
     @Override
-    public void setStack(int slot, ItemStack stack) {
+    public void setStack(int index, ItemStack stack) {
+        Slot slot = this.gui.getSlotRedirect(index);
+        if (slot != null) {
+            slot.inventory.setStack(index, stack);
+        }
     }
 
     @Override
