@@ -36,7 +36,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 int button = packet.getClickData();
                 ClickType type = ClickType.toClickType(packet.getActionType(), button, slot);
                 boolean ignore = handler.getGui().onAnyClick(slot, type, packet.getActionType());
-                if (ignore && !handler.getGui().getLockPlayerInventory() && (slot >= handler.getGui().getSize() || slot < 0 || handler.getGui().getSlotRedirect(slot) != null) && !type.shift) {
+                if (ignore && !handler.getGui().getLockPlayerInventory() && (slot >= handler.getGui().getSize() || slot < 0 || handler.getGui().getSlotRedirect(slot) != null) || (!handler.gui.isRedirectingSlots() && type.shift)) {
                     if (type == ClickType.MOUSE_DOUBLE_CLICK || (type.isDragging && type.value == 2)) {
                         this.sendPacket(new InventoryS2CPacket(handler.syncId, handler.getStacks()));
                         this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, -1, this.player.inventory.getCursorStack()));
@@ -83,7 +83,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 int button = packet.getClickData();
                 ClickType type = ClickType.toClickType(packet.getActionType(), button, slot);
 
-                if (type == ClickType.MOUSE_DOUBLE_CLICK || (type.isDragging && type.value == 2)) {
+                if (type == ClickType.MOUSE_DOUBLE_CLICK || (type.isDragging && type.value == 2) || type.shift) {
                     this.sendPacket(new InventoryS2CPacket(handler.syncId, handler.getStacks()));
                     this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, -1, this.player.inventory.getCursorStack()));
                 }

@@ -1,6 +1,8 @@
 package eu.pb4.sgui;
 
+import eu.pb4.sgui.virtual.VirtualScreenHandler;
 import eu.pb4.sgui.virtual.VirtualScreenHandlerFactory;
+import eu.pb4.sgui.virtual.VirtualSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
@@ -23,12 +25,15 @@ public class SimpleGui implements GuiInterface {
     private final boolean includePlayer;
     private final int sizeCont;
     private Text title = null;
-    private boolean open = false;
-    private boolean autoUpdate = true;
+    protected boolean open = false;
+    protected boolean autoUpdate = true;
     protected boolean reOpen = false;
-    private boolean lockPlayerInventory = false;
+    protected boolean lockPlayerInventory = false;
+    protected VirtualScreenHandler screenHandler = null;
 
-    private int syncId = -1;
+    protected int syncId = -1;
+
+    protected boolean hasRedirects = false;
 
     public SimpleGui(ScreenHandlerType<?> type, ServerPlayerEntity player, boolean includePlayer) {
         int width1;
@@ -132,6 +137,9 @@ public class SimpleGui implements GuiInterface {
         this.elements[index] = element;
         if (this.open && this.autoUpdate) {
             this.player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.syncId, index, element.getItem()));
+            if (this.screenHandler != null) {
+                this.screenHandler.setSlot(index, new VirtualSlot(this.screenHandler.inventory, index, 0, 0));
+            }
         }
     }
 
@@ -152,12 +160,23 @@ public class SimpleGui implements GuiInterface {
         this.slotRedirects[index] = slot;
         if (this.open && this.autoUpdate) {
             this.player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.syncId, index, slot.getStack()));
+            if (this.screenHandler != null) {
+                this.screenHandler.setSlot(index, slot);
+            }
         }
+        this.hasRedirects = true;
     }
 
     public void clearSlot(int index) {
         this.elements[index] = null;
         this.slotRedirects[index] = null;
+
+        if (this.open && this.autoUpdate) {
+            this.player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.syncId, index, ItemStack.EMPTY));
+            if (this.screenHandler != null) {
+                this.screenHandler.setSlot(index, new VirtualSlot(this.screenHandler.inventory, index, 0, 0));
+            }
+        }
     }
 
     public void updateSlot(int index, ItemStack itemStack) {
@@ -225,7 +244,10 @@ public class SimpleGui implements GuiInterface {
         OptionalInt temp = this.player.openHandledScreen(new VirtualScreenHandlerFactory(this));
         if (temp.isPresent()) {
             this.syncId = temp.getAsInt();
-            return true;
+            if (this.player.currentScreenHandler instanceof VirtualScreenHandler) {
+                this.screenHandler = (VirtualScreenHandler) this.player.currentScreenHandler;
+                return true;
+            }
         }
 
         return false;
@@ -245,6 +267,14 @@ public class SimpleGui implements GuiInterface {
 
     public void setAutoUpdate(boolean value) {
         this.autoUpdate = value;
+    }
+
+    public ServerPlayerEntity getPlayer() {
+        return this.player;
+    }
+
+    public boolean isRedirectingSlots() {
+        return this.hasRedirects;
     }
 
     public void onOpen() {

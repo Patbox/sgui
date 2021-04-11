@@ -9,17 +9,17 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 public class VirtualScreenHandler extends ScreenHandler {
-    private final SimpleGui gui;
-    private final VirtualInventory inventory;
+    public final SimpleGui gui;
+    public final VirtualInventory inventory;
 
     public VirtualScreenHandler(@Nullable ScreenHandlerType<?> type, int syncId, SimpleGui gui, PlayerEntity player) {
         super(type, syncId);
         this.gui = gui;
 
         this.inventory = new VirtualInventory(gui);
-        int i = (gui.getHeight() - 4) * 18;
-
         int n;
         int m;
 
@@ -74,18 +74,140 @@ public class VirtualScreenHandler extends ScreenHandler {
 
     @Override
     public ItemStack transferSlot(PlayerEntity player, int index) {
+        ItemStack itemStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
-        return slot != null && !(slot.inventory instanceof VirtualInventory) ? slot.getStack() : ItemStack.EMPTY;
+        if (slot != null && slot.hasStack() && !(slot instanceof VirtualSlot)) {
+            ItemStack itemStack2 = slot.getStack();
+            itemStack = itemStack2.copy();
+            if (index < this.gui.getSize()) {
+                if (!this.insertItem(itemStack2, this.gui.getSize(), player.inventory.main.size() + this.gui.getSize(), true)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (!this.insertItem(itemStack2, 0, this.gui.getSize(), false)) {
+                return ItemStack.EMPTY;
+            }
+
+            if (itemStack2.isEmpty()) {
+                slot.setStack(ItemStack.EMPTY);
+            } else {
+                slot.markDirty();
+            }
+        } else if (slot instanceof VirtualSlot) {
+            return slot.getStack();
+        }
+
+        return itemStack;
     }
 
     @Override
     public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
-        return this.inventory != slot.inventory;
+        return !(slot instanceof VirtualSlot) && super.canInsertIntoSlot(stack, slot);
     }
 
     @Override
     public void close(PlayerEntity player) {
         super.close(player);
         this.gui.close(true);
+    }
+
+    public Slot addSlot(Slot slot) {
+        return super.addSlot(slot);
+    }
+
+    public Slot setSlot(int index, Slot slot) {
+        this.slots.set(index, slot);
+        return slot;
+    }
+
+    public List<Slot> getSlots() {
+        return this.slots;
+    }
+
+    @Override
+    protected boolean insertItem(ItemStack stack, int startIndex, int endIndex, boolean fromLast) {
+        boolean bl = false;
+        int i = startIndex;
+        if (fromLast) {
+            i = endIndex - 1;
+        }
+
+        Slot slot2;
+        ItemStack itemStack;
+        if (stack.isStackable()) {
+            while(!stack.isEmpty()) {
+                if (fromLast) {
+                    if (i < startIndex) {
+                        break;
+                    }
+                } else if (i >= endIndex) {
+                    break;
+                }
+
+                slot2 = this.slots.get(i);
+
+                itemStack = slot2.getStack();
+
+                if (!(slot2 instanceof VirtualSlot) && !itemStack.isEmpty() && canStacksCombine(stack, itemStack)) {
+                    int j = itemStack.getCount() + stack.getCount();
+                    if (j <= stack.getMaxCount()) {
+                        stack.setCount(0);
+                        itemStack.setCount(j);
+                        slot2.markDirty();
+                        bl = true;
+                    } else if (itemStack.getCount() < stack.getMaxCount()) {
+                        stack.decrement(stack.getMaxCount() - itemStack.getCount());
+                        itemStack.setCount(stack.getMaxCount());
+                        slot2.markDirty();
+                        bl = true;
+                    }
+                }
+
+                if (fromLast) {
+                    --i;
+                } else {
+                    ++i;
+                }
+            }
+        }
+
+        if (!stack.isEmpty()) {
+            if (fromLast) {
+                i = endIndex - 1;
+            } else {
+                i = startIndex;
+            }
+
+            while(true) {
+                if (fromLast) {
+                    if (i < startIndex) {
+                        break;
+                    }
+                } else if (i >= endIndex) {
+                    break;
+                }
+
+                slot2 = this.slots.get(i);
+                itemStack = slot2.getStack();
+                if (itemStack.isEmpty() && slot2.canInsert(stack)) {
+                    if (stack.getCount() > slot2.getMaxItemCount()) {
+                        slot2.setStack(stack.split(slot2.getMaxItemCount()));
+                    } else {
+                        slot2.setStack(stack.split(stack.getCount()));
+                    }
+
+                    slot2.markDirty();
+                    bl = true;
+                    break;
+                }
+
+                if (fromLast) {
+                    --i;
+                } else {
+                    ++i;
+                }
+            }
+        }
+
+        return bl;
     }
 }

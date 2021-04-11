@@ -4,6 +4,7 @@ import com.mojang.brigadier.context.CommandContext;
 import eu.pb4.sgui.*;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.ScreenHandlerType;
@@ -43,14 +44,21 @@ public class SGuiTest implements ModInitializer {
             };
 
             gui.setTitle(new LiteralText("Nice"));
-            gui.setSlot(0, new GuiElementBuilder()
+
+            for (int x = 0; x < gui.getSize(); x++) {
+                ItemStack itemStack = Items.STONE.getDefaultStack();
+                itemStack.setCount(x + 1);
+                gui.setSlot(x, new GuiElement(itemStack, (index, clickType, actionType) -> {}));
+            }
+
+            gui.setSlot(8, new GuiElementBuilder()
                     .setItem(Items.TNT)
                     .glow()
                     .setName(new LiteralText("Test :)")
                             .setStyle(Style.EMPTY.withItalic(false).withBold(true)))
                     .addLoreLine(new LiteralText("Some lore"))
                     .addLoreLine(new LiteralText("More lore").formatted(Formatting.RED))
-                    .setCount(32)
+                    .setCount(1)
                     .setCallback((index, clickType, actionType) -> {
                         player.sendMessage(new LiteralText("derg "), false);
                         ItemStack item = gui.getSlot(index).getItem();
@@ -60,16 +68,13 @@ public class SGuiTest implements ModInitializer {
                             item.setCount(item.getCount() + 1);
                         }
                         gui.updateSlot(index, item);
+
+                        if (item.getCount() <= player.getEnderChestInventory().size()) {
+                            gui.setSlotRedirect(4, new Slot(player.getEnderChestInventory(), item.getCount() - 1, 0, 0));
+                        }
                     })
             );
-            gui.setSlotRedirect(1, new Slot(player.inventory, 0, 0,0));
-
-            for (int x = 2; x < gui.getSize(); x++) {
-                ItemStack itemStack = Items.STONE.getDefaultStack();
-                itemStack.setCount(x);
-                gui.setSlot(x, new GuiElement(itemStack, (index, clickType, actionType) -> {
-                }));
-            }
+            gui.setSlotRedirect(4, new Slot(player.getEnderChestInventory(), 0, 0,0));
 
             gui.open();
         } catch (Exception e) {
