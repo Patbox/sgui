@@ -25,11 +25,6 @@ public class VirtualInventory implements Inventory {
     }
 
     @Override
-    public int getMaxCountPerStack() {
-        return 64;
-    }
-
-    @Override
     public ItemStack getStack(int index) {
         Slot slot = this.gui.getSlotRedirect(index);
         if (slot != null) {

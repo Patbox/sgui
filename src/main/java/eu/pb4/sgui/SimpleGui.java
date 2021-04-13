@@ -184,6 +184,8 @@ public class SimpleGui implements GuiInterface {
 
         if (element != null) {
             element.setItem(itemStack);
+        } else {
+            this.setSlot(index, itemStack);
         }
 
         if (this.open && this.autoUpdate) {

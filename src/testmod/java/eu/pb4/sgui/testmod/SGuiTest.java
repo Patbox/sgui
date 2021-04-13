@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
@@ -27,6 +28,14 @@ public class SGuiTest implements ModInitializer {
             dispatcher.register(
                 literal("test2").executes(SGuiTest::test2)
             );
+            dispatcher.register(
+                    literal("test3").executes((context) -> {
+                        context.getSource().getPlayer().getMainHandStack().setCount(127);
+                        context.getSource().getPlayer().getEnderChestInventory().getStack(0).setCount(127);
+
+                        return 0;
+                    })
+            );
         });
     }
 
@@ -44,10 +53,11 @@ public class SGuiTest implements ModInitializer {
             };
 
             gui.setTitle(new LiteralText("Nice"));
+            gui.setSlot(0, new GuiElementBuilder(Items.ARROW).setCount(100));
 
-            for (int x = 0; x < gui.getSize(); x++) {
+            for (int x = 1; x < gui.getSize(); x++) {
                 ItemStack itemStack = Items.STONE.getDefaultStack();
-                itemStack.setCount(x + 1);
+                itemStack.setCount(x);
                 gui.setSlot(x, new GuiElement(itemStack, (index, clickType, actionType) -> {}));
             }
 
