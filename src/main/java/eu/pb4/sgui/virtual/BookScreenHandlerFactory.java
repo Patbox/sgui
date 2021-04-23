@@ -1,5 +1,6 @@
 package eu.pb4.sgui.virtual;
 
+import eu.pb4.sgui.api.gui.BookGui;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -8,24 +9,20 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
-public final class VirtualScreenHandlerFactory implements NamedScreenHandlerFactory {
-    private final SimpleGui gui;
+public final class BookScreenHandlerFactory implements NamedScreenHandlerFactory {
+    private final BookGui gui;
 
-    public VirtualScreenHandlerFactory(SimpleGui gui) {
+    public BookScreenHandlerFactory(BookGui gui) {
         this.gui = gui;
     }
 
     @Override
     public Text getDisplayName() {
-        Text text = this.gui.getTitle();
-        if (text == null) {
-            text = new LiteralText("");
-        }
-        return text;
+        return new LiteralText("");
     }
 
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-        return new VirtualScreenHandler(this.gui.getType(), syncId, this.gui, player);
+        return new BookScreenHandler(this.gui.getType(), syncId, this.gui.getBook(), this.gui, player);
     }
 }

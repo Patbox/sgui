@@ -1,7 +1,8 @@
 package eu.pb4.sgui.mixin;
 
-import eu.pb4.sgui.AnvilInputGui;
-import eu.pb4.sgui.ClickType;
+import eu.pb4.sgui.api.gui.AnvilInputGui;
+import eu.pb4.sgui.api.ClickType;
+import eu.pb4.sgui.virtual.BookScreenHandler;
 import eu.pb4.sgui.virtual.VirtualScreenHandler;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
@@ -46,7 +47,6 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 }
 
                 boolean allow = handler.getGui().click(slot, type, packet.getActionType());
-
                 if (!allow) {
                     if (slot >= 0 && slot < handler.getGui().getSize()) {
                         this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(handler.syncId, slot, handler.getSlot(slot).getStack()));
@@ -54,7 +54,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
                     this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, -1, this.player.inventory.getCursorStack()));
 
                     if (type.numKey) {
-                        this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(handler.syncId, slot, handler.getSlot(type.value + handler.getGui().getSize() - 10).getStack()));
+                        this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(handler.syncId, type.value + handler.slots.size() - 10, handler.getSlot(type.value + handler.slots.size() - 10).getStack()));
                     } else if (type == ClickType.MOUSE_DOUBLE_CLICK || type == ClickType.MOUSE_LEFT_SHIFT || type == ClickType.MOUSE_RIGHT_SHIFT || (type.isDragging && type.value == 2)) {
                         this.sendPacket(new InventoryS2CPacket(handler.syncId, handler.getStacks()));
                     }
@@ -69,6 +69,8 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 ci.cancel();
             }
 
+            ci.cancel();
+        } else if (this.player.currentScreenHandler instanceof BookScreenHandler) {
             ci.cancel();
         }
     }

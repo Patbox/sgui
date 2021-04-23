@@ -1,4 +1,4 @@
-package eu.pb4.sgui;
+package eu.pb4.sgui.api.elements;
 
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
@@ -10,9 +10,12 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.text.Text;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class GuiElementBuilder {
+public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     private Item item = Items.STONE;
     private int count = 1;
     private Text name = null;
@@ -21,75 +24,79 @@ public class GuiElementBuilder {
     private byte hideFlags = 0;
     private Map<Enchantment, Integer> enchantments = new HashMap<>();
     private int customModelData = -1;
+    private List<ItemStack> itemStacks = new ArrayList<>();
+    private int interval = 1;
+    private boolean random = false;
 
-    public GuiElementBuilder() {}
+    public AnimatedGuiElementBuilder() {}
 
-    public GuiElementBuilder(Item item, int count) {
-        this.item = item;
-        this.count = count;
+    public AnimatedGuiElementBuilder setInterval(int interval) {
+        this.interval = interval;
+        return this;
     }
 
-    public GuiElementBuilder(Item item) {
-        this.item = item;
+    public AnimatedGuiElementBuilder setRandom(boolean value) {
+        this.random = value;
+        return this;
     }
 
-    public GuiElementBuilder setItem(Item item) {
+    public AnimatedGuiElementBuilder setItem(Item item) {
         this.item = item;
         return this;
     }
 
-    public GuiElementBuilder setName(Text name) {
+    public AnimatedGuiElementBuilder setName(Text name) {
         this.name = name;
         return this;
     }
 
-    public GuiElementBuilder setCount(int count) {
+    public AnimatedGuiElementBuilder setCount(int count) {
         this.count = count;
         return this;
     }
 
-    public GuiElementBuilder setCustomModelData(int value) {
+    public AnimatedGuiElementBuilder setCustomModelData(int value) {
         this.customModelData = value;
         return this;
     }
 
-    public GuiElementBuilder setLore(List<Text> lore) {
+    public AnimatedGuiElementBuilder setLore(List<Text> lore) {
         this.lore = lore;
         return this;
     }
 
-    public GuiElementBuilder addLoreLine(Text lore) {
+    public AnimatedGuiElementBuilder addLoreLine(Text lore) {
         this.lore.add(lore);
         return this;
     }
 
-    public GuiElementBuilder setCallback(GuiElement.ItemClickCallback callback) {
+    public AnimatedGuiElementBuilder setCallback(GuiElement.ItemClickCallback callback) {
         this.callback = callback;
         return this;
     }
 
-    public GuiElementBuilder hideFlags() {
+    public AnimatedGuiElementBuilder hideFlags() {
         this.hideFlags = 64;
         return this;
     }
 
-    public GuiElementBuilder hideFlags(byte value) {
+    public AnimatedGuiElementBuilder hideFlags(byte value) {
         this.hideFlags = value;
         return this;
     }
 
-    public GuiElementBuilder enchant(Enchantment enchantment, int level) {
+    public AnimatedGuiElementBuilder enchant(Enchantment enchantment, int level) {
         this.enchantments.put(enchantment, level);
         return this;
     }
 
-    public GuiElementBuilder glow() {
+    public AnimatedGuiElementBuilder glow() {
         this.enchantments.put(Enchantments.LUCK_OF_THE_SEA, 1);
         this.hideFlags = (byte) (this.hideFlags | 0x01);
         return this;
     }
 
-    public GuiElement build() {
+    public AnimatedGuiElementBuilder saveItemStack() {
         ItemStack itemStack = new ItemStack(this.item, this.count);
         if (this.name != null) {
             itemStack.setCustomName(this.name);
@@ -113,6 +120,19 @@ public class GuiElementBuilder {
             itemStack.getOrCreateTag().putInt("CustomModelData", this.customModelData);
         }
 
-        return new GuiElement(itemStack, this.callback);
+        this.itemStacks.add(itemStack);
+
+        this.item = Items.STONE;
+        this.count = 1;
+        this.name = null;
+        this.lore = new ArrayList<>();
+        this.hideFlags = 0;
+        this.enchantments = new HashMap<>();
+        this.customModelData = -1;
+        return this;
+    }
+
+    public AnimatedGuiElement build() {
+        return new AnimatedGuiElement(this.itemStacks.toArray(new ItemStack[0]), this.interval, this.random, this.callback);
     }
 }

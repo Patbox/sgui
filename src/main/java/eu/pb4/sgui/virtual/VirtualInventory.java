@@ -1,7 +1,7 @@
 package eu.pb4.sgui.virtual;
 
-import eu.pb4.sgui.GuiElement;
-import eu.pb4.sgui.SimpleGui;
+import eu.pb4.sgui.api.elements.GuiElementInterface;
+import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -30,11 +30,11 @@ public class VirtualInventory implements Inventory {
         if (slot != null) {
             return slot.getStack();
         } else {
-            GuiElement element = this.gui.getSlot(index);
+            GuiElementInterface element = this.gui.getSlot(index);
             if (element == null) {
                 return ItemStack.EMPTY;
             }
-            return element.getItem();
+            return element.getItemStackInternalUseOnly();
         }
     }
 

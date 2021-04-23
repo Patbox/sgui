@@ -1,4 +1,4 @@
-package eu.pb4.sgui;
+package eu.pb4.sgui.api;
 
 import net.minecraft.screen.slot.SlotActionType;
 
@@ -59,7 +59,7 @@ public enum ClickType {
                 return button == 0 ? MOUSE_LEFT_SHIFT : MOUSE_RIGHT_SHIFT;
             case SWAP:
                 if (button >= 0 && button < 9) {
-                    return ClickType.values()[button + 5];
+                    return ClickType.values()[button + 4];
                 }
                 break;
             case CLONE:

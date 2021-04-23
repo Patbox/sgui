@@ -1,13 +1,15 @@
 package eu.pb4.sgui.testmod;
 
 import com.mojang.brigadier.context.CommandContext;
-import eu.pb4.sgui.*;
+import eu.pb4.sgui.api.ClickType;
+import eu.pb4.sgui.api.elements.*;
+import eu.pb4.sgui.api.gui.AnvilInputGui;
+import eu.pb4.sgui.api.gui.BookGui;
+import eu.pb4.sgui.api.gui.SimpleGui;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
@@ -16,6 +18,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.util.Formatting;
+
+import java.awt.print.Book;
 
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -29,12 +33,7 @@ public class SGuiTest implements ModInitializer {
                 literal("test2").executes(SGuiTest::test2)
             );
             dispatcher.register(
-                    literal("test3").executes((context) -> {
-                        context.getSource().getPlayer().getMainHandStack().setCount(127);
-                        context.getSource().getPlayer().getEnderChestInventory().getStack(0).setCount(127);
-
-                        return 0;
-                    })
+                    literal("test3").executes(SGuiTest::test3)
             );
         });
     }
@@ -45,7 +44,7 @@ public class SGuiTest implements ModInitializer {
             ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
             SimpleGui gui = new SimpleGui(ScreenHandlerType.GENERIC_3X3, player, false) {
                 @Override
-                public boolean onClick(int index, ClickType type, SlotActionType action, GuiElement element) {
+                public boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element) {
                     this.player.sendMessage(new LiteralText(type.toString()), false);
 
                     return super.onClick(index, type, action, element);
@@ -54,12 +53,43 @@ public class SGuiTest implements ModInitializer {
 
             gui.setTitle(new LiteralText("Nice"));
             gui.setSlot(0, new GuiElementBuilder(Items.ARROW).setCount(100));
+            gui.setSlot(1, new AnimatedGuiElement(new ItemStack[]{
+                    Items.NETHERITE_PICKAXE.getDefaultStack(),
+                    Items.DIAMOND_PICKAXE.getDefaultStack(),
+                    Items.GOLDEN_PICKAXE.getDefaultStack(),
+                    Items.IRON_PICKAXE.getDefaultStack(),
+                    Items.STONE_PICKAXE.getDefaultStack(),
+                    Items.WOODEN_PICKAXE.getDefaultStack()
+            }, 10, false, (x, y, z) -> {}));
 
-            for (int x = 1; x < gui.getSize(); x++) {
+            gui.setSlot(2, new AnimatedGuiElementBuilder()
+                    .setItem(Items.NETHERITE_AXE).saveItemStack()
+                    .setItem(Items.DIAMOND_AXE).saveItemStack()
+                    .setItem(Items.GOLDEN_AXE).saveItemStack()
+                    .setItem(Items.IRON_AXE).saveItemStack()
+                    .setItem(Items.STONE_AXE).saveItemStack()
+                    .setItem(Items.WOODEN_AXE).saveItemStack()
+                    .setInterval(10).setRandom(true)
+            );
+
+            for (int x = 3; x < gui.getSize(); x++) {
                 ItemStack itemStack = Items.STONE.getDefaultStack();
                 itemStack.setCount(x);
                 gui.setSlot(x, new GuiElement(itemStack, (index, clickType, actionType) -> {}));
             }
+
+            gui.setSlot(7, new GuiElementBuilder()
+                    .setItem(Items.BARRIER)
+                    .glow()
+                    .setName(new LiteralText("Bye")
+                            .setStyle(Style.EMPTY.withItalic(false).withBold(true)))
+                    .addLoreLine(new LiteralText("Some lore"))
+                    .addLoreLine(new LiteralText("More lore").formatted(Formatting.RED))
+                    .setCount(3)
+                    .setCallback((index, clickType, actionType) -> {
+                        gui.close();
+                    })
+            );
 
             gui.setSlot(8, new GuiElementBuilder()
                     .setItem(Items.TNT)
@@ -71,13 +101,13 @@ public class SGuiTest implements ModInitializer {
                     .setCount(1)
                     .setCallback((index, clickType, actionType) -> {
                         player.sendMessage(new LiteralText("derg "), false);
-                        ItemStack item = gui.getSlot(index).getItem();
+                        ItemStack item = gui.getSlot(index).getItemStack();
                         if (clickType == ClickType.MOUSE_LEFT) {
                             item.setCount(item.getCount() == 1 ? item.getCount() : item.getCount() - 1);
                         } else if (clickType == ClickType.MOUSE_RIGHT) {
                             item.setCount(item.getCount() + 1);
                         }
-                        gui.updateSlot(index, item);
+                        ((GuiElement) gui.getSlot(index)).setItemStack(item);
 
                         if (item.getCount() <= player.getEnderChestInventory().size()) {
                             gui.setSlotRedirect(4, new Slot(player.getEnderChestInventory(), item.getCount() - 1, 0, 0));
@@ -105,15 +135,27 @@ public class SGuiTest implements ModInitializer {
 
             gui.setTitle(new LiteralText("Nice"));
             gui.setSlot(1, new GuiElement(Items.DIAMOND_AXE.getDefaultStack(), (index, clickType, actionType) -> {
-                ItemStack item = gui.getSlot(index).getItem();
+                ItemStack item = gui.getSlot(index).getItemStack();
                 if (clickType == ClickType.MOUSE_LEFT) {
                     item.setCount(item.getCount() == 1 ? item.getCount() : item.getCount() - 1);
                 } else if (clickType == ClickType.MOUSE_RIGHT) {
                     item.setCount(item.getCount() + 1);
                 }
-                gui.updateSlot(index, item);
+                ((GuiElement) gui.getSlot(index)).setItemStack(item);
             }));
 
+            gui.open();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    private static int test3(CommandContext<ServerCommandSource> objectCommandContext) {
+        try {
+            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
+            BookGui gui = new BookGui(player, player.getMainHandStack());
             gui.open();
 
         } catch (Exception e) {

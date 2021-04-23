@@ -1,11 +1,15 @@
-package eu.pb4.sgui;
+package eu.pb4.sgui.api.gui;
 
+import eu.pb4.sgui.api.ClickType;
+import eu.pb4.sgui.api.elements.GuiElement;
+import eu.pb4.sgui.api.elements.GuiElementBuilder;
+import eu.pb4.sgui.api.elements.GuiElementBuilderInterface;
+import eu.pb4.sgui.api.elements.GuiElementInterface;
 import eu.pb4.sgui.virtual.VirtualScreenHandler;
 import eu.pb4.sgui.virtual.VirtualScreenHandlerFactory;
 import eu.pb4.sgui.virtual.VirtualSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
-import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
@@ -20,7 +24,7 @@ public class SimpleGui implements GuiInterface {
     protected final int width;
     protected final int height;
     protected final ScreenHandlerType<?> type;
-    protected final GuiElement[] elements;
+    protected final GuiElementInterface[] elements;
     protected final Slot[] slotRedirects;
     private final boolean includePlayer;
     private final int sizeCont;
@@ -82,7 +86,7 @@ public class SimpleGui implements GuiInterface {
         int tmp = includePlayer ? 36 : 0;
         this.size = this.width * this.height + tmp;
         this.sizeCont = this.width * this.height;
-        this.elements = new GuiElement[this.size];
+        this.elements = new GuiElementInterface[this.size];
         this.slotRedirects = new Slot[this.size];
 
 
@@ -116,7 +120,6 @@ public class SimpleGui implements GuiInterface {
         } else {
             this.open = true;
             this.onUpdate(true);
-            this.reOpen = false;
             return this.sendGui();
         }
     }
@@ -129,14 +132,13 @@ public class SimpleGui implements GuiInterface {
         return this.height;
     }
 
-    public int getWitdh() {
+    public int getWidth() {
         return this.width;
     }
 
-    public void setSlot(int index, GuiElement element) {
+    public void setSlot(int index, GuiElementInterface element) {
         this.elements[index] = element;
         if (this.open && this.autoUpdate) {
-            this.player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.syncId, index, element.getItem()));
             if (this.screenHandler != null) {
                 this.screenHandler.setSlot(index, new VirtualSlot(this.screenHandler.inventory, index, 0, 0));
             }
@@ -147,7 +149,7 @@ public class SimpleGui implements GuiInterface {
         this.setSlot(index, new GuiElement(itemStack, (x, y, z) -> {}));
     }
 
-    public void setSlot(int index, GuiElementBuilder element) {
+    public void setSlot(int index, GuiElementBuilderInterface element) {
         this.setSlot(index, element.build());
     }
 
@@ -159,7 +161,6 @@ public class SimpleGui implements GuiInterface {
         this.elements[index] = null;
         this.slotRedirects[index] = slot;
         if (this.open && this.autoUpdate) {
-            this.player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.syncId, index, slot.getStack()));
             if (this.screenHandler != null) {
                 this.screenHandler.setSlot(index, slot);
             }
@@ -172,31 +173,15 @@ public class SimpleGui implements GuiInterface {
         this.slotRedirects[index] = null;
 
         if (this.open && this.autoUpdate) {
-            this.player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.syncId, index, ItemStack.EMPTY));
             if (this.screenHandler != null) {
                 this.screenHandler.setSlot(index, new VirtualSlot(this.screenHandler.inventory, index, 0, 0));
             }
         }
     }
 
-    public void updateSlot(int index, ItemStack itemStack) {
-        GuiElement element = this.elements[index];
-
-        if (element != null) {
-            element.setItem(itemStack);
-        } else {
-            this.setSlot(index, itemStack);
-        }
-
-        if (this.open && this.autoUpdate) {
-            this.player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.syncId, index, itemStack));
-        }
-    }
-
     public void close() {
-        this.close(true);
+        this.close(false);
     }
-
 
     public void close(boolean screenIsClosed) {
         if (this.open && !this.reOpen) {
@@ -220,7 +205,7 @@ public class SimpleGui implements GuiInterface {
         return this.sizeCont;
     }
 
-    public GuiElement getSlot(int index) {
+    public GuiElementInterface getSlot(int index) {
         if (index >= 0 && index < this.size) {
             return this.elements[index];
         }
@@ -235,7 +220,7 @@ public class SimpleGui implements GuiInterface {
     }
 
     public boolean click(int index, ClickType type, SlotActionType action) {
-        GuiElement element = this.getSlot(index);
+        GuiElementInterface element = this.getSlot(index);
         if (element != null) {
             element.getCallback().click(index, type, action);
         }
@@ -243,7 +228,9 @@ public class SimpleGui implements GuiInterface {
     }
 
     protected boolean sendGui() {
+        this.reOpen = true;
         OptionalInt temp = this.player.openHandledScreen(new VirtualScreenHandlerFactory(this));
+        this.reOpen = false;
         if (temp.isPresent()) {
             this.syncId = temp.getAsInt();
             if (this.player.currentScreenHandler instanceof VirtualScreenHandler) {
@@ -251,7 +238,6 @@ public class SimpleGui implements GuiInterface {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -279,10 +265,7 @@ public class SimpleGui implements GuiInterface {
         return this.hasRedirects;
     }
 
-    public void onOpen() {
-    }
-
-    public boolean onClick(int index, ClickType type, SlotActionType action, GuiElement element) {
+    public boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element) {
         return false;
     }
 
@@ -290,9 +273,8 @@ public class SimpleGui implements GuiInterface {
         return true;
     }
 
-    public void onUpdate(boolean firstUpdate) {
-    }
-
-    public void onClose() {
-    }
+    public void onUpdate(boolean firstUpdate) {}
+    public void onClose() {}
+    public void onOpen() {}
+    public void onTick() {}
 }

@@ -1,6 +1,6 @@
 package eu.pb4.sgui.virtual;
 
-import eu.pb4.sgui.SimpleGui;
+import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
@@ -33,7 +33,7 @@ public class VirtualScreenHandler extends ScreenHandler {
         }
 
         if (gui.isIncludingPlayer()) {
-            int size = this.gui.getHeight() * this.gui.getWitdh();
+            int size = this.gui.getHeight() * this.gui.getWidth();
             for (n = 0; n < 4; ++n) {
                 for (m = 0; m < 9; ++m) {
                     this.addSlot(new VirtualSlot(
@@ -73,6 +73,12 @@ public class VirtualScreenHandler extends ScreenHandler {
     }
 
     @Override
+    public void sendContentUpdates() {
+        this.gui.onTick();
+        super.sendContentUpdates();
+    }
+
+        @Override
     public ItemStack transferSlot(PlayerEntity player, int index) {
         ItemStack itemStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);

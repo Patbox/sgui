@@ -1,9 +1,8 @@
-package eu.pb4.sgui;
+package eu.pb4.sgui.api.elements;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.screen.slot.SlotActionType;
 
-public class GuiElement {
+public class GuiElement implements GuiElementInterface {
     private final ItemClickCallback callback;
     private ItemStack item;
 
@@ -12,20 +11,20 @@ public class GuiElement {
         this.callback = callback;
     }
 
-    public ItemStack getItem() {
+    public ItemStack getItemStack() {
+        return this.item;
+    }
+
+    public ItemStack getItemStackInternalUseOnly() {
         return this.item.copy();
     }
+
     public ItemClickCallback getCallback() {
         return this.callback;
     }
 
-    public void setItem(ItemStack itemStack) {
+    public void setItemStack(ItemStack itemStack) {
         this.item = itemStack;
     }
 
-
-    @FunctionalInterface
-    public interface ItemClickCallback {
-        void click(int index, ClickType type, SlotActionType action);
-    }
 }

@@ -1,5 +1,7 @@
-package eu.pb4.sgui;
+package eu.pb4.sgui.api.gui;
 
+import eu.pb4.sgui.api.ClickType;
+import eu.pb4.sgui.api.elements.GuiElementInterface;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.text.Text;
@@ -7,7 +9,7 @@ import net.minecraft.text.Text;
 public interface GuiInterface {
     void setTitle(Text title);
     Text getTitle();
-    ScreenHandlerType getType();
+    ScreenHandlerType<?> getType();
     boolean isOpen();
     boolean open();
     int getSize();
@@ -18,7 +20,7 @@ public interface GuiInterface {
     boolean getAutoUpdate();
     void setAutoUpdate(boolean value);
     void onOpen();
-    boolean onClick(int index, ClickType type, SlotActionType action, GuiElement element);
+    boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element);
     void onUpdate(boolean firstUpdate);
     void onClose();
 }
