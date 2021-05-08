@@ -53,7 +53,7 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	modImplementation "com.github.SuperCoder7979:databreaker:0.2.6"
+	modRuntime "com.github.SuperCoder7979:databreaker:0.2.6"
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.
@@ -97,6 +97,8 @@ jar {
 	}
 }
 
+def env = System.getenv()
+
 // configure the maven publication
 publishing {
 	publications {
@@ -117,5 +119,18 @@ publishing {
 		// Notice: This block does NOT have the same function as the block in the top level.
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
+		repositories {
+			if (env.MAVEN_URL) {
+				maven {
+					credentials {
+						username env.MAVEN_USERNAME
+						password env.MAVEN_PASSWORD
+					}
+					url env.MAVEN_URL
+				}
+			} else {
+				mavenLocal()
+			}
+		}
 	}
 }

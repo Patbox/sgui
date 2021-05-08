@@ -2,14 +2,17 @@
 It's a small, jij-able library that allows creation of server side guis.
 
 ## Usage:
-You need to add jitpack to your repositories and `com.github.Patbox:sgui:[TAG]` as your dependencies
+Add it to your dependencies like this:
 
 ```
 repositories {
-	maven { url 'https://jitpack.io' }
+	maven { url 'https://maven.nucleoid.xyz' }
 }
 
 dependencies {
-	modImplementation include("com.github.Patbox:sgui:[TAG]").
+	modImplementation include("eu.pb4:sgui:[TAG]").
 }
 ```
+
+After that you are ready to go! You can use SimpleGUI and other classes directly for simple ones or extend
+them for more complex guis.
