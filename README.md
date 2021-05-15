@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-	modImplementation include("eu.pb4:sgui:[TAG]").
+	modImplementation include("eu.pb4:sgui:[TAG]")
 }
 ```
 

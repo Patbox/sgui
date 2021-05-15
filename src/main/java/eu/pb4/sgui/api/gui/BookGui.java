@@ -2,10 +2,9 @@ package eu.pb4.sgui.api.gui;
 
 import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
+import eu.pb4.sgui.virtual.BookScreenHandler;
 import eu.pb4.sgui.virtual.BookScreenHandlerFactory;
-import eu.pb4.sgui.virtual.VirtualScreenHandler;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.WrittenBookItem;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -19,7 +18,7 @@ public class BookGui implements GuiInterface {
 
     protected boolean open = false;
     protected boolean reOpen = false;
-    protected VirtualScreenHandler screenHandler = null;
+    protected BookScreenHandler screenHandler = null;
     private int syncId;
 
     public BookGui(ServerPlayerEntity player, ItemStack book) {
@@ -53,8 +52,8 @@ public class BookGui implements GuiInterface {
             this.reOpen = false;
             if (temp.isPresent()) {
                 this.syncId = temp.getAsInt();
-                if (this.player.currentScreenHandler instanceof VirtualScreenHandler) {
-                    this.screenHandler = (VirtualScreenHandler) this.player.currentScreenHandler;
+                if (this.player.currentScreenHandler instanceof BookScreenHandler) {
+                    this.screenHandler = (BookScreenHandler) this.player.currentScreenHandler;
                     return true;
                 }
             }
@@ -67,63 +66,48 @@ public class BookGui implements GuiInterface {
         return 1;
     }
 
-    @Override
     public void close() {
         this.close(false);
     }
 
-    @Override
-    public void close(boolean alreadyClosed) {
-        if (this.open) {
-            if (!alreadyClosed) {
+
+    @Deprecated
+    public void close(boolean screenHandlerIsClosed) {
+        if (this.open && !this.reOpen) {
+            this.open = false;
+            this.reOpen = false;
+
+            if (!screenHandlerIsClosed && this.player.currentScreenHandler == this.screenHandler) {
                 this.player.closeHandledScreen();
             }
-            this.open = false;
+
             this.onClose();
         } else {
             this.reOpen = false;
         }
     }
 
-    @Override
     public boolean getLockPlayerInventory() {
         return false;
     }
 
-    @Override
-    public void setLockPlayerInventory(boolean value) {
+    public void setLockPlayerInventory(boolean value) {}
 
-    }
-
-    @Override
     public boolean getAutoUpdate() {
         return false;
     }
 
-    @Override
-    public void setAutoUpdate(boolean value) {
+    public void setAutoUpdate(boolean value) {}
 
-    }
+    public void onOpen() {}
 
-    @Override
-    public void onOpen() {
-
-    }
-
-    @Override
     public boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element) {
         return false;
     }
 
-    @Override
-    public void onUpdate(boolean firstUpdate) {
+    public void onUpdate(boolean firstUpdate) {}
 
-    }
-
-    @Override
-    public void onClose() {
-
-    }
+    public void onClose() {}
 
     public ItemStack getBook() {
         return this.book;

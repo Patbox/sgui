@@ -18,8 +18,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.util.Formatting;
-
-import java.awt.print.Book;
+import net.minecraft.util.Identifier;
 
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -34,6 +33,12 @@ public class SGuiTest implements ModInitializer {
             );
             dispatcher.register(
                     literal("test3").executes(SGuiTest::test3)
+            );
+            dispatcher.register(
+                    literal("test4").executes(SGuiTest::test4)
+            );
+            dispatcher.register(
+                    literal("test5").executes(SGuiTest::test5)
             );
         });
     }
@@ -126,7 +131,7 @@ public class SGuiTest implements ModInitializer {
     private static int test2(CommandContext<ServerCommandSource> objectCommandContext) {
         try {
             ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
-            SimpleGui gui = new AnvilInputGui(player, true) {
+            AnvilInputGui gui = new AnvilInputGui(player, true) {
                 @Override
                 public void onClose() {
                     player.sendMessage(new LiteralText(this.getInput()), false);
@@ -144,6 +149,10 @@ public class SGuiTest implements ModInitializer {
                 ((GuiElement) gui.getSlot(index)).setItemStack(item);
             }));
 
+            gui.setSlot(2, new GuiElement(Items.SLIME_BALL.getDefaultStack(), (index, clickType, actionType) -> {
+                player.sendMessage(new LiteralText(gui.getInput()), false);
+            }));
+
             gui.open();
 
         } catch (Exception e) {
@@ -156,6 +165,52 @@ public class SGuiTest implements ModInitializer {
         try {
             ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
             BookGui gui = new BookGui(player, player.getMainHandStack());
+            gui.open();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    private static int test4(CommandContext<ServerCommandSource> objectCommandContext) {
+        try {
+            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
+            SimpleGui gui = new SimpleGui(ScreenHandlerType.GENERIC_3X3, player, false) {
+                @Override
+                public void onClose() {
+                    super.onClose();
+
+                    SimpleGui gui = new SimpleGui(ScreenHandlerType.GENERIC_9X1, player, false);
+                    gui.setTitle(new LiteralText("If you can take it, it's broken"));
+                    gui.setSlot(0, new GuiElementBuilder(Items.DIAMOND, 5));
+                    gui.open();
+                }
+            };
+
+            gui.setSlot(0, new GuiElementBuilder(Items.BARRIER, 8).setCallback((x, y, z) -> gui.close()));
+
+            gui.setTitle(new LiteralText("Close gui to test switching"));
+            gui.open();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    private static int test5(CommandContext<ServerCommandSource> objectCommandContext) {
+        try {
+            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
+            SimpleGui gui = new SimpleGui(ScreenHandlerType.CRAFTING, player, false) {
+                @Override
+                public void onCraftRequest(Identifier recipeId, boolean shift) {
+                    super.onCraftRequest(recipeId, shift);
+                    this.player.sendMessage(new LiteralText(recipeId.toString() + " - " + shift), false);
+                }
+            };
+
+            gui.setTitle(new LiteralText("Click recipes!"));
             gui.open();
 
         } catch (Exception e) {

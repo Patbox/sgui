@@ -10,11 +10,10 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 
 public class BookScreenHandler extends ScreenHandler {
     public final ItemStack book;
-    private final BookGui gui;
+    public final BookGui gui;
 
     public BookScreenHandler(@Nullable ScreenHandlerType<?> type, int syncId, ItemStack book, BookGui gui, PlayerEntity player) {
         super(type, syncId);
@@ -67,12 +66,6 @@ public class BookScreenHandler extends ScreenHandler {
     @Override
     public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
         return !(slot instanceof VirtualSlot) && super.canInsertIntoSlot(stack, slot);
-    }
-
-    @Override
-    public void close(PlayerEntity player) {
-        super.close(player);
-        this.gui.close(true);
     }
 
     @Override

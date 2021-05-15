@@ -110,12 +110,6 @@ public class VirtualScreenHandler extends ScreenHandler {
         return !(slot instanceof VirtualSlot) && super.canInsertIntoSlot(stack, slot);
     }
 
-    @Override
-    public void close(PlayerEntity player) {
-        super.close(player);
-        this.gui.close(true);
-    }
-
     public Slot addSlot(Slot slot) {
         return super.addSlot(slot);
     }
