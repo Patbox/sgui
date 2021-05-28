@@ -55,6 +55,7 @@ public class BookScreenHandler extends ScreenHandler {
 
     @Override
     public void sendContentUpdates() {
+        gui.onTick();
         super.sendContentUpdates();
     }
 
