@@ -1,7 +1,6 @@
 package eu.pb4.sgui.api.elements;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.Item;
@@ -12,19 +11,21 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.ServerTask;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class GuiElementBuilder implements GuiElementBuilderInterface {
     private Item item = Items.STONE;
     private CompoundTag tag;
     private int count = 1;
-    private MutableText name = null;
-    private List<MutableText> lore = new ArrayList<>();
+    private Text name = null;
+    private List<Text> lore = new ArrayList<>();
     private int damage = -1;
     private GuiElement.ItemClickCallback callback = (index, type, action) -> {};
     private byte hideFlags = 0;
@@ -76,7 +77,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface {
      *
      * @param lore a list of all the lore lines
      */
-    public GuiElementBuilder setLore(List<MutableText> lore) {
+    public GuiElementBuilder setLore(List<Text> lore) {
         this.lore = lore;
         return this;
     }
@@ -86,7 +87,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface {
      *
      * @param lore the line to add
      */
-    public GuiElementBuilder addLoreLine(MutableText lore) {
+    public GuiElementBuilder addLoreLine(Text lore) {
         this.lore.add(lore);
         return this;
     }
@@ -214,7 +215,10 @@ public class GuiElementBuilder implements GuiElementBuilderInterface {
         }
 
         if (this.name != null) {
-            itemStack.setCustomName(this.name.styled(style -> style.withItalic(style.isItalic())));
+            if (this.name instanceof MutableText) {
+                ((MutableText) this.name).styled(style -> style.withItalic(style.isItalic()));
+            }
+            itemStack.setCustomName(this.name);
         }
 
         if (this.item.isDamageable() && this.damage != -1) {
@@ -228,8 +232,11 @@ public class GuiElementBuilder implements GuiElementBuilderInterface {
         if (this.lore.size() > 0) {
             CompoundTag display = itemStack.getOrCreateSubTag("display");
             ListTag loreItems = new ListTag();
-            for (MutableText l : this.lore) {
-                loreItems.add(StringTag.of(Text.Serializer.toJson(l.styled(style -> style.withItalic(style.isItalic())))));
+            for (Text l : this.lore) {
+                if (l instanceof MutableText) {
+                    ((MutableText) l).styled(style -> style.withItalic(style.isItalic()));
+                }
+                loreItems.add(StringTag.of(Text.Serializer.toJson(l)));
             }
             display.put("Lore", loreItems);
         }
