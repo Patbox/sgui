@@ -175,7 +175,7 @@ public class SGuiTest implements ModInitializer {
             ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
             BookGui gui = new BookGui(player, player.getMainHandStack());
             gui.open();
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -1,7 +1,6 @@
 package eu.pb4.sgui.virtual;
 
 import eu.pb4.sgui.api.gui.BookGui;
-import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
@@ -59,7 +58,7 @@ public class BookScreenHandler extends ScreenHandler {
         super.sendContentUpdates();
     }
 
-        @Override
+    @Override
     public ItemStack transferSlot(PlayerEntity player, int index) {
         return ItemStack.EMPTY;
     }

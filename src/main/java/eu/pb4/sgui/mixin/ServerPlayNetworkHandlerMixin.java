@@ -1,11 +1,14 @@
 package eu.pb4.sgui.mixin;
 
-import eu.pb4.sgui.api.gui.AnvilInputGui;
 import eu.pb4.sgui.api.ClickType;
+import eu.pb4.sgui.api.gui.AnvilInputGui;
 import eu.pb4.sgui.virtual.BookScreenHandler;
 import eu.pb4.sgui.virtual.VirtualScreenHandler;
 import net.minecraft.network.Packet;
-import net.minecraft.network.packet.c2s.play.*;
+import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
+import net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket;
+import net.minecraft.network.packet.c2s.play.CraftRequestC2SPacket;
+import net.minecraft.network.packet.c2s.play.RenameItemC2SPacket;
 import net.minecraft.network.packet.s2c.play.ConfirmScreenActionS2CPacket;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
