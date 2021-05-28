@@ -1,6 +1,7 @@
 package eu.pb4.sgui.api.gui;
 
 import eu.pb4.sgui.api.ClickType;
+import eu.pb4.sgui.api.ScreenProperty;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
 import eu.pb4.sgui.virtual.BookScreenHandler;
 import eu.pb4.sgui.virtual.BookScreenHandlerFactory;
@@ -19,11 +20,20 @@ public class BookGui implements GuiInterface {
     protected boolean open = false;
     protected boolean reOpen = false;
     protected BookScreenHandler screenHandler = null;
-    private int syncId;
+    private int syncId = -1;
 
     public BookGui(ServerPlayerEntity player, ItemStack book) {
         this.player = player;
         this.book = book;
+    }
+
+    /**
+     * Sets the selected page number
+     *
+     * @param page the page index, from 0
+     */
+    public void setPage(int page) {
+        this.sendProperty(ScreenProperty.PAGE_NUMBER, page);
     }
 
     @Override
@@ -34,6 +44,16 @@ public class BookGui implements GuiInterface {
 
     @Override
     public ScreenHandlerType<?> getType() { return ScreenHandlerType.LECTERN; }
+
+    @Override
+    public ServerPlayerEntity getPlayer() {
+        return player;
+    }
+
+    @Override
+    public int getSyncId() {
+        return syncId;
+    }
 
     @Override
     public boolean isOpen() {
@@ -69,7 +89,6 @@ public class BookGui implements GuiInterface {
     public void close() {
         this.close(false);
     }
-
 
     @Deprecated
     public void close(boolean screenHandlerIsClosed) {

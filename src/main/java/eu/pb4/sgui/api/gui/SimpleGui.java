@@ -1,6 +1,7 @@
 package eu.pb4.sgui.api.gui;
 
 import eu.pb4.sgui.api.ClickType;
+import eu.pb4.sgui.api.ScreenProperty;
 import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.elements.GuiElementBuilderInterface;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
@@ -16,6 +17,7 @@ import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
 import java.util.OptionalInt;
 
@@ -320,6 +322,11 @@ public class SimpleGui implements GuiInterface {
         return this.player;
     }
 
+    @Override
+    public int getSyncId() {
+        return syncId;
+    }
+
     public boolean isRedirectingSlots() {
         return this.hasRedirects;
     }
@@ -328,9 +335,12 @@ public class SimpleGui implements GuiInterface {
      * Allows to send some additional properties to guis
      *
      * See values at https://wiki.vg/Protocol#Window_Property as reference
-     * @param property
-     * @param value
+     * @param property the property id
+     * @param value the value of the property to send
+     *              
+     * @see GuiInterface#sendProperty(ScreenProperty, int) 
      */
+    @Deprecated
     public void sendProperty(int property, int value) {
         this.player.networkHandler.sendPacket(new ScreenHandlerPropertyUpdateS2CPacket(this.syncId, property, value));
     }
