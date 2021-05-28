@@ -1,5 +1,6 @@
 package eu.pb4.sgui.testmod;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.context.CommandContext;
 import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.elements.*;
@@ -19,6 +20,8 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+
+import java.util.UUID;
 
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -68,9 +71,9 @@ public class SGuiTest implements ModInitializer {
             }, 10, false, (x, y, z) -> {}));
 
             gui.setSlot(2, new AnimatedGuiElementBuilder()
-                    .setItem(Items.NETHERITE_AXE).saveItemStack()
-                    .setItem(Items.DIAMOND_AXE).saveItemStack()
-                    .setItem(Items.GOLDEN_AXE).saveItemStack()
+                    .setItem(Items.NETHERITE_AXE).setDamage(150).saveItemStack()
+                    .setItem(Items.DIAMOND_AXE).setDamage(150).unbreakable().saveItemStack()
+                    .setItem(Items.GOLDEN_AXE).glow().saveItemStack()
                     .setItem(Items.IRON_AXE).saveItemStack()
                     .setItem(Items.STONE_AXE).saveItemStack()
                     .setItem(Items.WOODEN_AXE).saveItemStack()
@@ -82,6 +85,12 @@ public class SGuiTest implements ModInitializer {
                 itemStack.setCount(x);
                 gui.setSlot(x, new GuiElement(itemStack, (index, clickType, actionType) -> {}));
             }
+
+            gui.setSlot(6, new GuiElementBuilder(Items.PLAYER_HEAD)
+                    .setSkullOwner(new GameProfile(UUID.fromString("f5a216d9-d660-4996-8d0f-d49053677676"), "patbox"), player.server)
+                    .setName(new LiteralText("Patbox's Head"))
+                    .glow()
+            );
 
             gui.setSlot(7, new GuiElementBuilder()
                     .setItem(Items.BARRIER)
@@ -218,4 +227,5 @@ public class SGuiTest implements ModInitializer {
         }
         return 0;
     }
+
 }

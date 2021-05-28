@@ -70,7 +70,6 @@ public class BookGui implements GuiInterface {
         this.close(false);
     }
 
-
     @Deprecated
     public void close(boolean screenHandlerIsClosed) {
         if (this.open && !this.reOpen) {
@@ -108,6 +107,8 @@ public class BookGui implements GuiInterface {
     public void onUpdate(boolean firstUpdate) {}
 
     public void onClose() {}
+
+    public void onTick() {}
 
     public ItemStack getBook() {
         return this.book;

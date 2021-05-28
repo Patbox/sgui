@@ -187,6 +187,57 @@ public class SimpleGui implements GuiInterface {
     }
 
     /**
+     * Sets the first open slot with selected GuiElement
+     *
+     * @param element Any GuiElement
+     */
+    public void addSlot(GuiElementInterface element) {
+        this.setSlot(getFirstEmptySlot(), element);
+    }
+
+    /**
+     * Sets the first open slot with selected ItemStack
+     *
+     * @param itemStack Stack of Items
+     */
+    public void addSlot(ItemStack itemStack) {
+        this.setSlot(getFirstEmptySlot(), itemStack);
+    }
+
+    /**
+     * Sets the first open slot with selected GuiElement created from builder
+     *
+     * @param element Any GuiElementBuilder
+     */
+    public void addSlot(GuiElementBuilderInterface element) {
+        this.setSlot(getFirstEmptySlot(), element.build());
+    }
+
+    /**
+     * Sets the first open slot with ItemStack and Callback
+     *
+     * @param itemStack Stack of Items
+     * @param callback Callback run when clicked
+     */
+    public void addSlot(ItemStack itemStack, GuiElement.ItemClickCallback callback) {
+        this.setSlot(getFirstEmptySlot(), new GuiElement(itemStack, callback));
+    }
+
+    /**
+     * Gets the first empty slot inside the inventory.
+     *
+     * @return the slots index or the last slot if full
+     */
+    public int getFirstEmptySlot() {
+        for (int i = 0; i < elements.length; i++) {
+            if (elements[i] == null) {
+                return i;
+            }
+        }
+        return elements.length - 1;
+    }
+
+    /**
      * Allows to add own Slot instances, that can point to any inventory
      * Do not add duplicates (including player inventory)
      * as it can cause item duplication!
