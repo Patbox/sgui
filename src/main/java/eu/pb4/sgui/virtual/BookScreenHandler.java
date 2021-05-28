@@ -1,22 +1,20 @@
 package eu.pb4.sgui.virtual;
 
 import eu.pb4.sgui.api.gui.BookGui;
-import eu.pb4.sgui.api.gui.SimpleGui;
+import eu.pb4.sgui.api.gui.GuiInterface;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
-import org.jetbrains.annotations.Nullable;
 
-
-public class BookScreenHandler extends ScreenHandler {
+public class BookScreenHandler extends ScreenHandler implements VirtualScreenHandlerInterface {
     public final ItemStack book;
     public final BookGui gui;
 
-    public BookScreenHandler(@Nullable ScreenHandlerType<?> type, int syncId, ItemStack book, BookGui gui, PlayerEntity player) {
-        super(type, syncId);
+    public BookScreenHandler(int syncId, ItemStack book, BookGui gui, PlayerEntity player) {
+        super(ScreenHandlerType.LECTERN, syncId);
         this.book = book;
         this.gui = gui;
 
@@ -35,9 +33,22 @@ public class BookScreenHandler extends ScreenHandler {
         for (n = 0; n < 9; ++n) {
             this.addSlot(new Slot(playerInventory, n, 0, 0));
         }
-
     }
 
+    @Override
+    public boolean onButtonClick(PlayerEntity player, int id) {
+        switch (id) {
+            case 1:
+                this.gui.setPage(gui.getPage() - 1);
+                return true;
+            case 2:
+                this.gui.setPage(gui.getPage() + 1);
+                return true;
+            case 3:
+                return this.gui.onTakeBookButton();
+        }
+        return false;
+    }
 
     @Override
     public boolean canUse(PlayerEntity player) {
@@ -55,10 +66,11 @@ public class BookScreenHandler extends ScreenHandler {
 
     @Override
     public void sendContentUpdates() {
+        this.gui.onTick();
         super.sendContentUpdates();
     }
 
-        @Override
+    @Override
     public ItemStack transferSlot(PlayerEntity player, int index) {
         return ItemStack.EMPTY;
     }
@@ -71,5 +83,10 @@ public class BookScreenHandler extends ScreenHandler {
     @Override
     protected boolean insertItem(ItemStack stack, int startIndex, int endIndex, boolean fromLast) {
         return false;
+    }
+
+    @Override
+    public BookGui getGui() {
+        return gui;
     }
 }

@@ -9,9 +9,7 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
-public class VirtualScreenHandler extends ScreenHandler {
+public class VirtualScreenHandler extends ScreenHandler implements VirtualScreenHandlerInterface {
     public final SimpleGui gui;
     public final VirtualInventory inventory;
 
@@ -78,7 +76,7 @@ public class VirtualScreenHandler extends ScreenHandler {
         super.sendContentUpdates();
     }
 
-        @Override
+    @Override
     public ItemStack transferSlot(PlayerEntity player, int index) {
         ItemStack itemStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
@@ -117,10 +115,6 @@ public class VirtualScreenHandler extends ScreenHandler {
     public Slot setSlot(int index, Slot slot) {
         this.slots.set(index, slot);
         return slot;
-    }
-
-    public List<Slot> getSlots() {
-        return this.slots;
     }
 
     @Override

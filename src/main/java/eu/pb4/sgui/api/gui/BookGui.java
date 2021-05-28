@@ -5,22 +5,26 @@ import eu.pb4.sgui.api.ScreenProperty;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
 import eu.pb4.sgui.virtual.BookScreenHandler;
 import eu.pb4.sgui.virtual.BookScreenHandlerFactory;
+import net.minecraft.client.gui.screen.ingame.BookScreen;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.WrittenBookItem;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.MathHelper;
 
 import java.util.OptionalInt;
 
 public class BookGui implements GuiInterface {
-    private final ServerPlayerEntity player;
-    private final ItemStack book;
-
+    protected final ServerPlayerEntity player;
+    protected final ItemStack book;
+    protected int page = 0;
     protected boolean open = false;
     protected boolean reOpen = false;
     protected BookScreenHandler screenHandler = null;
-    private int syncId = -1;
+
+    protected int syncId = -1;
 
     public BookGui(ServerPlayerEntity player, ItemStack book) {
         this.player = player;
@@ -33,7 +37,17 @@ public class BookGui implements GuiInterface {
      * @param page the page index, from 0
      */
     public void setPage(int page) {
-        this.sendProperty(ScreenProperty.PAGE_NUMBER, page);
+        this.page = MathHelper.clamp(page, 0, WrittenBookItem.getPageCount(this.getBook()));
+        this.sendProperty(ScreenProperty.PAGE_NUMBER, this.page);
+    }
+
+    /**
+     * Gets the current selected page
+     *
+     * @return the page index, from 0
+     */
+    public int getPage() {
+        return page;
     }
 
     @Override
@@ -62,9 +76,7 @@ public class BookGui implements GuiInterface {
 
     @Override
     public boolean open() {
-        if (this.player.isDisconnected() || this.open) {
-            return false;
-        } else {
+        if (!this.player.isDisconnected() && !this.open) {
             this.open = true;
             this.onUpdate(true);
             this.reOpen = true;
@@ -77,8 +89,8 @@ public class BookGui implements GuiInterface {
                     return true;
                 }
             }
-            return false;
         }
+        return false;
     }
 
     @Override
@@ -128,7 +140,16 @@ public class BookGui implements GuiInterface {
 
     public void onClose() {}
 
+    public void onTick() {}
+
     public ItemStack getBook() {
         return this.book;
+    }
+
+    /**
+     * Activates when the 'Take Book' button is pressed
+     */
+    public boolean onTakeBookButton() {
+        return false;
     }
 }

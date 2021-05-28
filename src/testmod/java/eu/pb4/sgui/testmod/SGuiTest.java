@@ -10,6 +10,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.WrittenBookItem;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
@@ -164,8 +165,31 @@ public class SGuiTest implements ModInitializer {
     private static int test3(CommandContext<ServerCommandSource> objectCommandContext) {
         try {
             ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
-            BookGui gui = new BookGui(player, player.getMainHandStack());
+            BookGui gui = new BookGui(player, player.getMainHandStack()) {
+                int tick = 0;
+
+                @Override
+                public void onTick() {
+                    tick++;
+                    if (tick % 20 == 0) {
+                        if (page >= WrittenBookItem.getPageCount(getBook()) - 1) {
+                            setPage(0);
+                        } else {
+                            setPage(getPage() + 1);
+                        }
+                        tick = 0;
+                    }
+                }
+
+                @Override
+                public boolean onTakeBookButton() {
+                    close();
+                    return true;
+                }
+            };
             gui.open();
+
+
 
         } catch (Exception e) {
             e.printStackTrace();

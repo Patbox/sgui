@@ -4,6 +4,7 @@ import eu.pb4.sgui.api.gui.AnvilInputGui;
 import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.virtual.BookScreenHandler;
 import eu.pb4.sgui.virtual.VirtualScreenHandler;
+import eu.pb4.sgui.virtual.VirtualScreenHandlerInterface;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.network.packet.s2c.play.ConfirmScreenActionS2CPacket;
@@ -100,8 +101,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
 
     @Inject(method = "onCloseHandledScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;closeScreenHandler()V", shift = At.Shift.BEFORE))
     private void storeScreenHandler(CloseHandledScreenC2SPacket packet, CallbackInfo info) {
-        if (this.player.currentScreenHandler instanceof VirtualScreenHandler
-                || this.player.currentScreenHandler instanceof BookScreenHandler) {
+        if (this.player.currentScreenHandler instanceof VirtualScreenHandlerInterface) {
             this.previousScreen = this.player.currentScreenHandler;
         }
     }
@@ -110,10 +110,8 @@ public abstract class ServerPlayNetworkHandlerMixin {
     private void executeClosing(CloseHandledScreenC2SPacket packet, CallbackInfo info) {
         try {
             if (this.previousScreen != null) {
-                if (this.previousScreen instanceof VirtualScreenHandler) {
+                if (this.previousScreen instanceof VirtualScreenHandlerInterface) {
                     ((VirtualScreenHandler) this.previousScreen).gui.close(true);
-                } else if (this.previousScreen instanceof BookScreenHandler) {
-                    ((BookScreenHandler) this.previousScreen).gui.close(true);
                 }
             }
         } catch (Exception e) {
