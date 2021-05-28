@@ -136,7 +136,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
      * Hide all {@link net.minecraft.item.ItemStack.TooltipSection}s from the current {@link ItemStack}s display
      */
     public AnimatedGuiElementBuilder hideFlags() {
-        this.hideFlags = 64;
+        this.hideFlags = 127;
         return this;
     }
 

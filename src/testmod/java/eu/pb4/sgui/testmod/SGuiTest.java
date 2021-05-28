@@ -9,6 +9,7 @@ import eu.pb4.sgui.api.gui.BookGui;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.ScreenHandlerType;
@@ -74,7 +75,7 @@ public class SGuiTest implements ModInitializer {
                     .setItem(Items.NETHERITE_AXE).setDamage(150).saveItemStack()
                     .setItem(Items.DIAMOND_AXE).setDamage(150).unbreakable().saveItemStack()
                     .setItem(Items.GOLDEN_AXE).glow().saveItemStack()
-                    .setItem(Items.IRON_AXE).saveItemStack()
+                    .setItem(Items.IRON_AXE).enchant(Enchantments.AQUA_AFFINITY, 1).hideFlags().saveItemStack()
                     .setItem(Items.STONE_AXE).saveItemStack()
                     .setItem(Items.WOODEN_AXE).saveItemStack()
                     .setInterval(10).setRandom(true)
