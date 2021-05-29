@@ -5,9 +5,11 @@ import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.elements.*;
 import eu.pb4.sgui.api.gui.AnvilInputGui;
 import eu.pb4.sgui.api.gui.BookGui;
+import eu.pb4.sgui.api.gui.SignGui;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.minecraft.block.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.WrittenBookItem;
@@ -16,14 +18,21 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.tag.BlockTags;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+
+import java.util.Random;
 
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class SGuiTest implements ModInitializer {
+
+    private static final Random RANDOM = new Random();
+
     public void onInitialize() {
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
             dispatcher.register(
@@ -40,6 +49,9 @@ public class SGuiTest implements ModInitializer {
             );
             dispatcher.register(
                     literal("test5").executes(SGuiTest::test5)
+            );
+            dispatcher.register(
+                    literal("test6").executes(SGuiTest::test6)
             );
         });
     }
@@ -235,6 +247,46 @@ public class SGuiTest implements ModInitializer {
             };
 
             gui.setTitle(new LiteralText("Click recipes!"));
+            gui.open();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    private static int test6(CommandContext<ServerCommandSource> objectCommandContext) {
+        try {
+            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
+            SignGui gui = new SignGui(player) {
+                private int tick = 0;
+
+                {
+                    this.setSignType(Blocks.ACACIA_WALL_SIGN);
+                    this.setColor(DyeColor.WHITE);
+                    this.setLine(1, new LiteralText("^"));
+                    this.setLine(2, new LiteralText("Input your"));
+                    this.setLine(3, new LiteralText("value here"));
+                    this.setAutoUpdate(false);
+                }
+
+                @Override
+                public void onClose() {
+                    this.player.sendMessage(new LiteralText("Input was: " + this.getLine(0).asString()), false);
+                }
+
+                @Override
+                public void onTick()  {
+                    tick++;
+                    if (tick % 30 == 0) {
+                        this.setLine(1, new LiteralText(this.getLine(1).asString() +  "^"));
+                        this.setSignType(BlockTags.WALL_SIGNS.getRandom(RANDOM));
+                        this.setColor(DyeColor.byId(RANDOM.nextInt(15)));
+                        this.updateSign();
+                        this.tick = 0;
+                    }
+                }
+            };
             gui.open();
 
         } catch (Exception e) {

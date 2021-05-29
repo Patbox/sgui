@@ -29,6 +29,7 @@ public interface GuiInterface {
     boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element);
     void onUpdate(boolean firstUpdate);
     void onClose();
+    void onTick();
 
     /**
      * Allows to send some additional properties to guis

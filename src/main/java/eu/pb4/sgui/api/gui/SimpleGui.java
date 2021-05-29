@@ -5,9 +5,9 @@ import eu.pb4.sgui.api.ScreenProperty;
 import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.elements.GuiElementBuilderInterface;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
-import eu.pb4.sgui.virtual.VirtualScreenHandler;
-import eu.pb4.sgui.virtual.VirtualScreenHandlerFactory;
-import eu.pb4.sgui.virtual.VirtualSlot;
+import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
+import eu.pb4.sgui.virtual.inventory.VirtualScreenHandlerFactory;
+import eu.pb4.sgui.virtual.inventory.VirtualSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerPropertyUpdateS2CPacket;
@@ -17,7 +17,6 @@ import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
 import java.util.OptionalInt;
 

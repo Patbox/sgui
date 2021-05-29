@@ -1,7 +1,8 @@
-package eu.pb4.sgui.virtual;
+package eu.pb4.sgui.virtual.book;
 
 import eu.pb4.sgui.api.gui.BookGui;
-import eu.pb4.sgui.api.gui.GuiInterface;
+import eu.pb4.sgui.virtual.VirtualScreenHandlerInterface;
+import eu.pb4.sgui.virtual.inventory.VirtualSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
