@@ -22,7 +22,7 @@ public class BookScreenHandler extends ScreenHandler {
         int n;
         int m;
 
-        PlayerInventory playerInventory = player.inventory;
+        PlayerInventory playerInventory = player.getInventory();
         this.addSlot(new BookSlot(playerInventory, 0, 0, 0, book));
 
         for (n = 0; n < 3; ++n) {

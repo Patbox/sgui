@@ -9,7 +9,6 @@ import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
 import net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket;
 import net.minecraft.network.packet.c2s.play.CraftRequestC2SPacket;
 import net.minecraft.network.packet.c2s.play.RenameItemC2SPacket;
-import net.minecraft.network.packet.s2c.play.ConfirmScreenActionS2CPacket;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.screen.ScreenHandler;
@@ -39,13 +38,13 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 VirtualScreenHandler handler = (VirtualScreenHandler) this.player.currentScreenHandler;
 
                 int slot = packet.getSlot();
-                int button = packet.getClickData();
+                int button = packet.getButton();
                 ClickType type = ClickType.toClickType(packet.getActionType(), button, slot);
                 boolean ignore = handler.getGui().onAnyClick(slot, type, packet.getActionType());
                 if (ignore && !handler.getGui().getLockPlayerInventory() && (slot >= handler.getGui().getSize() || slot < 0 || handler.getGui().getSlotRedirect(slot) != null)) {
                     if (type == ClickType.MOUSE_DOUBLE_CLICK || (type.isDragging && type.value == 2)) {
                         this.sendPacket(new InventoryS2CPacket(handler.syncId, handler.getStacks()));
-                        this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, -1, this.player.inventory.getCursorStack()));
+                        this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, -1, this.player.currentScreenHandler.getCursorStack()));
                     }
 
                     return;
@@ -56,7 +55,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
                     if (slot >= 0 && slot < handler.getGui().getSize()) {
                         this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(handler.syncId, slot, handler.getSlot(slot).getStack()));
                     }
-                    this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, -1, this.player.inventory.getCursorStack()));
+                    this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, -1, this.player.currentScreenHandler.getCursorStack()));
 
                     if (type.numKey) {
                         this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(handler.syncId, type.value + handler.slots.size() - 10, handler.getSlot(type.value + handler.slots.size() - 10).getStack()));
@@ -64,9 +63,9 @@ public abstract class ServerPlayNetworkHandlerMixin {
                         this.sendPacket(new InventoryS2CPacket(handler.syncId, handler.getStacks()));
                     }
 
-                    this.sendPacket(new ConfirmScreenActionS2CPacket(handler.syncId, packet.getActionId(), false));
+                    //this.sendPacket(new ConfirmScreenActionS2CPacket(handler.syncId, packet.getActionId(), false));
                 } else {
-                    this.sendPacket(new ConfirmScreenActionS2CPacket(handler.syncId, packet.getActionId(), true));
+                    //this.sendPacket(new ConfirmScreenActionS2CPacket(handler.syncId, packet.getActionId(), true));
                 }
 
             } catch (Exception e) {
@@ -87,12 +86,12 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 VirtualScreenHandler handler = (VirtualScreenHandler) this.player.currentScreenHandler;
 
                 int slot = packet.getSlot();
-                int button = packet.getClickData();
+                int button = packet.getButton();
                 ClickType type = ClickType.toClickType(packet.getActionType(), button, slot);
 
                 if (type == ClickType.MOUSE_DOUBLE_CLICK || (type.isDragging && type.value == 2) || type.shift) {
                     this.sendPacket(new InventoryS2CPacket(handler.syncId, handler.getStacks()));
-                    this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, -1, this.player.inventory.getCursorStack()));
+                    //this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, -1, this.player.inventory.getCursorStack()));
                 }
 
             } catch (Exception e) {
