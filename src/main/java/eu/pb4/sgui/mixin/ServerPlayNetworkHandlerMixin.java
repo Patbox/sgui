@@ -8,14 +8,11 @@ import eu.pb4.sgui.virtual.book.BookScreenHandler;
 import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
 import eu.pb4.sgui.virtual.sign.SignScreenHandler;
 import net.minecraft.network.Packet;
-import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
-import net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket;
-import net.minecraft.network.packet.c2s.play.CraftRequestC2SPacket;
-import net.minecraft.network.packet.c2s.play.RenameItemC2SPacket;
-import net.minecraft.network.packet.s2c.play.ConfirmScreenActionS2CPacket;
+import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.filter.TextStream;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
@@ -24,6 +21,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.List;
 
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin {
@@ -49,7 +48,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 if (ignore && !handler.getGui().getLockPlayerInventory() && (slot >= handler.getGui().getSize() || slot < 0 || handler.getGui().getSlotRedirect(slot) != null)) {
                     if (type == ClickType.MOUSE_DOUBLE_CLICK || (type.isDragging && type.value == 2)) {
                         this.sendPacket(new InventoryS2CPacket(handler.syncId, handler.getStacks()));
-                        this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, -1, this.player.inventory.getCursorStack()));
+                        this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, -1, this.player.currentScreenHandler.getCursorStack()));
                     }
 
                     return;
@@ -67,10 +66,6 @@ public abstract class ServerPlayNetworkHandlerMixin {
                     } else if (type == ClickType.MOUSE_DOUBLE_CLICK || type == ClickType.MOUSE_LEFT_SHIFT || type == ClickType.MOUSE_RIGHT_SHIFT || (type.isDragging && type.value == 2)) {
                         this.sendPacket(new InventoryS2CPacket(handler.syncId, handler.getStacks()));
                     }
-
-                    //this.sendPacket(new ConfirmScreenActionS2CPacket(handler.syncId, packet.getActionId(), false));
-                } else {
-                    //this.sendPacket(new ConfirmScreenActionS2CPacket(handler.syncId, packet.getActionId(), true));
                 }
 
             } catch (Exception e) {
@@ -153,8 +148,8 @@ public abstract class ServerPlayNetworkHandlerMixin {
         }
     }
 
-    @Inject(method = "onSignUpdate", at = @At("HEAD"), cancellable = true)
-    private void catchSignUpdate(UpdateSignC2SPacket packet, CallbackInfo ci) {
+    @Inject(method = "onSignUpdate(Lnet/minecraft/network/packet/c2s/play/UpdateSignC2SPacket;Ljava/util/List;)V", at = @At("HEAD"), cancellable = true)
+    private void catchSignUpdate(UpdateSignC2SPacket packet, List<TextStream.Message> signText, CallbackInfo ci) {
         try {
             if (this.player.currentScreenHandler instanceof SignScreenHandler) {
                 SignGui gui = ((SignScreenHandler) this.player.currentScreenHandler).getGui();

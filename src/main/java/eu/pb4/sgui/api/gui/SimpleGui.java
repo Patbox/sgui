@@ -17,6 +17,7 @@ import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.OptionalInt;
 
@@ -296,6 +297,7 @@ public class SimpleGui implements GuiInterface {
      *
      * @param screenHandlerIsClosed Is set to true, if gui's ScreenHandler is already closed
      */
+    @ApiStatus.Internal
     public void close(boolean screenHandlerIsClosed) {
         if (this.open && !this.reOpen) {
             this.open = false;
