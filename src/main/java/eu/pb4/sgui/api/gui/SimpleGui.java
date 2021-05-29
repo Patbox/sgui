@@ -395,9 +395,9 @@ public class SimpleGui implements GuiInterface {
      * <p>
      * See values at https://wiki.vg/Protocol#Window_Property as reference
      * @param property the property id
-     * @param value the value of the property to send
+     * @param value    the value of the property to send
      *              
-     * @see GuiInterface#sendProperty(ScreenProperty, int)
+     * @deprecated use {@link GuiInterface#sendProperty}
      */
     @Deprecated
     public void sendProperty(int property, int value) {

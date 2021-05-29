@@ -32,10 +32,11 @@ public interface GuiInterface {
     void onTick();
 
     /**
-     * Allows to send some additional properties to guis
+     * Send additional properties to the Gui.
      *
      * @param property the property to adjust
-     * @param value the value of the property to send, see javadoc comments of the properties for more info
+     * @param value    the value of the property to send
+     * @see ScreenProperty
      */
     default void sendProperty(ScreenProperty property, int value) {
         if (!property.validFor(this.getType())) {

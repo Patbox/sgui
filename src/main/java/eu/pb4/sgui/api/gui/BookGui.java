@@ -37,7 +37,7 @@ public class BookGui implements GuiInterface {
      */
     public void setPage(int page) {
         this.page = MathHelper.clamp(page, 0, WrittenBookItem.getPageCount(this.getBook()));
-        this.sendProperty(ScreenProperty.PAGE_NUMBER, this.page);
+        this.sendProperty(ScreenProperty.SELECTED, this.page);
     }
 
     /**
