@@ -1,12 +1,13 @@
 package eu.pb4.sgui.api.gui;
 
 import eu.pb4.sgui.api.ClickType;
+import eu.pb4.sgui.api.ScreenProperty;
 import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.elements.GuiElementBuilderInterface;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
-import eu.pb4.sgui.virtual.VirtualScreenHandler;
-import eu.pb4.sgui.virtual.VirtualScreenHandlerFactory;
-import eu.pb4.sgui.virtual.VirtualSlot;
+import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
+import eu.pb4.sgui.virtual.inventory.VirtualScreenHandlerFactory;
+import eu.pb4.sgui.virtual.inventory.VirtualSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerPropertyUpdateS2CPacket;
@@ -380,6 +381,11 @@ public class SimpleGui implements GuiInterface {
         return this.player;
     }
 
+    @Override
+    public int getSyncId() {
+        return syncId;
+    }
+
     public boolean isRedirectingSlots() {
         return this.hasRedirects;
     }
@@ -388,10 +394,12 @@ public class SimpleGui implements GuiInterface {
      * Allows to send some additional properties to guis
      * <p>
      * See values at https://wiki.vg/Protocol#Window_Property as reference
-     *
-     * @param property
-     * @param value
+     * @param property the property id
+     * @param value    the value of the property to send
+     *              
+     * @deprecated use {@link GuiInterface#sendProperty}
      */
+    @Deprecated
     public void sendProperty(int property, int value) {
         this.player.networkHandler.sendPacket(new ScreenHandlerPropertyUpdateS2CPacket(this.syncId, property, value));
     }

@@ -2,19 +2,20 @@ package eu.pb4.sgui.mixin;
 
 import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.gui.AnvilInputGui;
-import eu.pb4.sgui.virtual.BookScreenHandler;
-import eu.pb4.sgui.virtual.VirtualScreenHandler;
+import eu.pb4.sgui.api.gui.SignGui;
+import eu.pb4.sgui.virtual.VirtualScreenHandlerInterface;
+import eu.pb4.sgui.virtual.book.BookScreenHandler;
+import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
+import eu.pb4.sgui.virtual.sign.SignScreenHandler;
 import net.minecraft.network.Packet;
-import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
-import net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket;
-import net.minecraft.network.packet.c2s.play.CraftRequestC2SPacket;
-import net.minecraft.network.packet.c2s.play.RenameItemC2SPacket;
+import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.network.packet.s2c.play.ConfirmScreenActionS2CPacket;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.LiteralText;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -103,8 +104,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
 
     @Inject(method = "onCloseHandledScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;closeScreenHandler()V", shift = At.Shift.BEFORE))
     private void storeScreenHandler(CloseHandledScreenC2SPacket packet, CallbackInfo info) {
-        if (this.player.currentScreenHandler instanceof VirtualScreenHandler
-                || this.player.currentScreenHandler instanceof BookScreenHandler) {
+        if (this.player.currentScreenHandler instanceof VirtualScreenHandlerInterface) {
             this.previousScreen = this.player.currentScreenHandler;
         }
     }
@@ -113,10 +113,8 @@ public abstract class ServerPlayNetworkHandlerMixin {
     private void executeClosing(CloseHandledScreenC2SPacket packet, CallbackInfo info) {
         try {
             if (this.previousScreen != null) {
-                if (this.previousScreen instanceof VirtualScreenHandler) {
-                    ((VirtualScreenHandler) this.previousScreen).gui.close(true);
-                } else if (this.previousScreen instanceof BookScreenHandler) {
-                    ((BookScreenHandler) this.previousScreen).gui.close(true);
+                if (this.previousScreen instanceof VirtualScreenHandlerInterface) {
+                    ((VirtualScreenHandlerInterface) this.previousScreen).getGui().close(true);
                 }
             }
         } catch (Exception e) {
@@ -149,6 +147,22 @@ public abstract class ServerPlayNetworkHandlerMixin {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    @Inject(method = "onSignUpdate", at = @At("HEAD"), cancellable = true)
+    private void catchSignUpdate(UpdateSignC2SPacket packet, CallbackInfo ci) {
+        try {
+            if (this.player.currentScreenHandler instanceof SignScreenHandler) {
+                SignGui gui = ((SignScreenHandler) this.player.currentScreenHandler).getGui();
+                for (int i = 0; i < packet.getText().length; i++) {
+                    gui.setLineInternal(i, new LiteralText(packet.getText()[i]));
+                }
+                gui.close(true);
+                ci.cancel();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

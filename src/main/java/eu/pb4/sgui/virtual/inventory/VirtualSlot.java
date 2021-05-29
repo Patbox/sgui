@@ -1,16 +1,14 @@
-package eu.pb4.sgui.virtual;
+package eu.pb4.sgui.virtual.inventory;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
 
-public class BookSlot extends Slot {
-    private final ItemStack book;
+public class VirtualSlot extends Slot {
 
-    public BookSlot(Inventory inventory, int index, int x, int y, ItemStack book) {
+    public VirtualSlot(Inventory inventory, int index, int x, int y) {
         super(inventory, index, x, y);
-        this.book = book;
     }
 
     @Override
@@ -37,25 +35,4 @@ public class BookSlot extends Slot {
     public ItemStack onTakeItem(PlayerEntity player, ItemStack stack) {
         return ItemStack.EMPTY;
     }
-
-    @Override
-    public void onStackChanged(ItemStack originalItem, ItemStack itemStack) {
-    }
-
-    @Override
-    protected void onTake(int amount) {}
-
-    @Override
-    protected void onCrafted(ItemStack stack) {}
-
-    @Override
-    public ItemStack getStack() {
-        return this.book;
-    }
-
-    @Override
-    public void setStack(ItemStack stack) {}
-
-    @Override
-    public void markDirty() {}
 }
