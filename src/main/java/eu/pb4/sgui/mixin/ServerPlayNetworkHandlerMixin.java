@@ -1,12 +1,12 @@
 package eu.pb4.sgui.mixin;
 
-import eu.pb4.sgui.api.gui.AnvilInputGui;
 import eu.pb4.sgui.api.ClickType;
+import eu.pb4.sgui.api.gui.AnvilInputGui;
 import eu.pb4.sgui.api.gui.SignGui;
-import eu.pb4.sgui.virtual.book.BookScreenHandler;
-import eu.pb4.sgui.virtual.sign.SignScreenHandler;
-import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
 import eu.pb4.sgui.virtual.VirtualScreenHandlerInterface;
+import eu.pb4.sgui.virtual.book.BookScreenHandler;
+import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
+import eu.pb4.sgui.virtual.sign.SignScreenHandler;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.network.packet.s2c.play.ConfirmScreenActionS2CPacket;

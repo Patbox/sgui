@@ -96,7 +96,8 @@ public class SignGui implements GuiInterface {
     }
 
     /**
-     * Send sign updates to the player, this requires closing and reopening the gui.
+     * Send sign updates to the player.
+     * This requires closing and reopening the gui, causing a flicker.
      */
     public void updateSign() {
         if (this.player.currentScreenHandler == this.screenHandler) {
@@ -161,11 +162,6 @@ public class SignGui implements GuiInterface {
     }
 
     @Override
-    public void onUpdate(boolean firstUpdate) {
-        this.player.networkHandler.sendPacket(signEntity.toUpdatePacket());
-    }
-
-    @Override
     public boolean getAutoUpdate() {
         return this.autoUpdate;
     }
@@ -185,6 +181,22 @@ public class SignGui implements GuiInterface {
         } else {
             this.signEntity.setTextOnRow(line, text);
         }
+    }
+
+    @Override
+    public void onOpen() {
+    }
+
+    @Override
+    public void onClose() {
+    }
+
+    @Override
+    public void onTick() {
+    }
+
+    @Override
+    public void onUpdate(boolean firstUpdate) {
     }
 
     @Override
@@ -225,21 +237,7 @@ public class SignGui implements GuiInterface {
     }
 
     @Override
-    public void onOpen() {
-    }
-
-    @Override
     public boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element) {
         return false;
-    }
-
-    @Override
-    public void onClose() {
-
-    }
-
-    @Override
-    public void onTick() {
-
     }
 }
