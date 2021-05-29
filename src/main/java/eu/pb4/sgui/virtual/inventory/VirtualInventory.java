@@ -1,4 +1,4 @@
-package eu.pb4.sgui.virtual;
+package eu.pb4.sgui.virtual.inventory;
 
 import eu.pb4.sgui.api.elements.GuiElementInterface;
 import eu.pb4.sgui.api.gui.SimpleGui;

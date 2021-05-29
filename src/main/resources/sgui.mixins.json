@@ -4,8 +4,9 @@
   "package": "eu.pb4.sgui.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "ScreenHandlerMixin",
     "ServerPlayNetworkHandlerMixin",
-    "ScreenHandlerMixin"
+    "SignBlockEntityAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

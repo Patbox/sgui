@@ -1,4 +1,4 @@
-package eu.pb4.sgui.virtual;
+package eu.pb4.sgui.virtual.book;
 
 import eu.pb4.sgui.api.gui.BookGui;
 import net.minecraft.entity.player.PlayerEntity;
@@ -22,6 +22,6 @@ public final class BookScreenHandlerFactory implements NamedScreenHandlerFactory
 
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-        return new BookScreenHandler(this.gui.getType(), syncId, this.gui.getBook(), this.gui, player);
+        return new BookScreenHandler(syncId, this.gui.getBook(), this.gui, player);
     }
 }

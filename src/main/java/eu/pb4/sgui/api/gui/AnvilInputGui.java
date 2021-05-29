@@ -10,6 +10,7 @@ import net.minecraft.text.LiteralText;
 
 public class AnvilInputGui extends SimpleGui {
     private String inputText;
+
     public AnvilInputGui(ServerPlayerEntity player, boolean includePlayer) {
         super(ScreenHandlerType.ANVIL, player, includePlayer);
         this.setDefaultInputValue("");
