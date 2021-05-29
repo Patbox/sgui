@@ -1,6 +1,6 @@
 package eu.pb4.sgui.mixin;
 
-import eu.pb4.sgui.virtual.VirtualInventory;
+import eu.pb4.sgui.virtual.inventory.VirtualInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;

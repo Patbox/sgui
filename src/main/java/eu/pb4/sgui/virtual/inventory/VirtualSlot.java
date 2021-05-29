@@ -1,4 +1,4 @@
-package eu.pb4.sgui.virtual;
+package eu.pb4.sgui.virtual.inventory;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;

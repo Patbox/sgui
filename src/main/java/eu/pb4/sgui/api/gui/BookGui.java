@@ -1,29 +1,53 @@
 package eu.pb4.sgui.api.gui;
 
 import eu.pb4.sgui.api.ClickType;
+import eu.pb4.sgui.api.ScreenProperty;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
-import eu.pb4.sgui.virtual.BookScreenHandler;
-import eu.pb4.sgui.virtual.BookScreenHandlerFactory;
+import eu.pb4.sgui.virtual.book.BookScreenHandler;
+import eu.pb4.sgui.virtual.book.BookScreenHandlerFactory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.WrittenBookItem;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.MathHelper;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.OptionalInt;
 
 public class BookGui implements GuiInterface {
-    private final ServerPlayerEntity player;
-    private final ItemStack book;
-
+    protected final ServerPlayerEntity player;
+    protected final ItemStack book;
+    protected int page = 0;
     protected boolean open = false;
     protected boolean reOpen = false;
     protected BookScreenHandler screenHandler = null;
-    private int syncId;
+
+    protected int syncId = -1;
 
     public BookGui(ServerPlayerEntity player, ItemStack book) {
         this.player = player;
         this.book = book;
+    }
+
+    /**
+     * Sets the selected page number
+     *
+     * @param page the page index, from 0
+     */
+    public void setPage(int page) {
+        this.page = MathHelper.clamp(page, 0, WrittenBookItem.getPageCount(this.getBook()));
+        this.sendProperty(ScreenProperty.SELECTED, this.page);
+    }
+
+    /**
+     * Gets the current selected page
+     *
+     * @return the page index, from 0
+     */
+    public int getPage() {
+        return page;
     }
 
     @Override
@@ -36,15 +60,23 @@ public class BookGui implements GuiInterface {
     public ScreenHandlerType<?> getType() { return ScreenHandlerType.LECTERN; }
 
     @Override
+    public ServerPlayerEntity getPlayer() {
+        return this.player;
+    }
+
+    @Override
+    public int getSyncId() {
+        return this.syncId;
+    }
+
+    @Override
     public boolean isOpen() {
         return this.open;
     }
 
     @Override
     public boolean open() {
-        if (this.player.isDisconnected() || this.open) {
-            return false;
-        } else {
+        if (!this.player.isDisconnected() && !this.open) {
             this.open = true;
             this.onUpdate(true);
             this.reOpen = true;
@@ -57,8 +89,8 @@ public class BookGui implements GuiInterface {
                     return true;
                 }
             }
-            return false;
         }
+        return false;
     }
 
     @Override
@@ -70,7 +102,7 @@ public class BookGui implements GuiInterface {
         this.close(false);
     }
 
-    @Deprecated
+    @ApiStatus.Internal
     public void close(boolean screenHandlerIsClosed) {
         if (this.open && !this.reOpen) {
             this.open = false;
@@ -116,6 +148,7 @@ public class BookGui implements GuiInterface {
 
     /**
      * Activates when the 'Take Book' button is pressed
+	 *
      * @return if action was taken
      */
     public boolean onTakeBookButton() {
