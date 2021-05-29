@@ -113,4 +113,12 @@ public class BookGui implements GuiInterface {
     public ItemStack getBook() {
         return this.book;
     }
+
+    /**
+     * Activates when the 'Take Book' button is pressed
+     * @return if action was taken
+     */
+    public boolean onTakeBookButton() {
+        return false;
+    }
 }
