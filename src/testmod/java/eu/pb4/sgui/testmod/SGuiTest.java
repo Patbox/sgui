@@ -6,6 +6,7 @@ import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.elements.*;
 import eu.pb4.sgui.api.gui.AnvilInputGui;
 import eu.pb4.sgui.api.gui.BookGui;
+import eu.pb4.sgui.api.gui.MerchantGui;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
@@ -17,10 +18,12 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.village.TradeOffer;
 
 import java.util.UUID;
 
@@ -44,9 +47,11 @@ public class SGuiTest implements ModInitializer {
             dispatcher.register(
                     literal("test5").executes(SGuiTest::test5)
             );
+            dispatcher.register(
+                    literal("test7").executes(SGuiTest::test7)
+            );
         });
     }
-
 
     private static int test(CommandContext<ServerCommandSource> objectCommandContext) {
         try {
@@ -229,4 +234,42 @@ public class SGuiTest implements ModInitializer {
         return 0;
     }
 
+    private static int test7(CommandContext<ServerCommandSource> objectCommandContext) {
+        try {
+            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
+            MerchantGui gui = new MerchantGui(player, false);
+
+            gui.setTitle(new LiteralText("Trades wow!"));
+            gui.setIsLeveled(true);
+            gui.setExperience(5);
+            gui.addTrade(new TradeOffer(
+                    Items.STONE.getDefaultStack(),
+                    new GuiElementBuilder(Items.DIAMOND_AXE)
+                            .glow()
+                            .setCount(2)
+                            .setName(new LiteralText("Glowing Axe"))
+                            .asStack(),
+                    100,
+                    0,
+                    1
+            ));
+            gui.open();
+
+            gui.addTrade(new TradeOffer(
+                    Items.EMERALD.getDefaultStack(),
+                    new GuiElementBuilder(Items.DIAMOND_AXE)
+                            .glow()
+                            .setCount(2)
+                            .setName(new LiteralText("Glowing Axe"))
+                            .asStack(),
+                    100,
+                    0,
+                    1
+            ));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }
