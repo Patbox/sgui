@@ -7,7 +7,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.TradeOutputSlot;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.village.MerchantInventory;
 import net.minecraft.village.TradeOffer;
@@ -203,7 +202,7 @@ public class MerchantGui extends SimpleGui {
         return false;
     }
 
-    private static boolean areTradeOffersEqualIgnoreUses(@Nullable TradeOffer x, @Nullable TradeOffer y) {
+    public static boolean areTradeOffersEqualIgnoreUses(@Nullable TradeOffer x, @Nullable TradeOffer y) {
         if (x == null && y == null) {
             return true;
         } else if (x == null || y == null) {
