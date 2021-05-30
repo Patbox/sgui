@@ -19,17 +19,57 @@ public interface GuiInterface {
     boolean isOpen();
     boolean open();
     int getSize();
-    void close();
     void close(boolean alreadyClosed);
     boolean getLockPlayerInventory();
     void setLockPlayerInventory(boolean value);
     boolean getAutoUpdate();
     void setAutoUpdate(boolean value);
-    void onOpen();
-    boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element);
-    void onUpdate(boolean firstUpdate);
-    void onClose();
-    void onTick();
+
+    /**
+     * Executed when player clicks a {@link GuiElementInterface}
+     *
+     * @param index   slot index
+     * @param type    Simplified type of click
+     * @param action  Minecraft's Slot Action Type
+     * @param element Clicked GuiElement
+     * @return Returns false, for automatic handling and syncing or true, if you want to do it manually
+     */
+    default boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element) {
+        return false;
+    }
+
+    /**
+     * Closes the current gui
+     */
+    default void close() {
+        this.close(false);
+    }
+
+    /**
+     * Executes before gui is (re)sent to player
+     *
+     * @param firstUpdate if this is the first send (open)
+     */
+    default void onUpdate(boolean firstUpdate) {
+    }
+
+    /**
+     * Executes when the screen is opened
+     */
+    default void onOpen() {
+    }
+
+    /**
+     * Executes when the screen is closed
+     */
+    default void onClose() {
+    }
+
+    /**
+     * Executes each tick while the screen is open
+     */
+    default void onTick() {
+    }
 
     /**
      * Send additional properties to the Gui.

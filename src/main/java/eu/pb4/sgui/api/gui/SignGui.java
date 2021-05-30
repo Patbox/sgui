@@ -236,6 +236,7 @@ public class SignGui implements GuiInterface {
     public void setLockPlayerInventory(boolean value) {
     }
 
+    @Deprecated
     @Override
     public boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element) {
         return false;

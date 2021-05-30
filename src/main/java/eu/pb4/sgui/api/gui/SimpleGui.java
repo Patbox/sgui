@@ -405,19 +405,6 @@ public class SimpleGui implements GuiInterface {
     }
 
     /**
-     * Executed when player clicks GuiElement
-     *
-     * @param index   slot index
-     * @param type    Simplified type of click
-     * @param action  Minecraft's Slot Action Type
-     * @param element Clicked GuiElement
-     * @return Returns false, for automatic handling and syncing or true, if you want to do it manually
-     */
-    public boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element) {
-        return false;
-    }
-
-    /**
      * Executed when player clicks any slot
      *
      * @param index  slot index

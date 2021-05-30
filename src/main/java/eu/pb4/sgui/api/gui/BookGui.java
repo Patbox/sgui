@@ -131,10 +131,6 @@ public class BookGui implements GuiInterface {
 
     public void onOpen() {}
 
-    public boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element) {
-        return false;
-    }
-
     public void onUpdate(boolean firstUpdate) {}
 
     public void onClose() {}
