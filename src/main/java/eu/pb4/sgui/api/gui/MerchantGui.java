@@ -250,7 +250,7 @@ public class MerchantGui extends SimpleGui {
                     return value;
                 }
             }
-            return VillagerLevel.NOVICE;
+            return VillagerLevel.NONE;
         }
     }
 
