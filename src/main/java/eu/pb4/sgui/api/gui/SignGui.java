@@ -1,7 +1,5 @@
 package eu.pb4.sgui.api.gui;
 
-import eu.pb4.sgui.api.ClickType;
-import eu.pb4.sgui.api.elements.GuiElementInterface;
 import eu.pb4.sgui.mixin.SignBlockEntityAccessor;
 import eu.pb4.sgui.virtual.sign.SignScreenHandler;
 import net.minecraft.block.Block;
@@ -12,7 +10,6 @@ import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.CloseScreenS2CPacket;
 import net.minecraft.network.packet.s2c.play.SignEditorOpenS2CPacket;
 import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.tag.BlockTags;
 import net.minecraft.text.Text;
@@ -23,6 +20,23 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Sign Gui Implementation
+ * <p>
+ * The Vanilla sign GUI does not use a {@link net.minecraft.screen.ScreenHandler} and thus
+ * it gets its data directly from a block in the world. Due to this, before opening the
+ * screen the server must send a fake 'ghost' sign block to the player which contains the data
+ * we want the sign to show. We send the block at the players location at <code>y = 255</code>
+ * so it hopefully goes unnoticed. The fake block is removed when the GUI is closed.
+ * This also means in order to refresh the data on the sign, we must close and re-open the GUI,
+ * as only handled screens have property support.
+ * <p>
+ * On the server side however, this sign GUI uses a custom {@link SignScreenHandler} so the server
+ * can manage and trigger methods like onTIck, onClose, ect.
+ * <p>
+ * SignGui has lots of deprecated methods which have no function, mainly due to the lack of
+ * item slots and a client ScreenHandler.
+ */
 public class SignGui implements GuiInterface {
 
     protected final SignBlockEntity signEntity;
@@ -35,13 +49,18 @@ public class SignGui implements GuiInterface {
     protected boolean reOpen = false;
     protected SignScreenHandler screenHandler;
 
+    /**
+     * Constructs a new SignGui for the provided player
+     *
+     * @param playerEntity the player to serve this gui to
+     */
     public SignGui(ServerPlayerEntity playerEntity)  {
         this.player = playerEntity;
         this.signEntity = new SignBlockEntity(new BlockPos(player.getBlockPos().getX(), 255, player.getBlockPos().getZ()), Blocks.OAK_SIGN.getDefaultState());
     }
 
     /**
-     * Sets a line of {@link Text} on the sign
+     * Sets a line of {@link Text} on the sign.
      *
      * @param line the line index, from 0
      * @param text the Text for the line, note that all formatting is stripped when the player closes the sign
@@ -56,7 +75,7 @@ public class SignGui implements GuiInterface {
     }
 
     /**
-     * Gets the {@link Text} from a line on the sign
+     * Returns the {@link Text} from a line on the sign.
      *
      * @param line the line number
      * @return the text on the line
@@ -79,7 +98,7 @@ public class SignGui implements GuiInterface {
     }
 
     /**
-     * Sets the block model used for the sign background
+     * Sets the block model used for the sign background.
      *
      * @param type a block in the {@link BlockTags#SIGNS} tag
      */
@@ -96,7 +115,7 @@ public class SignGui implements GuiInterface {
     }
 
     /**
-     * Send sign updates to the player.
+     * Sends sign updates to the player. <br>
      * This requires closing and reopening the gui, causing a flicker.
      */
     public void updateSign() {
@@ -172,7 +191,7 @@ public class SignGui implements GuiInterface {
     }
 
     /**
-     * Used internally to receive input from the sign closing
+     * Used internally to receive input from the client
      */
     @ApiStatus.Internal
     public void setLineInternal(int line, Text text) {
@@ -183,62 +202,43 @@ public class SignGui implements GuiInterface {
         }
     }
 
-    @Override
-    public void onOpen() {
-    }
-
-    @Override
-    public void onClose() {
-    }
-
-    @Override
-    public void onTick() {
-    }
-
-    @Override
-    public void onUpdate(boolean firstUpdate) {
-    }
-
+    @Deprecated
     @Override
     public void setTitle(Text title) {
     }
 
+    @Deprecated
     @Override
     public Text getTitle() {
         return null;
     }
 
+    @Deprecated
     @Override
     public ScreenHandlerType<?> getType() {
         return null;
     }
 
+    @Deprecated
     @Override
     public int getSyncId() {
         return -1;
     }
 
+    @Deprecated
     @Override
     public int getSize() {
         return 0;
     }
 
-    @Override
-    public void close() {
-    }
-
+    @Deprecated
     @Override
     public boolean getLockPlayerInventory() {
         return false;
     }
 
-    @Override
-    public void setLockPlayerInventory(boolean value) {
-    }
-
     @Deprecated
     @Override
-    public boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element) {
-        return false;
+    public void setLockPlayerInventory(boolean value) {
     }
 }

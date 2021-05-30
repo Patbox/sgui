@@ -1,21 +1,27 @@
 package eu.pb4.sgui.api.gui;
 
-import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.ScreenProperty;
-import eu.pb4.sgui.api.elements.GuiElementInterface;
 import eu.pb4.sgui.virtual.book.BookScreenHandler;
 import eu.pb4.sgui.virtual.book.BookScreenHandlerFactory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.WrittenBookItem;
 import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.tag.ItemTags;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
-import org.jetbrains.annotations.ApiStatus;
 
 import java.util.OptionalInt;
 
+/**
+ * Book Gui Implementation
+ * <p>
+ * BookGui is used to display book pages to the player. A pre-existing book needs
+ * to be passes into the constructor, this is what will be displayed.
+ * <p>
+ * BookGui has lots of deprecated methods which have no function, mainly due to the
+ * lack of item slots.
+ */
 public class BookGui implements GuiInterface {
     protected final ServerPlayerEntity player;
     protected final ItemStack book;
@@ -26,8 +32,20 @@ public class BookGui implements GuiInterface {
 
     protected int syncId = -1;
 
+    /**
+     * Constructs a new BookGui for the supplied player, based
+     * on the provided book.
+     *
+     * @param player the player to serve this gui to
+     * @param book   the book to display
+     * @throws IllegalArgumentException if the provided item is not a book
+     */
     public BookGui(ServerPlayerEntity player, ItemStack book) {
         this.player = player;
+
+        if (!book.isIn(ItemTags.LECTERN_BOOKS)) {
+            throw new IllegalArgumentException("Item must be a book!");
+        }
         this.book = book;
     }
 
@@ -42,7 +60,7 @@ public class BookGui implements GuiInterface {
     }
 
     /**
-     * Gets the current selected page
+     * Returns the current selected page
      *
      * @return the page index, from 0
      */
@@ -50,11 +68,21 @@ public class BookGui implements GuiInterface {
         return page;
     }
 
-    @Override
-    public void setTitle(Text title) {}
+    /**
+     * Returns the book item used to store the data.
+     *
+     * @return the book stack
+     */
+    public ItemStack getBook() {
+        return this.book;
+    }
 
-    @Override
-    public Text getTitle() {return null;}
+    /**
+     * Activates when the 'Take Book' button is pressed
+     */
+    public boolean onTakeBookButton() {
+        return false;
+    }
 
     @Override
     public ScreenHandlerType<?> getType() { return ScreenHandlerType.LECTERN; }
@@ -94,15 +122,6 @@ public class BookGui implements GuiInterface {
     }
 
     @Override
-    public int getSize() {
-        return 1;
-    }
-
-    public void close() {
-        this.close(false);
-    }
-
-    @ApiStatus.Internal
     public void close(boolean screenHandlerIsClosed) {
         if (this.open && !this.reOpen) {
             this.open = false;
@@ -118,34 +137,41 @@ public class BookGui implements GuiInterface {
         }
     }
 
+    @Override
+    public int getSize() {
+        return 1;
+    }
+
+    @Deprecated
+    @Override
+    public void setTitle(Text title) {
+    }
+
+    @Deprecated
+    @Override
+    public Text getTitle() {
+        return null;
+    }
+
+    @Deprecated
+    @Override
     public boolean getLockPlayerInventory() {
         return false;
     }
 
-    public void setLockPlayerInventory(boolean value) {}
+    @Deprecated
+    @Override
+    public void setLockPlayerInventory(boolean value) {
+    }
 
+    @Deprecated
+    @Override
     public boolean getAutoUpdate() {
         return false;
     }
 
-    public void setAutoUpdate(boolean value) {}
-
-    public void onOpen() {}
-
-    public void onUpdate(boolean firstUpdate) {}
-
-    public void onClose() {}
-
-    public void onTick() {}
-
-    public ItemStack getBook() {
-        return this.book;
-    }
-
-    /**
-     * Activates when the 'Take Book' button is pressed
-     */
-    public boolean onTakeBookButton() {
-        return false;
+    @Deprecated
+    @Override
+    public void setAutoUpdate(boolean value) {
     }
 }
