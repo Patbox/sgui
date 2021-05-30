@@ -40,7 +40,7 @@ public class VirtualScreenHandler extends ScreenHandler implements VirtualScreen
                 }
             }
         } else {
-            PlayerInventory playerInventory = player.inventory;
+            PlayerInventory playerInventory = player.getInventory();
             for (n = 0; n < 3; ++n) {
                 for (m = 0; m < 9; ++m) {
                     this.addSlot(new Slot(playerInventory, m + n * 9 + 9, 0, 0));
@@ -85,7 +85,7 @@ public class VirtualScreenHandler extends ScreenHandler implements VirtualScreen
             ItemStack itemStack2 = slot.getStack();
             itemStack = itemStack2.copy();
             if (index < this.gui.getSize()) {
-                if (!this.insertItem(itemStack2, this.gui.getSize(), player.inventory.main.size() + this.gui.getSize(), true)) {
+                if (!this.insertItem(itemStack2, this.gui.getSize(), player.getInventory().main.size() + this.gui.getSize(), true)) {
                     return ItemStack.EMPTY;
                 }
             } else if (!this.insertItem(itemStack2, 0, this.gui.getSize(), false)) {
@@ -142,7 +142,7 @@ public class VirtualScreenHandler extends ScreenHandler implements VirtualScreen
 
                 itemStack = slot2.getStack();
 
-                if (!(slot2 instanceof VirtualSlot) && !itemStack.isEmpty() && canStacksCombine(stack, itemStack)) {
+                if (!(slot2 instanceof VirtualSlot) && !itemStack.isEmpty() && ItemStack.canCombine(stack, itemStack)) {
                     int j = itemStack.getCount() + stack.getCount();
                     if (j <= stack.getMaxCount()) {
                         stack.setCount(0);

@@ -34,15 +34,6 @@ public class BookSlot extends Slot {
     }
 
     @Override
-    public ItemStack onTakeItem(PlayerEntity player, ItemStack stack) {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public void onStackChanged(ItemStack originalItem, ItemStack itemStack) {
-    }
-
-    @Override
     protected void onTake(int amount) {}
 
     @Override

@@ -12,6 +12,7 @@ import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.OptionalInt;
 
@@ -60,12 +61,12 @@ public class BookGui implements GuiInterface {
 
     @Override
     public ServerPlayerEntity getPlayer() {
-        return player;
+        return this.player;
     }
 
     @Override
     public int getSyncId() {
-        return syncId;
+        return this.syncId;
     }
 
     @Override
@@ -101,7 +102,7 @@ public class BookGui implements GuiInterface {
         this.close(false);
     }
 
-    @Deprecated
+    @ApiStatus.Internal
     public void close(boolean screenHandlerIsClosed) {
         if (this.open && !this.reOpen) {
             this.open = false;

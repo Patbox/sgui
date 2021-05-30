@@ -30,9 +30,4 @@ public class VirtualSlot extends Slot {
     public boolean canInsert(ItemStack stack) {
         return false;
     }
-
-    @Override
-    public ItemStack onTakeItem(PlayerEntity player, ItemStack stack) {
-        return ItemStack.EMPTY;
-    }
 }

@@ -25,7 +25,7 @@ import java.util.List;
 
 public class SignGui implements GuiInterface {
 
-    protected final SignBlockEntity signEntity = new SignBlockEntity();
+    protected final SignBlockEntity signEntity;
     protected BlockState type = Blocks.OAK_SIGN.getDefaultState();
     protected boolean autoUpdate = true;
 
@@ -37,7 +37,7 @@ public class SignGui implements GuiInterface {
 
     public SignGui(ServerPlayerEntity playerEntity)  {
         this.player = playerEntity;
-        this.signEntity.setPos(new BlockPos(player.getBlockPos().getX(), 255, player.getBlockPos().getZ()));
+        this.signEntity = new SignBlockEntity(new BlockPos(player.getBlockPos().getX(), 255, player.getBlockPos().getZ()), Blocks.OAK_SIGN.getDefaultState());
     }
 
     /**
@@ -84,7 +84,7 @@ public class SignGui implements GuiInterface {
      * @param type a block in the {@link BlockTags#SIGNS} tag
      */
     public void setSignType(Block type) {
-        if (!type.isIn(BlockTags.SIGNS)) {
+        if (!BlockTags.SIGNS.contains(type)) {
             throw new IllegalArgumentException("The type must be a sign");
         }
 
@@ -102,7 +102,7 @@ public class SignGui implements GuiInterface {
     public void updateSign() {
         if (this.player.currentScreenHandler == this.screenHandler) {
             this.reOpen = true;
-            this.player.networkHandler.sendPacket(new CloseScreenS2CPacket());
+            this.player.networkHandler.sendPacket(new CloseScreenS2CPacket(this.screenHandler.syncId));
         } else {
             this.open();
         }

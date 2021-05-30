@@ -11,6 +11,6 @@ public interface SignBlockEntityAccessor {
     @Accessor("textColor")
     void setTextColorNoUpdate(DyeColor color);
 
-    @Accessor
+    @Accessor("texts")
     Text[] getText();
 }

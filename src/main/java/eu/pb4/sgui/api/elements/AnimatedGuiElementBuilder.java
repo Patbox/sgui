@@ -6,10 +6,10 @@ import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -22,7 +22,7 @@ import java.util.Map;
 
 public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     private Item item = Items.STONE;
-    private CompoundTag tag;
+    private NbtCompound tag;
     private int count = 1;
     private Text name = null;
     private List<Text> lore = new ArrayList<>();
@@ -209,16 +209,16 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     public AnimatedGuiElementBuilder setSkullOwner(GameProfile profile, @Nullable MinecraftServer server) {
         if (profile.getId() != null && server != null) {
             profile = server.getSessionService().fillProfileProperties(profile, false);
-            this.getOrCreateTag().put("SkullOwner", NbtHelper.fromGameProfile(new CompoundTag(), profile));
+            this.getOrCreateTag().put("SkullOwner", NbtHelper.writeGameProfile(new NbtCompound(), profile));
         } else {
             this.getOrCreateTag().putString("SkullOwner", profile.getName());
         }
         return this;
     }
 
-    private CompoundTag getOrCreateTag() {
+    private NbtCompound getOrCreateTag() {
         if (this.tag == null) {
-            this.tag = new CompoundTag();
+            this.tag = new NbtCompound();
         }
         return this.tag;
     }
@@ -250,13 +250,13 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
         }
 
         if (this.lore.size() > 0) {
-            CompoundTag display = itemStack.getOrCreateSubTag("display");
-            ListTag loreItems = new ListTag();
+            NbtCompound display = itemStack.getOrCreateSubTag("display");
+            NbtList loreItems = new NbtList();
             for (Text l : this.lore) {
                 if (l instanceof MutableText) {
                     ((MutableText) l).styled(style -> style.withItalic(style.isItalic()));
                 }
-                loreItems.add(StringTag.of(Text.Serializer.toJson(l)));
+                loreItems.add(NbtString.of(Text.Serializer.toJson(l)));
             }
             display.put("Lore", loreItems);
         }
