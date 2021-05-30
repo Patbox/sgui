@@ -81,7 +81,7 @@ public class SignGui implements GuiInterface {
      * @return the text on the line
      */
     public Text getLine(int line) {
-        return ((SignBlockEntityAccessor) this.signEntity).getText()[line];
+        return this.signEntity.getTextOnRow(line, false);
     }
 
     /**
@@ -129,12 +129,11 @@ public class SignGui implements GuiInterface {
 
     @Override
     public ServerPlayerEntity getPlayer() {
-        return player;
+        return this.player;
     }
-
     @Override
     public boolean isOpen() {
-        return open;
+        return this.open;
     }
 
     @Override

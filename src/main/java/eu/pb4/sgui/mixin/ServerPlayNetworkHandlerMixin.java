@@ -148,8 +148,8 @@ public abstract class ServerPlayNetworkHandlerMixin {
         }
     }
 
-    @Inject(method = "onSignUpdate(Lnet/minecraft/network/packet/c2s/play/UpdateSignC2SPacket;Ljava/util/List;)V", at = @At("HEAD"), cancellable = true)
-    private void catchSignUpdate(UpdateSignC2SPacket packet, List<TextStream.Message> signText, CallbackInfo ci) {
+    @Inject(method = "onSignUpdate(Lnet/minecraft/network/packet/c2s/play/UpdateSignC2SPacket;)V", at = @At("HEAD"), cancellable = true)
+    private void catchSignUpdate(UpdateSignC2SPacket packet, CallbackInfo ci) {
         try {
             if (this.player.currentScreenHandler instanceof SignScreenHandler) {
                 SignGui gui = ((SignScreenHandler) this.player.currentScreenHandler).getGui();

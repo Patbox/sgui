@@ -43,8 +43,8 @@ public class BookGui implements GuiInterface {
     public BookGui(ServerPlayerEntity player, ItemStack book) {
         this.player = player;
 
-        if (!book.isIn(ItemTags.LECTERN_BOOKS)) {
-            throw new IllegalArgumentException("Item must be a book!");
+        if (ItemTags.LECTERN_BOOKS.contains(book.getItem())) {
+            throw new IllegalArgumentException("Item must be a book");
         }
         this.book = book;
     }
