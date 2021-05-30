@@ -4,9 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.context.CommandContext;
 import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.elements.*;
-import eu.pb4.sgui.api.gui.AnvilInputGui;
-import eu.pb4.sgui.api.gui.BookGui;
-import eu.pb4.sgui.api.gui.SimpleGui;
+import eu.pb4.sgui.api.gui.*;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.block.Blocks;
@@ -19,7 +17,9 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.tag.BlockTags;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
@@ -308,19 +308,37 @@ public class SGuiTest implements ModInitializer {
 	private static int test7(CommandContext<ServerCommandSource> objectCommandContext) {
 		try {
 			ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
-			MerchantGui gui = new MerchantGui(player, false);
+			MerchantGui gui = new MerchantGui(player, false) {
+
+                @Override
+                public void onSelectTrade(TradeOffer offer) {
+                    this.player.sendMessage(new LiteralText("Selected Trade: " + this.getOfferIndex(offer)), false);
+                }
+
+                @Override
+                public boolean onTrade(TradeOffer offer) {
+                    return player.isCreative();
+                }
+
+                @Override
+                public void onSuggestSell(TradeOffer offer) {
+                    if (offer != null && offer.getSellItem() != null) {
+                        offer.getSellItem().setCustomName(((MutableText) player.getName()).append(new LiteralText("'s ")).append(offer.getSellItem().getName()));
+                        this.sendUpdate();
+                    }
+                }
+            };
 
 			gui.setTitle(new LiteralText("Trades wow!"));
 			gui.setIsLeveled(true);
-			gui.setExperience(5);
 			gui.addTrade(new TradeOffer(
 					Items.STONE.getDefaultStack(),
 					new GuiElementBuilder(Items.DIAMOND_AXE)
 							.glow()
-							.setCount(2)
+							.setCount(1)
 							.setName(new LiteralText("Glowing Axe"))
 							.asStack(),
-					100,
+					1,
 					0,
 					1
 			));
@@ -328,10 +346,8 @@ public class SGuiTest implements ModInitializer {
 
 			gui.addTrade(new TradeOffer(
 					Items.EMERALD.getDefaultStack(),
-					new GuiElementBuilder(Items.DIAMOND_AXE)
-							.glow()
-							.setCount(2)
-							.setName(new LiteralText("Glowing Axe"))
+					new GuiElementBuilder(Items.STONE)
+							.setCount(16)
 							.asStack(),
 					100,
 					0,

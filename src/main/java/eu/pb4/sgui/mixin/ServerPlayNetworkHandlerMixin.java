@@ -6,6 +6,7 @@ import eu.pb4.sgui.api.gui.SignGui;
 import eu.pb4.sgui.virtual.VirtualScreenHandlerInterface;
 import eu.pb4.sgui.virtual.book.BookScreenHandler;
 import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
+import eu.pb4.sgui.virtual.merchant.VirtualMerchantScreenHandler;
 import eu.pb4.sgui.virtual.sign.SignScreenHandler;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.*;
@@ -161,6 +162,16 @@ public abstract class ServerPlayNetworkHandlerMixin {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Inject(method = "onMerchantTradeSelect", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V"), cancellable = true)
+    private void catchMerchantTradeSelect(SelectMerchantTradeC2SPacket packet, CallbackInfo ci) {
+        if (this.player.currentScreenHandler instanceof VirtualMerchantScreenHandler) {
+            VirtualMerchantScreenHandler merchantScreenHandler = (VirtualMerchantScreenHandler) this.player.currentScreenHandler;
+            int id = packet.getTradeId();
+            merchantScreenHandler.selectNewTrade(id);
+            ci.cancel();
         }
     }
 }
