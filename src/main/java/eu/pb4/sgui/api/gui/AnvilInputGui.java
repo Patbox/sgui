@@ -7,15 +7,39 @@ import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
+import org.jetbrains.annotations.ApiStatus;
 
+/**
+ * Anvil Input Helper
+ * <p>
+ * The AnvilInputGui is a standard gui for taking text input from the player.
+ * It is superior to a {@link SignGui} as the client sends constant updates
+ * of the input back to the server, so filtering and modification can be done
+ * on the fly.
+ * <p>
+ * AnvilInputGui is an implementation of {@link SimpleGui} and thus has all
+ * the standard slot and screen modification methods.
+ */
 public class AnvilInputGui extends SimpleGui {
     private String inputText;
 
+    /**
+     * Constructs a new input gui for the provided player.
+     *
+     * @param player        the player to serve this gui to
+     * @param includePlayer if <code>true</code> the players inventory
+     *                      will be treated as slots of this gui
+     */
     public AnvilInputGui(ServerPlayerEntity player, boolean includePlayer) {
         super(ScreenHandlerType.ANVIL, player, includePlayer);
         this.setDefaultInputValue("");
     }
 
+    /**
+     * Sets the default name value for the input (the input stacks name).
+     *
+     * @param input the default input
+     */
     public void setDefaultInputValue(String input) {
         ItemStack itemStack = Items.PAPER.getDefaultStack();
         itemStack.setCustomName(new LiteralText(input));
@@ -26,10 +50,27 @@ public class AnvilInputGui extends SimpleGui {
         }));
     }
 
+    /**
+     * Returns the current inputted string
+     *
+     * @return the current string
+     */
     public String getInput() {
         return this.inputText;
     }
 
+    /**
+     * Executes when the input is changed.
+     *
+     * @param input the new input
+     */
+    public void onInput(String input) {
+    }
+
+    /**
+     * Used internally to receive input from the client
+     */
+    @ApiStatus.Internal
     public void input(String input) {
         this.inputText = input;
         this.onInput(input);
@@ -40,9 +81,5 @@ public class AnvilInputGui extends SimpleGui {
         }
 
         this.player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.syncId, 2, stack));
-    }
-
-    public void onInput(String input) {
-
     }
 }

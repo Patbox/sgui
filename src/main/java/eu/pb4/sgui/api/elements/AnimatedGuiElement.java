@@ -2,14 +2,35 @@ package eu.pb4.sgui.api.elements;
 
 import net.minecraft.item.ItemStack;
 
+/**
+ * Animated Gui Element
+ * <br>
+ * Animated gui elements are a GuiElement constructed of
+ * multiple different {@link ItemStack} frames, which cycle
+ * (optionally randomly) on a set cycle time.
+ *
+ * Gui elements are typically constructed via their respective builder.
+ * @see AnimatedGuiElementBuilder
+ *
+ * @see GuiElementInterface
+ */
 public class AnimatedGuiElement implements GuiElementInterface {
-    private final ItemClickCallback callback;
-    private ItemStack[] items;
-    private int frame = 0;
-    private int tick = 0;
-    private int changeEvery;
-    private boolean random;
+    protected final ItemClickCallback callback;
+    protected ItemStack[] items;
+    protected int frame = 0;
+    protected int tick = 0;
+    protected final int changeEvery;
+    protected final boolean random;
 
+    /**
+     * Constructs an AnimatedGuiElement using the supplied options.
+     *
+     * @param items    an array of ItemStack frames
+     * @param interval the interval each frame should remain active for
+     * @param random   <code>true</code> is the frames should be randomly chosen
+     * @param callback the callback to execute when the element is selected
+     * @see AnimatedGuiElementBuilder
+     */
     public AnimatedGuiElement(ItemStack[] items, int interval, boolean random, ItemClickCallback callback) {
         this.items = items;
         this.callback = callback;
@@ -17,10 +38,26 @@ public class AnimatedGuiElement implements GuiElementInterface {
         this.random = random;
     }
 
+    /**
+     * Sets the elements animation frames.
+     *
+     * @param itemStacks the new animation frames
+     */
+    public void setItemStacks(ItemStack[] itemStacks) {
+        this.items = itemStacks;
+    }
+
+    @Override
     public ItemStack getItemStack() {
         return this.items[frame];
     }
 
+    @Override
+    public ItemClickCallback getCallback() {
+        return this.callback;
+    }
+
+    @Override
     public ItemStack getItemStackInternalUseOnly() {
         int cFrame = this.frame;
 
@@ -41,11 +78,4 @@ public class AnimatedGuiElement implements GuiElementInterface {
         return this.items[cFrame].copy();
     }
 
-    public ItemClickCallback getCallback() {
-        return this.callback;
-    }
-
-    public void setItemStacks(ItemStack[] itemStacks) {
-        this.items = itemStacks;
-    }
 }

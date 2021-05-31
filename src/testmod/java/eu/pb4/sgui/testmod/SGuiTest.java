@@ -187,31 +187,35 @@ public class SGuiTest implements ModInitializer {
     private static int test3(CommandContext<ServerCommandSource> objectCommandContext) {
         try {
             ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
-            BookGui gui = new BookGui(player, player.getMainHandStack()) {
-                int tick = 0;
+
+            BookElementBuilder bookBuilder = BookElementBuilder.from(player.getMainHandStack())
+                    .addPage(new LiteralText("test line one!"), new LiteralText("test line two!"))
+                    .setTitle("The Test Book")
+                    .setAuthor("aws404");
+
+            BookGui gui = new BookGui(player, bookBuilder) {
+                private int tick = 0;
 
                 @Override
                 public void onTick() {
-                    tick++;
-                    if (tick % 20 == 0) {
-                        if (page >= WrittenBookItem.getPageCount(getBook()) - 1) {
-                            setPage(0);
+                    this.tick++;
+                    if (this.tick % 20 == 0) {
+                        if (this.page >= WrittenBookItem.getPageCount(getBook()) - 1) {
+                            this.setPage(0);
                         } else {
-                            setPage(getPage() + 1);
+                            this.setPage(getPage() + 1);
                         }
-                        tick = 0;
+                        this.tick = 0;
                     }
                 }
 
                 @Override
-                public boolean onTakeBookButton() {
-                    close();
-                    return true;
+                public void onTakeBookButton() {
+                    this.getPlayer().giveItemStack(this.getBook().copy());
+                    this.close();
                 }
             };
             gui.open();
-
-
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -4,6 +4,16 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.registry.Registry;
 import org.apache.commons.lang3.ArrayUtils;
 
+/**
+ * Screen Properties
+ * <br>
+ * Screen properties are values sent to client {@link net.minecraft.screen.ScreenHandler}s which
+ * update visual or logical elements of the screen. <br>
+ * Screen properties are specific to the {@link ScreenHandlerType} that they modify.
+ * 
+ * @see eu.pb4.sgui.api.gui.GuiInterface#sendProperty(ScreenProperty, int)
+ */
+@SuppressWarnings("unused")
 public enum ScreenProperty {
     /**
      * {@link ScreenHandlerType#FURNACE}, {@link ScreenHandlerType#BLAST_FURNACE}, {@link ScreenHandlerType#SMOKER}
@@ -109,7 +119,7 @@ public enum ScreenProperty {
      *     <li>Full Bubbles = 20</li>
      * </ul>
      */
-    FUEL_TIME(1, ScreenHandlerType.BREWING_STAND),
+    POWDER_FUEL_TIME(1, ScreenHandlerType.BREWING_STAND),
 
     /**
      * {@link ScreenHandlerType#STONECUTTER}, {@link ScreenHandlerType#LOOM}, {@link ScreenHandlerType#LECTERN}
