@@ -39,14 +39,18 @@ public class BookScreenHandler extends ScreenHandler implements VirtualScreenHan
     @Override
     public boolean onButtonClick(PlayerEntity player, int id) {
         switch (id) {
-            case 1:
+            case 1 -> {
                 this.gui.setPage(gui.getPage() - 1);
                 return true;
-            case 2:
+            }
+            case 2 -> {
                 this.gui.setPage(gui.getPage() + 1);
                 return true;
-            case 3:
-                return this.gui.onTakeBookButton();
+            }
+            case 3 -> {
+                this.gui.onTakeBookButton();
+                return true;
+            }
         }
         return false;
     }

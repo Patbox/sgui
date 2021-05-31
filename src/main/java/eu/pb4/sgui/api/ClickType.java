@@ -2,6 +2,12 @@ package eu.pb4.sgui.api;
 
 import net.minecraft.screen.slot.SlotActionType;
 
+/**
+ * Simplified Click Type
+ * <br>
+ * The API supplies onClick methods with these more accurate click types.
+ * Use the fields in this enum to get a more general idea of the click.
+ */
 public enum ClickType {
     MOUSE_LEFT(true, false, false, false, -1, false, false),
     MOUSE_RIGHT(false, true, false, false, -1, false, false),
