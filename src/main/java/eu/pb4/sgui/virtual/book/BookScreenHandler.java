@@ -11,19 +11,17 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 
 public class BookScreenHandler extends ScreenHandler implements VirtualScreenHandlerInterface {
-    public final ItemStack book;
-    public final BookGui gui;
+    private final BookGui gui;
 
-    public BookScreenHandler(int syncId, ItemStack book, BookGui gui, PlayerEntity player) {
+    public BookScreenHandler(int syncId, BookGui gui, PlayerEntity player) {
         super(ScreenHandlerType.LECTERN, syncId);
-        this.book = book;
         this.gui = gui;
 
         int n;
         int m;
 
         PlayerInventory playerInventory = player.getInventory();
-        this.addSlot(new BookSlot(playerInventory, 0, 0, 0, book));
+        this.addSlot(new BookSlot(playerInventory, 0, 0, 0, gui.getBook()));
 
         for (n = 0; n < 3; ++n) {
             for (m = 0; m < 9; ++m) {

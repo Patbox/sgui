@@ -13,7 +13,6 @@ import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.filter.TextStream;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
@@ -22,8 +21,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.List;
 
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin {
@@ -142,7 +139,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
         if (this.player.currentScreenHandler instanceof VirtualScreenHandler) {
             try {
                 VirtualScreenHandler handler = (VirtualScreenHandler) this.player.currentScreenHandler;
-                handler.gui.onCraftRequest(packet.getRecipe(), packet.shouldCraftAll());
+                handler.getGui().onCraftRequest(packet.getRecipe(), packet.shouldCraftAll());
             } catch (Exception e) {
                 e.printStackTrace();
             }

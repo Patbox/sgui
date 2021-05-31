@@ -1,6 +1,5 @@
 package eu.pb4.sgui.virtual.merchant;
 
-import eu.pb4.sgui.api.gui.MerchantGui;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -42,12 +41,10 @@ public class VirtualMerchant extends SimpleMerchant {
         return isLeveled;
     }
 
-    /**
-     * @see MerchantGui#sendUpdate()
-     */
-    @Deprecated
     @Override
     public void sendOffers(PlayerEntity player, Text test, int levelProgress) {
-        throw new UnsupportedOperationException("Use the other method, this will not take VirtualMerchant values.");
+        if (player.currentScreenHandler instanceof VirtualMerchantScreenHandler) {
+            ((VirtualMerchantScreenHandler) player.currentScreenHandler).getGui().sendUpdate();
+        }
     }
 }

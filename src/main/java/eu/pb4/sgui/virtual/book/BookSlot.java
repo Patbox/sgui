@@ -34,10 +34,12 @@ public class BookSlot extends Slot {
     }
 
     @Override
-    protected void onTake(int amount) {}
+    protected void onTake(int amount) {
+    }
 
     @Override
-    protected void onCrafted(ItemStack stack) {}
+    protected void onCrafted(ItemStack stack) {
+    }
 
     @Override
     public ItemStack getStack() {
@@ -45,8 +47,10 @@ public class BookSlot extends Slot {
     }
 
     @Override
-    public void setStack(ItemStack stack) {}
+    public void setStack(ItemStack stack) {
+    }
 
     @Override
-    public void markDirty() {}
+    public void markDirty() {
+    }
 }

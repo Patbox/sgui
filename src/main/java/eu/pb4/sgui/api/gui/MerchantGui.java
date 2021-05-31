@@ -16,11 +16,26 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.OptionalInt;
 
+/**
+ * Merchant Gui Implementation
+ * <br>
+ * MerchantGui is an implementation of {@link SimpleGui} and thus has all
+ * the standard slot and screen modification methods. It also contains
+ * various methods and callbacks which can be used modify aspects specific
+ * to the merchant screen.
+ */
 public class MerchantGui extends SimpleGui {
 
     protected final VirtualMerchant merchant;
     protected final MerchantInventory merchantInventory;
 
+    /**
+     * Constructs a new MerchantGui for the supplied player.
+     *
+     * @param player                      the player to serve this gui to
+     * @param includePlayerInventorySlots if <code>true</code> the players inventory
+     *                                    will be treated as slots of this gui
+     */
     public MerchantGui(ServerPlayerEntity player, boolean includePlayerInventorySlots) {
         super(ScreenHandlerType.MERCHANT, player, includePlayerInventorySlots);
         this.merchant = new VirtualMerchant(player);
@@ -45,7 +60,7 @@ public class MerchantGui extends SimpleGui {
     }
 
     /**
-     * Sets the trade at the specified index.
+     * Sets the merchant trade at the specified index.
      *
      * @param index the index to replace
      * @param trade the trade to insert
@@ -61,7 +76,7 @@ public class MerchantGui extends SimpleGui {
 
     /**
      * Sets if merchant leveling is enabled. <br>
-     * Will show the leveling bar if enabled.
+     * If disabled, the merchant will not have xp or levels.
      *
      * @param isLeveled is leveling enabled
      */
@@ -88,7 +103,7 @@ public class MerchantGui extends SimpleGui {
     }
 
     /**
-     * Get the VillagerLevel of the the villager
+     * Get the level of the the merchant.
      *
      * @return the {@link VillagerLevel}
      */
@@ -99,7 +114,8 @@ public class MerchantGui extends SimpleGui {
     /**
      * Sets the experience value of the merchant. <br>
      * Only visible if setIsLeveled has been set to <code>true</code>. <br>
-     * The bar will only display when the <code>experience</code> is larger than the {@link VillagerLevel}s <code>startXp</code>.
+     * The bar will only display contents when the current <code>experience</code>
+     * is larger than the {@link VillagerLevel}s <code>startXp</code>.
      *
      * @param experience the experience of the merchant
      */
@@ -220,6 +236,13 @@ public class MerchantGui extends SimpleGui {
 
     }
 
+    /**
+     * Villager Levels
+     * <br>
+     * These are the 5 different levels that a villager can be. There
+     * <code>startXp</code> represents the experience value which will
+     * begin to progress on the level bar.
+     */
     public enum VillagerLevel {
         /**
          * NONE will still show a level bar however it will never show progress.

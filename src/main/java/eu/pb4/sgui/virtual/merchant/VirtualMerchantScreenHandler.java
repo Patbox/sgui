@@ -14,7 +14,7 @@ import net.minecraft.village.MerchantInventory;
 
 public class VirtualMerchantScreenHandler extends VirtualScreenHandler {
 
-    protected final VirtualMerchant merchant;
+    private final VirtualMerchant merchant;
     private final MerchantInventory merchantInventory;
 
     public VirtualMerchantScreenHandler(int syncId, ServerPlayerEntity player, VirtualMerchant merchant, MerchantGui gui, MerchantInventory merchantInventory) {
