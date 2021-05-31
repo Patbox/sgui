@@ -15,9 +15,8 @@
     "homepage": "https://pb4.eu",
     "sources": "https://github.com/Patbox/sgui"
   },
-
   "license": "LGPLv3",
-
+  "icon": "assets/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
@@ -27,10 +26,14 @@
   "mixins": [
     "sgui.mixins.json"
   ],
-
   "depends": {
     "fabricloader": ">=0.7.4",
     "fabric": "*",
     "minecraft": "1.17.x"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": [ "library" ]
+    }
   }
 }

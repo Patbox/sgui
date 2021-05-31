@@ -52,11 +52,11 @@ public class SignGui implements GuiInterface {
     /**
      * Constructs a new SignGui for the provided player
      *
-     * @param playerEntity the player to serve this gui to
+     * @param player the player to serve this gui to
      */
-    public SignGui(ServerPlayerEntity playerEntity)  {
-        this.player = playerEntity;
-        this.signEntity = new SignBlockEntity(new BlockPos(player.getBlockPos().getX(), 255, player.getBlockPos().getZ()), Blocks.OAK_SIGN.getDefaultState());
+    public SignGui(ServerPlayerEntity player)  {
+        this.player = player;
+        this.signEntity = new SignBlockEntity(new BlockPos(player.getBlockPos().getX(), player.world.getTopY() - 1, player.getBlockPos().getZ()), Blocks.OAK_SIGN.getDefaultState());
     }
 
     /**
@@ -90,7 +90,7 @@ public class SignGui implements GuiInterface {
      * @param color the default sign color
      */
     public void setColor(DyeColor color) {
-        ((SignBlockEntityAccessor) signEntity).setTextColorNoUpdate(color);
+        ((SignBlockEntityAccessor) this.signEntity).setTextColorNoUpdate(color);
 
         if (this.open && this.autoUpdate) {
             this.updateSign();
