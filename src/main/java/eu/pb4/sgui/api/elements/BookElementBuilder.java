@@ -50,7 +50,6 @@ public class BookElementBuilder extends GuiElementBuilder {
             text.append(line).append("\n");
         }
         this.getOrCreatePages().add(NbtString.of(Text.Serializer.toJson(text)));
-        System.out.println(this.getOrCreatePages());
         return this;
     }
 
