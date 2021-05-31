@@ -97,7 +97,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Sets the type of Item of the element.
+     * Sets the type of Item of the current element.
      *
      * @param item the item to use
      * @return this element builder
@@ -108,7 +108,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Sets the name of the element.
+     * Sets the name of the current element.
      *
      * @param name the name to use
      * @return this element builder
@@ -119,7 +119,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Sets the number of items in the element.
+     * Sets the number of items in the current element.
      *
      * @param count the number of items
      * @return this element builder
@@ -130,7 +130,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Sets the lore lines of the element.
+     * Sets the lore lines of the current element.
      *
      * @param lore a list of all the lore lines
      * @return this element builder
@@ -141,7 +141,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Adds a line of lore to the element.
+     * Adds a line of lore to the current element.
      *
      * @param lore the line to add
      * @return this element builder
@@ -152,7 +152,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Set the damage of the element. This will only be
+     * Set the damage of the current element. This will only be
      * visible if the item supports has durability.
      *
      * @param damage the amount of durability the item is missing
@@ -164,7 +164,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Hide all {@link net.minecraft.item.ItemStack.TooltipSection}s from the element display
+     * Hide all {@link net.minecraft.item.ItemStack.TooltipSection}s from the current element display
      *
      * @return this element builder
      */
@@ -175,7 +175,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
 
     /**
      * Hide a {@link net.minecraft.item.ItemStack.TooltipSection}
-     * from the elements display.
+     * from the current elements display.
      *
      * @param section the section to hide
      * @return this element builder
@@ -187,7 +187,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
 
     /**
      * Set the {@link net.minecraft.item.ItemStack.TooltipSection}s to
-     * hide from the elements display, by the flags.
+     * hide from the current elements display, by the flags.
      *
      * @param value the flags to hide
      * @return this element builder
@@ -199,7 +199,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Give the element the specified enchantment.
+     * Give the current element the specified enchantment.
      *
      * @param enchantment the enchantment to apply
      * @param level       the level of the specified enchantment
@@ -211,7 +211,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Sets the element to have an enchantment glint.
+     * Sets the current element to have an enchantment glint.
      *
      * @return this element builder
      */
@@ -221,7 +221,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Sets the custom model data of the element.
+     * Sets the custom model data of the current element.
      *
      * @param value the value used for custom model data
      * @return this element builder
@@ -232,7 +232,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Sets the element to be unbreakable, also hides the durability bar.
+     * Sets the current element to be unbreakable, also hides the durability bar.
      *
      * @return this element builder
      */
