@@ -11,20 +11,22 @@ public class GuiElement implements GuiElementInterface {
         this.callback = callback;
     }
 
-    public ItemStack getItemStack() {
-        return this.item;
-    }
-
-    public ItemStack getItemStackInternalUseOnly() {
-        return this.item.copy();
-    }
-
-    public ItemClickCallback getCallback() {
-        return this.callback;
-    }
-
     public void setItemStack(ItemStack itemStack) {
         this.item = itemStack;
     }
 
+    @Override
+    public ItemStack getItemStack() {
+        return this.item;
+    }
+
+    @Override
+    public ItemClickCallback getCallback() {
+        return this.callback;
+    }
+
+    @Override
+    public ItemStack getItemStackInternalUseOnly() {
+        return this.item.copy();
+    }
 }

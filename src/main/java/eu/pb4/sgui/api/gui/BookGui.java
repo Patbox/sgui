@@ -1,9 +1,11 @@
 package eu.pb4.sgui.api.gui;
 
 import eu.pb4.sgui.api.ScreenProperty;
+import eu.pb4.sgui.api.elements.BookElementBuilder;
 import eu.pb4.sgui.virtual.book.BookScreenHandler;
 import eu.pb4.sgui.virtual.book.BookScreenHandlerFactory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.WritableBookItem;
 import net.minecraft.item.WrittenBookItem;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -19,8 +21,8 @@ import java.util.OptionalInt;
  * BookGui is used to display book pages to the player. A pre-existing book needs
  * to be passes into the constructor, this is what will be displayed.
  * <p>
- * BookGui has lots of deprecated methods which have no function, mainly due to the
- * lack of item slots.
+ * BookGui has lots of deprecated methods which have no function, this is
+ * mainly due to the lack of item slots in the book interface.
  */
 public class BookGui implements GuiInterface {
     protected final ServerPlayerEntity player;
@@ -37,7 +39,7 @@ public class BookGui implements GuiInterface {
      * on the provided book.
      *
      * @param player the player to serve this gui to
-     * @param book   the book to display
+     * @param book   the book stack to display
      * @throws IllegalArgumentException if the provided item is not a book
      */
     public BookGui(ServerPlayerEntity player, ItemStack book) {
@@ -47,6 +49,18 @@ public class BookGui implements GuiInterface {
             throw new IllegalArgumentException("Item must be a book");
         }
         this.book = book;
+    }
+
+    /**
+     * Constructs a new BookGui for the supplied player, based
+     * on the provided book.
+     *
+     * @param player the player to serve this gui to
+     * @param book   the book builder to display
+     */
+    public BookGui(ServerPlayerEntity player, BookElementBuilder book) {
+        this.player = player;
+        this.book = book.asStack();
     }
 
     /**
@@ -80,8 +94,7 @@ public class BookGui implements GuiInterface {
     /**
      * Activates when the 'Take Book' button is pressed
      */
-    public boolean onTakeBookButton() {
-        return false;
+    public void onTakeBookButton() {
     }
 
     @Override

@@ -14,11 +14,11 @@ import org.jetbrains.annotations.ApiStatus;
  * <p>
  * The AnvilInputGui is a standard gui for taking text input from the player.
  * It is superior to a {@link SignGui} as the client sends constant updates
- * on the input back to the server, so filtering and modification can be done
+ * of the input back to the server, so filtering and modification can be done
  * on the fly.
  * <p>
  * AnvilInputGui is an implementation of {@link SimpleGui} and thus has all
- * the standard slot and screen modification methods available.
+ * the standard slot and screen modification methods.
  */
 public class AnvilInputGui extends SimpleGui {
     private String inputText;

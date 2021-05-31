@@ -8,10 +8,10 @@ import org.jetbrains.annotations.ApiStatus;
 public interface GuiElementInterface {
     ItemStack getItemStack();
 
+    GuiElementInterface.ItemClickCallback getCallback();
+
     @ApiStatus.Internal
     ItemStack getItemStackInternalUseOnly();
-
-    GuiElementInterface.ItemClickCallback getCallback();
 
     @FunctionalInterface
     interface ItemClickCallback {

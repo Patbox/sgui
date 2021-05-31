@@ -7,8 +7,8 @@ public class AnimatedGuiElement implements GuiElementInterface {
     private ItemStack[] items;
     private int frame = 0;
     private int tick = 0;
-    private int changeEvery;
-    private boolean random;
+    private final int changeEvery;
+    private final boolean random;
 
     public AnimatedGuiElement(ItemStack[] items, int interval, boolean random, ItemClickCallback callback) {
         this.items = items;
@@ -17,10 +17,21 @@ public class AnimatedGuiElement implements GuiElementInterface {
         this.random = random;
     }
 
+    public void setItemStacks(ItemStack[] itemStacks) {
+        this.items = itemStacks;
+    }
+
+    @Override
     public ItemStack getItemStack() {
         return this.items[frame];
     }
 
+    @Override
+    public ItemClickCallback getCallback() {
+        return this.callback;
+    }
+
+    @Override
     public ItemStack getItemStackInternalUseOnly() {
         int cFrame = this.frame;
 
@@ -41,11 +52,4 @@ public class AnimatedGuiElement implements GuiElementInterface {
         return this.items[cFrame].copy();
     }
 
-    public ItemClickCallback getCallback() {
-        return this.callback;
-    }
-
-    public void setItemStacks(ItemStack[] itemStacks) {
-        this.items = itemStacks;
-    }
 }

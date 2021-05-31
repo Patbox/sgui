@@ -20,6 +20,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Animated Gui Element Builder
+ * <br>
+ * The {@link AnimatedGuiElementBuilder} is the best way of constructing
+ * an {@link AnimatedGuiElement}.
+ * It supplies all the methods needed to construct each frame and mesh
+ * them together to create the full animation.
+ *
+ * @see GuiElementBuilderInterface
+ */
 public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     private Item item = Items.STONE;
     private NbtCompound tag;
@@ -35,18 +45,42 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     private int interval = 1;
     private boolean random = false;
 
-    public AnimatedGuiElementBuilder() {}
+    /**
+     * Constructs a AnimatedGuiElementBuilder with the default options
+     */
+    public AnimatedGuiElementBuilder() {
+    }
 
+    /**
+     * Constructs a AnimatedGuiElementBuilder with the supplied interval
+     *
+     * @param interval the time between frame changes
+     * @return this element builder
+     */
     public AnimatedGuiElementBuilder setInterval(int interval) {
         this.interval = interval;
         return this;
     }
 
+    /**
+     * Sets if the frames should be randomly chosen or more in order
+     * of addition.
+     *
+     * @param value <code>true</code> to select random frames
+     * @return this element builder
+     */
     public AnimatedGuiElementBuilder setRandom(boolean value) {
         this.random = value;
         return this;
     }
 
+    /**
+     * Saves the current stack that is being created.
+     * This will add it to the animation and reset the
+     * settings awaiting another creation.
+     *
+     * @return this element builder
+     */
     public AnimatedGuiElementBuilder saveItemStack() {
         this.itemStacks.add(asStack());
 
@@ -63,9 +97,10 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Sets the {@link Item} of the current {@link ItemStack}
+     * Sets the type of Item of the element.
      *
      * @param item the item to use
+     * @return this element builder
      */
     public AnimatedGuiElementBuilder setItem(Item item) {
         this.item = item;
@@ -73,9 +108,10 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Sets the name of the current {@link ItemStack}
+     * Sets the name of the element.
      *
      * @param name the name to use
+     * @return this element builder
      */
     public AnimatedGuiElementBuilder setName(MutableText name) {
         this.name = name;
@@ -83,9 +119,10 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Sets the number of items in the current {@link ItemStack}
+     * Sets the number of items in the element.
      *
      * @param count the number of items
+     * @return this element builder
      */
     public AnimatedGuiElementBuilder setCount(int count) {
         this.count = count;
@@ -93,9 +130,10 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Sets the lore of the current {@link ItemStack}
+     * Sets the lore lines of the element.
      *
      * @param lore a list of all the lore lines
+     * @return this element builder
      */
     public AnimatedGuiElementBuilder setLore(List<Text> lore) {
         this.lore = lore;
@@ -103,9 +141,10 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Adds a line of lore to the current {@link ItemStack}
+     * Adds a line of lore to the element.
      *
      * @param lore the line to add
+     * @return this element builder
      */
     public AnimatedGuiElementBuilder addLoreLine(Text lore) {
         this.lore.add(lore);
@@ -113,9 +152,11 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Set the damage of the current {@link ItemStack}
+     * Set the damage of the element. This will only be
+     * visible if the item supports has durability.
      *
      * @param damage the amount of durability the item is missing
+     * @return this element builder
      */
     public AnimatedGuiElementBuilder setDamage(int damage) {
         this.damage = damage;
@@ -123,17 +164,9 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Set the {@link eu.pb4.sgui.api.elements.GuiElementInterface.ItemClickCallback} used inside GUIs
+     * Hide all {@link net.minecraft.item.ItemStack.TooltipSection}s from the element display
      *
-     * @param callback the callback
-     */
-    public AnimatedGuiElementBuilder setCallback(GuiElement.ItemClickCallback callback) {
-        this.callback = callback;
-        return this;
-    }
-
-    /**
-     * Hide all {@link net.minecraft.item.ItemStack.TooltipSection}s from the current {@link ItemStack}s display
+     * @return this element builder
      */
     public AnimatedGuiElementBuilder hideFlags() {
         this.hideFlags = 127;
@@ -141,19 +174,11 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Set the hide flags value for the current {@link ItemStack}s display
-     *
-     * @param value the flags to hide
-     */
-    public AnimatedGuiElementBuilder hideFlags(byte value) {
-        this.hideFlags = value;
-        return this;
-    }
-
-    /**
-     * Hide a {@link net.minecraft.item.ItemStack.TooltipSection}s from the current {@link ItemStack}s display
+     * Hide a {@link net.minecraft.item.ItemStack.TooltipSection}
+     * from the elements display.
      *
      * @param section the section to hide
+     * @return this element builder
      */
     public AnimatedGuiElementBuilder hideFlag(ItemStack.TooltipSection section) {
         this.hideFlags = (byte) (this.hideFlags | section.getFlag());
@@ -161,10 +186,24 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Give the current {@link ItemStack} the specified enchantment
+     * Set the {@link net.minecraft.item.ItemStack.TooltipSection}s to
+     * hide from the elements display, by the flags.
      *
-     * @param enchantment the {@link Enchantment} to apply
-     * @param level the level of the specified enchantment
+     * @param value the flags to hide
+     * @return this element builder
+     * @see AnimatedGuiElementBuilder#hideFlag(ItemStack.TooltipSection)
+     */
+    public AnimatedGuiElementBuilder hideFlags(byte value) {
+        this.hideFlags = value;
+        return this;
+    }
+
+    /**
+     * Give the element the specified enchantment.
+     *
+     * @param enchantment the enchantment to apply
+     * @param level       the level of the specified enchantment
+     * @return this element builder
      */
     public AnimatedGuiElementBuilder enchant(Enchantment enchantment, int level) {
         this.enchantments.put(enchantment, level);
@@ -172,7 +211,9 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Sets the current {@link ItemStack} to have an enchantment glint
+     * Sets the element to have an enchantment glint.
+     *
+     * @return this element builder
      */
     public AnimatedGuiElementBuilder glow() {
         this.enchantments.put(Enchantments.LUCK_OF_THE_SEA, 1);
@@ -180,9 +221,10 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Sets the custom model data of the current {@link ItemStack}
+     * Sets the custom model data of the element.
      *
      * @param value the value used for custom model data
+     * @return this element builder
      */
     public AnimatedGuiElementBuilder setCustomModelData(int value) {
         this.getOrCreateTag().putInt("CustomModelData", value);
@@ -190,7 +232,9 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Sets the current {@link ItemStack} to be unbreakable, also hiding the durability bar.
+     * Sets the element to be unbreakable, also hides the durability bar.
+     *
+     * @return this element builder
      */
     public AnimatedGuiElementBuilder unbreakable() {
         this.getOrCreateTag().putBoolean("Unbreakable", true);
@@ -200,11 +244,14 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     /**
      * Sets the skull owner tag of a player head.
      * If the server parameter is not supplied it may lag the client while it loads the texture,
-     * otherwise if the server is provided and the {@link GameProfile} contains a UUID then the textures will be loaded by the server.
-     * This can take some time the first load, however the skins are cached for later uses.
+     * otherwise if the server is provided and the {@link GameProfile} contains a UUID then the
+     * textures will be loaded by the server. This can take some time the first load,
+     * however the skins are cached for later uses so its often less noticeable to let the
+     * server load the textures.
      *
      * @param profile the {@link GameProfile} of the owner
-     * @param server the server instance, used to get the textures
+     * @param server  the server instance, used to get the textures
+     * @return this element builder
      */
     public AnimatedGuiElementBuilder setSkullOwner(GameProfile profile, @Nullable MinecraftServer server) {
         if (profile.getId() != null && server != null) {
@@ -216,17 +263,20 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
         return this;
     }
 
-    private NbtCompound getOrCreateTag() {
-        if (this.tag == null) {
-            this.tag = new NbtCompound();
-        }
-        return this.tag;
+    @Override
+    public AnimatedGuiElementBuilder setCallback(GuiElement.ItemClickCallback callback) {
+        this.callback = callback;
+        return this;
     }
 
-    public AnimatedGuiElement build() {
-        return new AnimatedGuiElement(this.itemStacks.toArray(new ItemStack[0]), this.interval, this.random, this.callback);
-    }
-
+    /**
+     * Constructs an ItemStack from the current builder options.
+     * Note that this ignores the callback as it is stored in
+     * the {@link GuiElement}.
+     *
+     * @return this builder as a stack
+     * @see AnimatedGuiElementBuilder#build()
+     */
     public ItemStack asStack() {
         ItemStack itemStack = new ItemStack(this.item, this.count);
 
@@ -266,5 +316,16 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
         }
 
         return itemStack;
+    }
+
+    private NbtCompound getOrCreateTag() {
+        if (this.tag == null) {
+            this.tag = new NbtCompound();
+        }
+        return this.tag;
+    }
+
+    public AnimatedGuiElement build() {
+        return new AnimatedGuiElement(this.itemStacks.toArray(new ItemStack[0]), this.interval, this.random, this.callback);
     }
 }
