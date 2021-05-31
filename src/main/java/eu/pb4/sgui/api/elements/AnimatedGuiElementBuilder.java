@@ -7,8 +7,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.MutableText;
@@ -31,19 +31,19 @@ import java.util.Map;
  * @see GuiElementBuilderInterface
  */
 public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
-    private Item item = Items.STONE;
-    private NbtCompound tag;
-    private int count = 1;
-    private Text name = null;
-    private List<Text> lore = new ArrayList<>();
-    private int damage = -1;
-    private GuiElement.ItemClickCallback callback = (index, type, action) -> {};
-    private byte hideFlags = 0;
-    private final Map<Enchantment, Integer> enchantments = new HashMap<>();
+    protected Item item = Items.STONE;
+    protected NbtCompound tag;
+    protected int count = 1;
+    protected Text name = null;
+    protected List<Text> lore = new ArrayList<>();
+    protected int damage = -1;
+    protected GuiElement.ItemClickCallback callback = (index, type, action) -> {};
+    protected byte hideFlags = 0;
+    protected final Map<Enchantment, Integer> enchantments = new HashMap<>();
 
-    private final List<ItemStack> itemStacks = new ArrayList<>();
-    private int interval = 1;
-    private boolean random = false;
+    protected final List<ItemStack> itemStacks = new ArrayList<>();
+    protected int interval = 1;
+    protected boolean random = false;
 
     /**
      * Constructs a AnimatedGuiElementBuilder with the default options

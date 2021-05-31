@@ -31,14 +31,14 @@ import java.util.stream.Collectors;
  */
 public class GuiElementBuilder implements GuiElementBuilderInterface {
     protected Item item = Items.STONE;
-    private NbtCompound tag;
-    private int count = 1;
-    private Text name = null;
-    private List<Text> lore = new ArrayList<>();
-    private int damage = -1;
-    private GuiElement.ItemClickCallback callback = (index, type, action) -> {};
-    private byte hideFlags = 0;
-    private final Map<Enchantment, Integer> enchantments = new HashMap<>();
+    protected NbtCompound tag;
+    protected int count = 1;
+    protected Text name = null;
+    protected List<Text> lore = new ArrayList<>();
+    protected int damage = -1;
+    protected GuiElement.ItemClickCallback callback = (index, type, action) -> {};
+    protected byte hideFlags = 0;
+    protected final Map<Enchantment, Integer> enchantments = new HashMap<>();
 
     /**
      * Constructs a GuiElementBuilder with the default options

@@ -5,7 +5,6 @@ import eu.pb4.sgui.api.elements.BookElementBuilder;
 import eu.pb4.sgui.virtual.book.BookScreenHandler;
 import eu.pb4.sgui.virtual.book.BookScreenHandlerFactory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.WritableBookItem;
 import net.minecraft.item.WrittenBookItem;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;

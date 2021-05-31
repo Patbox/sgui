@@ -16,6 +16,8 @@ import net.minecraft.text.Text;
  * This is an GuiElementBuilder specifically designed for manipulating books.
  * Along with general manipulation from the GuiElementBuilder, it also
  * supplies multiple methods for manipulating pages, author, title, ect.
+ *
+ * @see GuiElementBuilderInterface
  */
 public class BookElementBuilder extends GuiElementBuilder {
 
