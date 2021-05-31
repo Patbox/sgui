@@ -187,7 +187,7 @@ public class SGuiTest implements ModInitializer {
         try {
             ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
 
-            BookElementBuilder bookBuilder = BookElementBuilder.copy(player.getMainHandStack())
+            BookElementBuilder bookBuilder = BookElementBuilder.from(player.getMainHandStack())
                     .addPage(new LiteralText("test line one!"), new LiteralText("test line two!"))
                     .setTitle("The Test Book")
                     .setAuthor("aws404");
