@@ -135,7 +135,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Hide all {@link net.minecraft.item.ItemStack.TooltipSection}s from the element display
+     * Hides all {@link net.minecraft.item.ItemStack.TooltipSection}s from the element display
      *
      * @return this element builder
      */
@@ -145,7 +145,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     /**
-     * Hide a {@link net.minecraft.item.ItemStack.TooltipSection}
+     * Hides a {@link net.minecraft.item.ItemStack.TooltipSection}
      * from the elements display.
      *
      * @param section the section to hide
