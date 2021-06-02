@@ -22,6 +22,6 @@ public final class BookScreenHandlerFactory implements NamedScreenHandlerFactory
 
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-        return new BookScreenHandler(syncId, this.gui.getBook(), this.gui, player);
+        return new BookScreenHandler(syncId, this.gui, player);
     }
 }

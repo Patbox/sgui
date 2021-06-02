@@ -4,10 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.context.CommandContext;
 import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.elements.*;
-import eu.pb4.sgui.api.gui.AnvilInputGui;
-import eu.pb4.sgui.api.gui.BookGui;
-import eu.pb4.sgui.api.gui.SignGui;
-import eu.pb4.sgui.api.gui.SimpleGui;
+import eu.pb4.sgui.api.gui.*;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.block.Blocks;
@@ -15,6 +12,7 @@ import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.WrittenBookItem;
+import net.minecraft.screen.HorseScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
@@ -22,10 +20,12 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.tag.BlockTags;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.village.TradeOffer;
 
 import java.util.Random;
 import java.util.UUID;
@@ -53,12 +53,14 @@ public class SGuiTest implements ModInitializer {
             dispatcher.register(
                     literal("test5").executes(SGuiTest::test5)
             );
-            dispatcher.register(
+			dispatcher.register(
                     literal("test6").executes(SGuiTest::test6)
             );
+            dispatcher.register(
+                    literal("test7").executes(SGuiTest::test7)
+			);
         });
     }
-
 
     private static int test(CommandContext<ServerCommandSource> objectCommandContext) {
         try {
@@ -303,6 +305,60 @@ public class SGuiTest implements ModInitializer {
             gui.open();
 
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+	
+	private static int test7(CommandContext<ServerCommandSource> objectCommandContext) {
+		try {
+			ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
+			MerchantGui gui = new MerchantGui(player, false) {
+
+                @Override
+                public void onSelectTrade(TradeOffer offer) {
+                    this.player.sendMessage(new LiteralText("Selected Trade: " + this.getOfferIndex(offer)), false);
+                }
+
+                @Override
+                public boolean onTrade(TradeOffer offer) {
+                    return player.isCreative();
+                }
+
+                @Override
+                public void onSuggestSell(TradeOffer offer) {
+                    if (offer != null && offer.getSellItem() != null) {
+                        offer.getSellItem().setCustomName(((MutableText) player.getName()).append(new LiteralText("'s ")).append(offer.getSellItem().getName()));
+                        this.sendUpdate();
+                    }
+                }
+            };
+
+			gui.setTitle(new LiteralText("Trades wow!"));
+			gui.setIsLeveled(true);
+			gui.addTrade(new TradeOffer(
+					Items.STONE.getDefaultStack(),
+					new GuiElementBuilder(Items.DIAMOND_AXE)
+							.glow()
+							.setCount(1)
+							.setName(new LiteralText("Glowing Axe"))
+							.asStack(),
+					1,
+					0,
+					1
+			));
+			gui.open();
+
+			gui.addTrade(new TradeOffer(
+					Items.EMERALD.getDefaultStack(),
+					new GuiElementBuilder(Items.STONE)
+							.setCount(16)
+							.asStack(),
+					100,
+					0,
+					1
+			));
+		} catch (Exception e) {
             e.printStackTrace();
         }
         return 0;

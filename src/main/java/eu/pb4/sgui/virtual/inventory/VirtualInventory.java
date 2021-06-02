@@ -10,7 +10,7 @@ import net.minecraft.screen.slot.Slot;
 public class VirtualInventory implements Inventory {
     private final SimpleGui gui;
 
-    VirtualInventory(SimpleGui gui) {
+    public VirtualInventory(SimpleGui gui) {
         this.gui = gui;
     }
 
