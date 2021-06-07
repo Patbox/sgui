@@ -6,13 +6,13 @@ import eu.pb4.sgui.api.gui.SignGui;
 import eu.pb4.sgui.virtual.VirtualScreenHandlerInterface;
 import eu.pb4.sgui.virtual.book.BookScreenHandler;
 import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
+import eu.pb4.sgui.virtual.merchant.VirtualMerchantScreenHandler;
 import eu.pb4.sgui.virtual.sign.SignScreenHandler;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.filter.TextStream;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
@@ -21,8 +21,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.List;
 
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin {
@@ -141,7 +139,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
         if (this.player.currentScreenHandler instanceof VirtualScreenHandler) {
             try {
                 VirtualScreenHandler handler = (VirtualScreenHandler) this.player.currentScreenHandler;
-                handler.gui.onCraftRequest(packet.getRecipe(), packet.shouldCraftAll());
+                handler.getGui().onCraftRequest(packet.getRecipe(), packet.shouldCraftAll());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -161,6 +159,16 @@ public abstract class ServerPlayNetworkHandlerMixin {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Inject(method = "onMerchantTradeSelect", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V"), cancellable = true)
+    private void catchMerchantTradeSelect(SelectMerchantTradeC2SPacket packet, CallbackInfo ci) {
+        if (this.player.currentScreenHandler instanceof VirtualMerchantScreenHandler) {
+            VirtualMerchantScreenHandler merchantScreenHandler = (VirtualMerchantScreenHandler) this.player.currentScreenHandler;
+            int id = packet.getTradeId();
+            merchantScreenHandler.selectNewTrade(id);
+            ci.cancel();
         }
     }
 }

@@ -11,7 +11,7 @@ import net.minecraft.screen.slot.Slot;
 import org.jetbrains.annotations.Nullable;
 
 public class VirtualScreenHandler extends ScreenHandler implements VirtualScreenHandlerInterface {
-    public final SimpleGui gui;
+    private final SimpleGui gui;
     public final VirtualInventory inventory;
 
     public VirtualScreenHandler(@Nullable ScreenHandlerType<?> type, int syncId, SimpleGui gui, PlayerEntity player) {
@@ -53,6 +53,7 @@ public class VirtualScreenHandler extends ScreenHandler implements VirtualScreen
         }
     }
 
+    @Override
     public SimpleGui getGui() {
         return this.gui;
     }
@@ -81,7 +82,7 @@ public class VirtualScreenHandler extends ScreenHandler implements VirtualScreen
     public ItemStack transferSlot(PlayerEntity player, int index) {
         ItemStack itemStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
-        if (slot != null && slot.hasStack() && !(slot instanceof VirtualSlot)) {
+        if (slot.hasStack() && !(slot instanceof VirtualSlot)) {
             ItemStack itemStack2 = slot.getStack();
             itemStack = itemStack2.copy();
             if (index < this.gui.getSize()) {
@@ -109,6 +110,7 @@ public class VirtualScreenHandler extends ScreenHandler implements VirtualScreen
         return !(slot instanceof VirtualSlot) && super.canInsertIntoSlot(stack, slot);
     }
 
+    @Override
     public Slot addSlot(Slot slot) {
         return super.addSlot(slot);
     }

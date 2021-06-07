@@ -18,7 +18,7 @@ import java.util.OptionalInt;
  * Book Gui Implementation
  * <p>
  * BookGui is used to display book pages to the player. A pre-existing book needs
- * to be passes into the constructor, this is what will be displayed.
+ * to be passed into the constructor, this is what will be displayed.
  * <p>
  * BookGui has lots of deprecated methods which have no function, this is
  * mainly due to the lack of item slots in the book interface.

@@ -30,7 +30,6 @@ import java.util.List;
  * so it hopefully goes unnoticed. The fake block is removed when the GUI is closed.
  * This also means in order to refresh the data on the sign, we must close and re-open the GUI,
  * as only handled screens have property support.
- * <p>
  * On the server side however, this sign GUI uses a custom {@link SignScreenHandler} so the server
  * can manage and trigger methods like onTIck, onClose, ect.
  * <p>
