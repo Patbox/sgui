@@ -13,12 +13,10 @@ import net.minecraft.nbt.NbtString;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Animated Gui Element Builder
@@ -31,17 +29,17 @@ import java.util.Map;
  * @see GuiElementBuilderInterface
  */
 public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
+    protected final Map<Enchantment, Integer> enchantments = new HashMap<>();
+    protected final List<ItemStack> itemStacks = new ArrayList<>();
     protected Item item = Items.STONE;
     protected NbtCompound tag;
     protected int count = 1;
     protected Text name = null;
     protected List<Text> lore = new ArrayList<>();
     protected int damage = -1;
-    protected GuiElement.ItemClickCallback callback = (index, type, action) -> {};
+    protected GuiElement.ItemClickCallback callback = (index, type, action) -> {
+    };
     protected byte hideFlags = 0;
-    protected final Map<Enchantment, Integer> enchantments = new HashMap<>();
-
-    protected final List<ItemStack> itemStacks = new ArrayList<>();
     protected int interval = 1;
     protected boolean random = false;
 
@@ -260,6 +258,37 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
         } else {
             this.getOrCreateTag().putString("SkullOwner", profile.getName());
         }
+        return this;
+    }
+
+    /**
+     * Sets the skull owner tag of a player head.
+     * This method uses raw values required by client to display the skin
+     * Ideal for textures generated with 3rd party websites like mineskin.org
+     *
+     * @param value     texture value used by client
+     * @param signature optional signature, will be ignored when set to null
+     * @param uuid      UUID of skin owner, if null default will be used
+     * @return this element builder
+     */
+    public AnimatedGuiElementBuilder setSkullOwner(String value, @Nullable String signature, @Nullable UUID uuid) {
+        NbtCompound skullOwner = new NbtCompound();
+        NbtCompound properties = new NbtCompound();
+        NbtCompound valueData = new NbtCompound();
+        NbtList textures = new NbtList();
+
+        valueData.putString("Value", value);
+        if (signature != null) {
+            valueData.putString("Signature", signature);
+        }
+
+        textures.add(valueData);
+        properties.put("textures", textures);
+
+        skullOwner.put("Id", NbtHelper.fromUuid(uuid != null ? uuid : Util.NIL_UUID));
+        skullOwner.put("Properties", properties);
+        this.getOrCreateTag().put("SkullOwner", skullOwner);
+
         return this;
     }
 

@@ -99,6 +99,14 @@ public class SGuiTest implements ModInitializer {
                 gui.setSlot(x, new GuiElement(itemStack, (index, clickType, actionType) -> {}));
             }
 
+            gui.setSlot(5, new GuiElementBuilder(Items.PLAYER_HEAD)
+                    .setSkullOwner(
+                            "ewogICJ0aW1lc3RhbXAiIDogMTYxOTk3MDIyMjQzOCwKICAicHJvZmlsZUlkIiA6ICI2OTBkMDM2OGM2NTE0OGM5ODZjMzEwN2FjMmRjNjFlYyIsCiAgInByb2ZpbGVOYW1lIiA6ICJ5emZyXzciLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDI0OGVhYTQxNGNjZjA1NmJhOTY5ZTdkODAxZmI2YTkyNzhkMGZlYWUxOGUyMTczNTZjYzhhOTQ2NTY0MzU1ZiIsCiAgICAgICJtZXRhZGF0YSIgOiB7CiAgICAgICAgIm1vZGVsIiA6ICJzbGltIgogICAgICB9CiAgICB9CiAgfQp9",
+                            null, null)
+                    .setName(new LiteralText("Battery"))
+                    .glow()
+            );
+
             gui.setSlot(6, new GuiElementBuilder(Items.PLAYER_HEAD)
                     .setSkullOwner(new GameProfile(UUID.fromString("f5a216d9-d660-4996-8d0f-d49053677676"), "patbox"), player.server)
                     .setName(new LiteralText("Patbox's Head"))

@@ -12,13 +12,11 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -30,15 +28,16 @@ import java.util.stream.Collectors;
  * @see GuiElementBuilderInterface
  */
 public class GuiElementBuilder implements GuiElementBuilderInterface {
+    protected final Map<Enchantment, Integer> enchantments = new HashMap<>();
     protected Item item = Items.STONE;
     protected NbtCompound tag;
     protected int count = 1;
     protected Text name = null;
     protected List<Text> lore = new ArrayList<>();
     protected int damage = -1;
-    protected GuiElement.ItemClickCallback callback = (index, type, action) -> {};
+    protected GuiElement.ItemClickCallback callback = (index, type, action) -> {
+    };
     protected byte hideFlags = 0;
-    protected final Map<Enchantment, Integer> enchantments = new HashMap<>();
 
     /**
      * Constructs a GuiElementBuilder with the default options
@@ -65,6 +64,54 @@ public class GuiElementBuilder implements GuiElementBuilderInterface {
     public GuiElementBuilder(Item item, int count) {
         this.item = item;
         this.count = count;
+    }
+
+    /**
+     * Constructs a GuiElementBuilder based on the supplied stack.
+     *
+     * @param stack the stack to base the builder of
+     * @return the constructed builder
+     */
+    public static GuiElementBuilder from(ItemStack stack) {
+        GuiElementBuilder builder = new GuiElementBuilder(stack.getItem(), stack.getCount());
+        NbtCompound tag = stack.getOrCreateTag();
+
+        if (stack.hasCustomName()) {
+            builder.setName((MutableText) stack.getName());
+            tag.getCompound("display").remove("Name");
+        }
+
+        if (tag.contains("display") && tag.getCompound("display").contains("Lore")) {
+            builder.setLore(GuiElementBuilder.getLore(stack));
+            tag.getCompound("display").remove("Lore");
+        }
+
+        if (stack.isDamaged()) {
+            builder.setDamage(stack.getDamage());
+            tag.remove("Damage");
+        }
+
+        if (stack.hasEnchantments()) {
+            for (NbtElement enc : stack.getEnchantments()) {
+                Registry.ENCHANTMENT.getOrEmpty(Identifier.tryParse(((NbtCompound) enc).getString("id"))).ifPresent(enchantment -> {
+                    builder.enchant(enchantment, ((NbtCompound) enc).getInt("lvl"));
+                });
+            }
+            tag.remove("Enchantments");
+        }
+
+        if (stack.getOrCreateTag().contains("HideFlags")) {
+            builder.hideFlags(stack.getOrCreateTag().getByte("HideFlags"));
+            tag.remove("HideFlags");
+        }
+
+        builder.tag = tag;
+
+        return builder;
+    }
+
+    public static List<Text> getLore(ItemStack stack) {
+        return stack.getOrCreateSubTag("display").getList("Lore", NbtType.STRING).stream().map(tag -> Text.Serializer.fromJson(tag.asString())).collect(Collectors.toList());
     }
 
     /**
@@ -234,6 +281,37 @@ public class GuiElementBuilder implements GuiElementBuilderInterface {
         return this;
     }
 
+    /**
+     * Sets the skull owner tag of a player head.
+     * This method uses raw values required by client to display the skin
+     * Ideal for textures generated with 3rd party websites like mineskin.org
+     *
+     * @param value     texture value used by client
+     * @param signature optional signature, will be ignored when set to null
+     * @param uuid      UUID of skin owner, if null default will be used
+     * @return this element builder
+     */
+    public GuiElementBuilder setSkullOwner(String value, @Nullable String signature, @Nullable UUID uuid) {
+        NbtCompound skullOwner = new NbtCompound();
+        NbtCompound properties = new NbtCompound();
+        NbtCompound valueData = new NbtCompound();
+        NbtList textures = new NbtList();
+
+        valueData.putString("Value", value);
+        if (signature != null) {
+            valueData.putString("Signature", signature);
+        }
+
+        textures.add(valueData);
+        properties.put("textures", textures);
+
+        skullOwner.put("Id", NbtHelper.fromUuid(uuid != null ? uuid : Util.NIL_UUID));
+        skullOwner.put("Properties", properties);
+        this.getOrCreateTag().put("SkullOwner", skullOwner);
+
+        return this;
+    }
+
     @Override
     public GuiElementBuilder setCallback(GuiElement.ItemClickCallback callback) {
         this.callback = callback;
@@ -299,53 +377,5 @@ public class GuiElementBuilder implements GuiElementBuilderInterface {
     @Override
     public GuiElement build() {
         return new GuiElement(asStack(), this.callback);
-    }
-
-    /**
-     * Constructs a GuiElementBuilder based on the supplied stack.
-     *
-     * @param stack the stack to base the builder of
-     * @return the constructed builder
-     */
-    public static GuiElementBuilder from(ItemStack stack) {
-        GuiElementBuilder builder = new GuiElementBuilder(stack.getItem(), stack.getCount());
-        NbtCompound tag = stack.getOrCreateTag();
-
-        if (stack.hasCustomName()) {
-            builder.setName((MutableText) stack.getName());
-            tag.getCompound("display").remove("Name");
-        }
-
-        if (tag.contains("display") && tag.getCompound("display").contains("Lore")) {
-            builder.setLore(GuiElementBuilder.getLore(stack));
-            tag.getCompound("display").remove("Lore");
-        }
-
-        if (stack.isDamaged()) {
-            builder.setDamage(stack.getDamage());
-            tag.remove("Damage");
-        }
-
-        if (stack.hasEnchantments()) {
-            for (NbtElement enc : stack.getEnchantments()) {
-                Registry.ENCHANTMENT.getOrEmpty(Identifier.tryParse(((NbtCompound) enc).getString("id"))).ifPresent(enchantment -> {
-                    builder.enchant(enchantment, ((NbtCompound) enc).getInt("lvl"));
-                });
-            }
-            tag.remove("Enchantments");
-        }
-
-        if (stack.getOrCreateTag().contains("HideFlags")) {
-            builder.hideFlags(stack.getOrCreateTag().getByte("HideFlags"));
-            tag.remove("HideFlags");
-        }
-
-        builder.tag = tag;
-
-        return builder;
-    }
-
-    public static List<Text> getLore(ItemStack stack) {
-        return stack.getOrCreateSubTag("display").getList("Lore", NbtType.STRING).stream().map(tag -> Text.Serializer.fromJson(tag.asString())).collect(Collectors.toList());
     }
 }
