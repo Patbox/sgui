@@ -89,7 +89,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
 
                 if (type == ClickType.MOUSE_DOUBLE_CLICK || (type.isDragging && type.value == 2) || type.shift) {
                     this.sendPacket(new InventoryS2CPacket(handler.syncId, handler.getStacks()));
-                    //this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, -1, this.player.inventory.getCursorStack()));
+                    this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, -1, this.player.currentScreenHandler.getCursorStack()));
                 }
 
             } catch (Exception e) {
