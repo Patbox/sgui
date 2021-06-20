@@ -57,9 +57,8 @@ public class BookScreenHandler extends ScreenHandler implements VirtualScreenHan
     public boolean canUse(PlayerEntity player) {
         return true;
     }
-
     @Override
-    public void setStackInSlot(int slot, ItemStack stack) {
+    public void setStackInSlot(int slot, int i, ItemStack stack) {
         if (slot == 0) {
             this.getSlot(slot).setStack(stack);
         } else {

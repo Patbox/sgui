@@ -80,6 +80,6 @@ public class AnvilInputGui extends SimpleGui {
             stack = element.getItemStack();
         }
 
-        this.player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.syncId, 2, stack));
+        this.player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.syncId, 0,  2, stack));
     }
 }

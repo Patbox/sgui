@@ -45,8 +45,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 boolean ignore = handler.getGui().onAnyClick(slot, type, packet.getActionType());
                 if (ignore && !handler.getGui().getLockPlayerInventory() && (slot >= handler.getGui().getSize() || slot < 0 || handler.getGui().getSlotRedirect(slot) != null)) {
                     if (type == ClickType.MOUSE_DOUBLE_CLICK || (type.isDragging && type.value == 2)) {
-                        this.sendPacket(new InventoryS2CPacket(handler.syncId, handler.getStacks()));
-                        this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, -1, this.player.currentScreenHandler.getCursorStack()));
+                        this.sendPacket(new InventoryS2CPacket(handler.syncId, packet.method_37440(), handler.getStacks(), this.player.currentScreenHandler.getCursorStack()));
                     }
 
                     return;
@@ -55,14 +54,14 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 boolean allow = handler.getGui().click(slot, type, packet.getActionType());
                 if (!allow) {
                     if (slot >= 0 && slot < handler.getGui().getSize()) {
-                        this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(handler.syncId, slot, handler.getSlot(slot).getStack()));
+                        this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(handler.syncId, packet.method_37440(), slot, handler.getSlot(slot).getStack()));
                     }
-                    this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, -1, this.player.currentScreenHandler.getCursorStack()));
+                    this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, packet.method_37440(), -1, this.player.currentScreenHandler.getCursorStack()));
 
                     if (type.numKey) {
-                        this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(handler.syncId, type.value + handler.slots.size() - 10, handler.getSlot(type.value + handler.slots.size() - 10).getStack()));
+                        this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(handler.syncId, packet.method_37440(), type.value + handler.slots.size() - 10, handler.getSlot(type.value + handler.slots.size() - 10).getStack()));
                     } else if (type == ClickType.MOUSE_DOUBLE_CLICK || type == ClickType.MOUSE_LEFT_SHIFT || type == ClickType.MOUSE_RIGHT_SHIFT || (type.isDragging && type.value == 2)) {
-                        this.sendPacket(new InventoryS2CPacket(handler.syncId, handler.getStacks()));
+                        this.sendPacket(new InventoryS2CPacket(handler.syncId, packet.method_37440(), handler.getStacks(), this.player.currentScreenHandler.getCursorStack()));
                     }
                 }
 
@@ -88,8 +87,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 ClickType type = ClickType.toClickType(packet.getActionType(), button, slot);
 
                 if (type == ClickType.MOUSE_DOUBLE_CLICK || (type.isDragging && type.value == 2) || type.shift) {
-                    this.sendPacket(new InventoryS2CPacket(handler.syncId, handler.getStacks()));
-                    //this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, -1, this.player.inventory.getCursorStack()));
+                    this.sendPacket(new InventoryS2CPacket(handler.syncId, packet.method_37440(), handler.getStacks(), handler.getCursorStack()));
                 }
 
             } catch (Exception e) {

@@ -64,7 +64,7 @@ public class VirtualScreenHandler extends ScreenHandler implements VirtualScreen
     }
 
     @Override
-    public void setStackInSlot(int slot, ItemStack stack) {
+    public void setStackInSlot(int slot, int i, ItemStack stack) {
         if (this.gui.getSize() <= slot) {
             this.getSlot(slot).setStack(stack);
         } else {
