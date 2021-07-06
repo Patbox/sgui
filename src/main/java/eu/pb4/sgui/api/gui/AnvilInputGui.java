@@ -22,6 +22,7 @@ import org.jetbrains.annotations.ApiStatus;
  */
 public class AnvilInputGui extends SimpleGui {
     private String inputText;
+    private String defaultText;
 
     /**
      * Constructs a new input gui for the provided player.
@@ -44,8 +45,10 @@ public class AnvilInputGui extends SimpleGui {
         ItemStack itemStack = Items.PAPER.getDefaultStack();
         itemStack.setCustomName(new LiteralText(input));
         this.inputText = input;
+        this.defaultText = input;
         this.setSlot(0, itemStack, ((index, type1, action) -> {
             this.reOpen = true;
+            this.inputText = this.defaultText;
             this.sendGui();
         }));
     }

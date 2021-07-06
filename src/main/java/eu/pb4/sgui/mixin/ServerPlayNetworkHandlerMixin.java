@@ -2,17 +2,19 @@ package eu.pb4.sgui.mixin;
 
 import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.gui.AnvilInputGui;
+import eu.pb4.sgui.api.gui.broken.BookInputGui;
 import eu.pb4.sgui.api.gui.SignGui;
 import eu.pb4.sgui.virtual.VirtualScreenHandlerInterface;
 import eu.pb4.sgui.virtual.book.BookScreenHandler;
 import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
 import eu.pb4.sgui.virtual.merchant.VirtualMerchantScreenHandler;
-import eu.pb4.sgui.virtual.sign.SignScreenHandler;
+import eu.pb4.sgui.virtual.FakeScreenHandler;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.filter.TextStream;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
@@ -21,6 +23,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin {
@@ -45,7 +50,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 boolean ignore = handler.getGui().onAnyClick(slot, type, packet.getActionType());
                 if (ignore && !handler.getGui().getLockPlayerInventory() && (slot >= handler.getGui().getSize() || slot < 0 || handler.getGui().getSlotRedirect(slot) != null)) {
                     if (type == ClickType.MOUSE_DOUBLE_CLICK || (type.isDragging && type.value == 2)) {
-                        this.sendPacket(new InventoryS2CPacket(handler.syncId, packet.method_37440(), handler.getStacks(), this.player.currentScreenHandler.getCursorStack()));
+                        this.sendPacket(new InventoryS2CPacket(handler.syncId, handler.nextRevision(), handler.getStacks(), this.player.currentScreenHandler.getCursorStack()));
                     }
 
                     return;
@@ -54,14 +59,14 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 boolean allow = handler.getGui().click(slot, type, packet.getActionType());
                 if (!allow) {
                     if (slot >= 0 && slot < handler.getGui().getSize()) {
-                        this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(handler.syncId, packet.method_37440(), slot, handler.getSlot(slot).getStack()));
+                        this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(handler.syncId, handler.nextRevision(), slot, handler.getSlot(slot).getStack()));
                     }
-                    this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, packet.method_37440(), -1, this.player.currentScreenHandler.getCursorStack()));
+                    this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-1, handler.nextRevision(), -1, this.player.currentScreenHandler.getCursorStack()));
 
                     if (type.numKey) {
-                        this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(handler.syncId, packet.method_37440(), type.value + handler.slots.size() - 10, handler.getSlot(type.value + handler.slots.size() - 10).getStack()));
+                        this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(handler.syncId, handler.nextRevision(), type.value + handler.slots.size() - 10, handler.getSlot(type.value + handler.slots.size() - 10).getStack()));
                     } else if (type == ClickType.MOUSE_DOUBLE_CLICK || type == ClickType.MOUSE_LEFT_SHIFT || type == ClickType.MOUSE_RIGHT_SHIFT || (type.isDragging && type.value == 2)) {
-                        this.sendPacket(new InventoryS2CPacket(handler.syncId, packet.method_37440(), handler.getStacks(), this.player.currentScreenHandler.getCursorStack()));
+                        this.sendPacket(new InventoryS2CPacket(handler.syncId, handler.nextRevision(), handler.getStacks(), this.player.currentScreenHandler.getCursorStack()));
                     }
                 }
 
@@ -87,7 +92,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 ClickType type = ClickType.toClickType(packet.getActionType(), button, slot);
 
                 if (type == ClickType.MOUSE_DOUBLE_CLICK || (type.isDragging && type.value == 2) || type.shift) {
-                    this.sendPacket(new InventoryS2CPacket(handler.syncId, packet.method_37440(), handler.getStacks(), handler.getCursorStack()));
+                    this.sendPacket(new InventoryS2CPacket(handler.syncId, handler.nextRevision(), handler.getStacks(), handler.getCursorStack()));
                 }
 
             } catch (Exception e) {
@@ -147,12 +152,45 @@ public abstract class ServerPlayNetworkHandlerMixin {
     @Inject(method = "onSignUpdate(Lnet/minecraft/network/packet/c2s/play/UpdateSignC2SPacket;)V", at = @At("HEAD"), cancellable = true)
     private void catchSignUpdate(UpdateSignC2SPacket packet, CallbackInfo ci) {
         try {
-            if (this.player.currentScreenHandler instanceof SignScreenHandler) {
-                SignGui gui = ((SignScreenHandler) this.player.currentScreenHandler).getGui();
+            if (this.player.currentScreenHandler instanceof FakeScreenHandler fake && fake.getGui() instanceof SignGui gui) {
                 for (int i = 0; i < packet.getText().length; i++) {
                     gui.setLineInternal(i, new LiteralText(packet.getText()[i]));
                 }
                 gui.close(true);
+                ci.cancel();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Inject(method = "updateBookContent", at = @At("HEAD"), cancellable = true)
+    private void catchWritableBookClose(List<TextStream.Message> pages, int slotId, CallbackInfo ci) {
+        try {
+            if (this.player.currentScreenHandler instanceof FakeScreenHandler fake && fake.getGui() instanceof BookInputGui gui) {
+                List<String> stringPages = new ArrayList<>();
+                for (TextStream.Message page : pages) {
+                    stringPages.add(page.getRaw());
+                }
+
+                gui.writeBook(null, stringPages, false);
+                ci.cancel();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Inject(method = "addBook", at = @At("HEAD"), cancellable = true)
+    private void catchWritableBookSign(TextStream.Message title, List<TextStream.Message> pages, int slotId, CallbackInfo ci) {
+        try {
+            if (this.player.currentScreenHandler instanceof FakeScreenHandler fake && fake.getGui() instanceof BookInputGui gui) {
+                List<String> stringPages = new ArrayList<>();
+                for (TextStream.Message page : pages) {
+                    stringPages.add(page.getRaw());
+                }
+
+                gui.writeBook(title.getRaw(), stringPages, true);
                 ci.cancel();
             }
         } catch (Exception e) {

@@ -1,7 +1,7 @@
 package eu.pb4.sgui.api.gui;
 
 import eu.pb4.sgui.mixin.SignBlockEntityAccessor;
-import eu.pb4.sgui.virtual.sign.SignScreenHandler;
+import eu.pb4.sgui.virtual.FakeScreenHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -26,11 +26,11 @@ import java.util.List;
  * The Vanilla sign GUI does not use a {@link net.minecraft.screen.ScreenHandler} and thus
  * it gets its data directly from a block in the world. Due to this, before opening the
  * screen the server must send a fake 'ghost' sign block to the player which contains the data
- * we want the sign to show. We send the block at the players location at <code>y = 255</code>
+ * we want the sign to show. We send the block at the players location at max world height
  * so it hopefully goes unnoticed. The fake block is removed when the GUI is closed.
  * This also means in order to refresh the data on the sign, we must close and re-open the GUI,
  * as only handled screens have property support.
- * On the server side however, this sign GUI uses a custom {@link SignScreenHandler} so the server
+ * On the server side however, this sign GUI uses a custom {@link FakeScreenHandler} so the server
  * can manage and trigger methods like onTIck, onClose, ect.
  * <p>
  * SignGui has lots of deprecated methods which have no function, mainly due to the lack of
@@ -46,7 +46,7 @@ public class SignGui implements GuiInterface {
     protected final ServerPlayerEntity player;
     protected boolean open = false;
     protected boolean reOpen = false;
-    protected SignScreenHandler screenHandler;
+    protected FakeScreenHandler screenHandler;
 
     /**
      * Constructs a new SignGui for the provided player
@@ -143,7 +143,7 @@ public class SignGui implements GuiInterface {
             this.player.closeHandledScreen();
         }
         if (screenHandler == null) {
-            this.screenHandler = new SignScreenHandler(this);
+            this.screenHandler = new FakeScreenHandler(this);
         }
         this.player.currentScreenHandler = this.screenHandler;
 

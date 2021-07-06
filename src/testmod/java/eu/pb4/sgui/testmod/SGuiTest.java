@@ -5,6 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.elements.*;
 import eu.pb4.sgui.api.gui.*;
+import eu.pb4.sgui.api.gui.broken.BookInputGui;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.block.Blocks;
@@ -12,7 +13,6 @@ import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.WrittenBookItem;
-import net.minecraft.screen.HorseScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
@@ -26,7 +26,9 @@ import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.village.TradeOffer;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -59,6 +61,9 @@ public class SGuiTest implements ModInitializer {
             dispatcher.register(
                     literal("test7").executes(SGuiTest::test7)
 			);
+            dispatcher.register(
+                    literal("test8").executes(SGuiTest::test8)
+            );
         });
     }
 
@@ -367,6 +372,28 @@ public class SGuiTest implements ModInitializer {
 					1
 			));
 		} catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    private static int test8(CommandContext<ServerCommandSource> objectCommandContext) {
+        try {
+            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
+            BookInputGui gui = new BookInputGui(player) {
+                @Override
+                public void onBookWritten(@Nullable String title, List<String> pages, boolean signed) {
+                    this.player.sendMessage(new LiteralText("Title was: " + title), false);
+                    this.player.sendMessage(new LiteralText("Page 0 was: " + pages.get(0)), false);
+                    this.player.sendMessage(new LiteralText("Is signed: " + signed), false);
+                    super.onBookWritten(title, pages, signed);
+                }
+            };
+
+            gui.addPage("Hello world! How's you day?\nNew\nLine!");
+
+            gui.open();
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return 0;
