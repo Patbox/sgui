@@ -446,7 +446,7 @@ public class SimpleGui implements GuiInterface {
                 this.player.closeHandledScreen();
             }
 
-            this.player.networkHandler.sendPacket(new InventoryS2CPacket(this.player.playerScreenHandler.syncId, 0, this.player.playerScreenHandler.getStacks(), ItemStack.EMPTY));
+            this.player.networkHandler.sendPacket(new InventoryS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), this.player.playerScreenHandler.getStacks(), ItemStack.EMPTY));
             this.onClose();
         } else {
             this.reOpen = false;
