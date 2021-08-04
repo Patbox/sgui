@@ -28,7 +28,8 @@ import java.util.*;
  *
  * @see GuiElementBuilderInterface
  */
-public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
+@SuppressWarnings({"unused"})
+public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<AnimatedGuiElementBuilder> {
     protected final Map<Enchantment, Integer> enchantments = new HashMap<>();
     protected final List<ItemStack> itemStacks = new ArrayList<>();
     protected Item item = Items.STONE;
@@ -37,8 +38,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     protected Text name = null;
     protected List<Text> lore = new ArrayList<>();
     protected int damage = -1;
-    protected GuiElement.ItemClickCallback callback = (index, type, action) -> {
-    };
+    protected GuiElement.ClickCallback callback = GuiElement.EMPTY_CALLBACK;
     protected byte hideFlags = 0;
     protected int interval = 1;
     protected boolean random = false;
@@ -293,7 +293,13 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     @Override
-    public AnimatedGuiElementBuilder setCallback(GuiElement.ItemClickCallback callback) {
+    public AnimatedGuiElementBuilder setCallback(GuiElement.ClickCallback callback) {
+        this.callback = callback;
+        return this;
+    }
+
+    @Override
+    public AnimatedGuiElementBuilder setCallback(GuiElementInterface.ItemClickCallback callback) {
         this.callback = callback;
         return this;
     }

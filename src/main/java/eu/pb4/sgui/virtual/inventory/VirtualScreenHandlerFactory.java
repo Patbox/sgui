@@ -8,12 +8,7 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
-public final class VirtualScreenHandlerFactory implements NamedScreenHandlerFactory {
-    private final SimpleGui gui;
-
-    public VirtualScreenHandlerFactory(SimpleGui gui) {
-        this.gui = gui;
-    }
+public record VirtualScreenHandlerFactory(SimpleGui gui) implements NamedScreenHandlerFactory {
 
     @Override
     public Text getDisplayName() {

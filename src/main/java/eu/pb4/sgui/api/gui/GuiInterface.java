@@ -12,6 +12,7 @@ import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings({"unused"})
 public interface GuiInterface {
 
     /**

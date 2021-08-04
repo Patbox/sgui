@@ -6,15 +6,29 @@ import net.minecraft.item.ItemStack;
  * Simple Gui Element
  * <br>
  * A simple, single frame, GuiElement.
- *
+ * <p>
  * Gui elements are typically constructed via their respective builder.
- * @see GuiElementBuilder
  *
+ * @see GuiElementBuilder
  * @see GuiElementInterface
  */
 public class GuiElement implements GuiElementInterface {
-    protected final ItemClickCallback callback;
+    public static final GuiElement EMPTY = new GuiElement(ItemStack.EMPTY, EMPTY_CALLBACK);
+
+    protected final ClickCallback callback;
     protected ItemStack item;
+
+    /**
+     * Constructs a GuiElement with the supplied options.
+     *
+     * @param item     the stack to use for display
+     * @param callback the callback to execute when the element is selected
+     * @see GuiElementBuilder
+     */
+    public GuiElement(ItemStack item, ClickCallback callback) {
+        this.item = item;
+        this.callback = callback;
+    }
 
     /**
      * Constructs a GuiElement with the supplied options.
@@ -28,6 +42,11 @@ public class GuiElement implements GuiElementInterface {
         this.callback = callback;
     }
 
+    @Override
+    public ItemStack getItemStack() {
+        return this.item;
+    }
+
     /**
      * Sets the display ItemStack
      *
@@ -38,12 +57,7 @@ public class GuiElement implements GuiElementInterface {
     }
 
     @Override
-    public ItemStack getItemStack() {
-        return this.item;
-    }
-
-    @Override
-    public ItemClickCallback getCallback() {
+    public ClickCallback getGuiCallback() {
         return this.callback;
     }
 

@@ -200,8 +200,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
 
     @Inject(method = "onMerchantTradeSelect", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V"), cancellable = true)
     private void catchMerchantTradeSelect(SelectMerchantTradeC2SPacket packet, CallbackInfo ci) {
-        if (this.player.currentScreenHandler instanceof VirtualMerchantScreenHandler) {
-            VirtualMerchantScreenHandler merchantScreenHandler = (VirtualMerchantScreenHandler) this.player.currentScreenHandler;
+        if (this.player.currentScreenHandler instanceof VirtualMerchantScreenHandler merchantScreenHandler) {
             int id = packet.getTradeId();
             merchantScreenHandler.selectNewTrade(id);
             ci.cancel();

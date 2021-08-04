@@ -8,16 +8,11 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
-public final class BookScreenHandlerFactory implements NamedScreenHandlerFactory {
-    private final BookGui gui;
-
-    public BookScreenHandlerFactory(BookGui gui) {
-        this.gui = gui;
-    }
+public record BookScreenHandlerFactory(BookGui gui) implements NamedScreenHandlerFactory {
 
     @Override
     public Text getDisplayName() {
-        return new LiteralText("");
+        return LiteralText.EMPTY;
     }
 
     @Override

@@ -24,6 +24,7 @@ import java.util.OptionalInt;
  * various methods and callbacks which can be used modify aspects specific
  * to the merchant screen.
  */
+@SuppressWarnings({"unused"})
 public class MerchantGui extends SimpleGui {
 
     protected final VirtualMerchant merchant;

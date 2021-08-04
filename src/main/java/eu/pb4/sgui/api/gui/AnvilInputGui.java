@@ -20,6 +20,7 @@ import org.jetbrains.annotations.ApiStatus;
  * AnvilInputGui is an implementation of {@link SimpleGui} and thus has all
  * the standard slot and screen modification methods.
  */
+@SuppressWarnings({"unused"})
 public class AnvilInputGui extends SimpleGui {
     private String inputText;
     private String defaultText;
@@ -46,7 +47,7 @@ public class AnvilInputGui extends SimpleGui {
         itemStack.setCustomName(new LiteralText(input));
         this.inputText = input;
         this.defaultText = input;
-        this.setSlot(0, itemStack, ((index, type1, action) -> {
+        this.setSlot(0, itemStack, ((index, type1, action, gui) -> {
             this.reOpen = true;
             this.inputText = this.defaultText;
             this.sendGui();

@@ -1,6 +1,9 @@
 package eu.pb4.sgui.api.elements;
 
+import eu.pb4.sgui.api.gui.GuiInterface;
 import net.minecraft.item.ItemStack;
+
+import java.util.WeakHashMap;
 
 /**
  * Animated Gui Element
@@ -15,12 +18,29 @@ import net.minecraft.item.ItemStack;
  * @see GuiElementInterface
  */
 public class AnimatedGuiElement implements GuiElementInterface {
-    protected final ItemClickCallback callback;
+    protected final ClickCallback callback;
     protected ItemStack[] items;
     protected int frame = 0;
     protected int tick = 0;
     protected final int changeEvery;
     protected final boolean random;
+    protected WeakHashMap<GuiInterface, TickAndFrame> ticks = new WeakHashMap<>();
+
+    /**
+     * Constructs an AnimatedGuiElement using the supplied options.
+     *
+     * @param items    an array of ItemStack frames
+     * @param interval the interval each frame should remain active for
+     * @param random   <code>true</code> is the frames should be randomly chosen
+     * @param callback the callback to execute when the element is selected
+     * @see AnimatedGuiElementBuilder
+     */
+    public AnimatedGuiElement(ItemStack[] items, int interval, boolean random, ClickCallback callback) {
+        this.items = items;
+        this.callback = callback;
+        this.changeEvery = interval;
+        this.random = random;
+    }
 
     /**
      * Constructs an AnimatedGuiElement using the supplied options.
@@ -53,12 +73,12 @@ public class AnimatedGuiElement implements GuiElementInterface {
     }
 
     @Override
-    public ItemClickCallback getCallback() {
+    public ClickCallback getGuiCallback() {
         return this.callback;
     }
 
     @Override
-    public ItemStack getItemStackInternalUseOnly() {
+    public ItemStack getItemStackForDisplay(GuiInterface gui) {
         int cFrame = this.frame;
 
         this.tick += 1;
@@ -78,4 +98,9 @@ public class AnimatedGuiElement implements GuiElementInterface {
         return this.items[cFrame].copy();
     }
 
+
+    protected static class TickAndFrame {
+        public int tick;
+        public int frame;
+    }
 }

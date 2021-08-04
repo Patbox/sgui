@@ -23,6 +23,7 @@ import java.util.OptionalInt;
  * BookGui has lots of deprecated methods which have no function, this is
  * mainly due to the lack of item slots in the book interface.
  */
+@SuppressWarnings("unused")
 public class BookGui implements GuiInterface {
     protected final ServerPlayerEntity player;
     protected final ItemStack book;

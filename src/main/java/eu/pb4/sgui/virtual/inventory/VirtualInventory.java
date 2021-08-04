@@ -7,12 +7,7 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
 
-public class VirtualInventory implements Inventory {
-    private final SimpleGui gui;
-
-    public VirtualInventory(SimpleGui gui) {
-        this.gui = gui;
-    }
+public record VirtualInventory(SimpleGui gui) implements Inventory {
 
     @Override
     public int size() {
@@ -34,7 +29,7 @@ public class VirtualInventory implements Inventory {
             if (element == null) {
                 return ItemStack.EMPTY;
             }
-            return element.getItemStackInternalUseOnly();
+            return element.getItemStackForDisplay(this.gui);
         }
     }
 

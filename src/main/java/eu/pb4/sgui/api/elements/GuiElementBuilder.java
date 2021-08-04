@@ -27,7 +27,8 @@ import java.util.stream.Collectors;
  *
  * @see GuiElementBuilderInterface
  */
-public class GuiElementBuilder implements GuiElementBuilderInterface {
+@SuppressWarnings({"unused"})
+public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementBuilder> {
     protected final Map<Enchantment, Integer> enchantments = new HashMap<>();
     protected Item item = Items.STONE;
     protected NbtCompound tag;
@@ -35,8 +36,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface {
     protected Text name = null;
     protected List<Text> lore = new ArrayList<>();
     protected int damage = -1;
-    protected GuiElement.ItemClickCallback callback = (index, type, action) -> {
-    };
+    protected GuiElement.ClickCallback callback = GuiElementInterface.EMPTY_CALLBACK;
     protected byte hideFlags = 0;
 
     /**
@@ -93,9 +93,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface {
 
         if (stack.hasEnchantments()) {
             for (NbtElement enc : stack.getEnchantments()) {
-                Registry.ENCHANTMENT.getOrEmpty(Identifier.tryParse(((NbtCompound) enc).getString("id"))).ifPresent(enchantment -> {
-                    builder.enchant(enchantment, ((NbtCompound) enc).getInt("lvl"));
-                });
+                Registry.ENCHANTMENT.getOrEmpty(Identifier.tryParse(((NbtCompound) enc).getString("id"))).ifPresent(enchantment -> builder.enchant(enchantment, ((NbtCompound) enc).getInt("lvl")));
             }
             tag.remove("Enchantments");
         }
@@ -313,7 +311,13 @@ public class GuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     @Override
-    public GuiElementBuilder setCallback(GuiElement.ItemClickCallback callback) {
+    public GuiElementBuilder setCallback(GuiElement.ClickCallback callback) {
+        this.callback = callback;
+        return this;
+    }
+
+    @Override
+    public GuiElementBuilder setCallback(GuiElementInterface.ItemClickCallback callback) {
         this.callback = callback;
         return this;
     }

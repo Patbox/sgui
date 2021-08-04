@@ -74,7 +74,11 @@ public class VirtualScreenHandler extends ScreenHandler implements VirtualScreen
 
     @Override
     public void sendContentUpdates() {
-        this.gui.onTick();
+        try {
+            this.gui.onTick();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         super.sendContentUpdates();
     }
 
@@ -115,9 +119,8 @@ public class VirtualScreenHandler extends ScreenHandler implements VirtualScreen
         return super.addSlot(slot);
     }
 
-    public Slot setSlot(int index, Slot slot) {
+    public void setSlot(int index, Slot slot) {
         this.slots.set(index, slot);
-        return slot;
     }
 
     @Override
@@ -144,7 +147,7 @@ public class VirtualScreenHandler extends ScreenHandler implements VirtualScreen
 
                 itemStack = slot2.getStack();
 
-                if (!(slot2 instanceof VirtualSlot) && !itemStack.isEmpty() && ItemStack.canCombine(stack, itemStack)) {
+                if (!(slot2 instanceof VirtualSlot) && stack != itemStack && !itemStack.isEmpty() && ItemStack.canCombine(stack, itemStack)) {
                     int j = itemStack.getCount() + stack.getCount();
                     if (j <= stack.getMaxCount()) {
                         stack.setCount(0);

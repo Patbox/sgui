@@ -6,6 +6,9 @@ import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.elements.*;
 import eu.pb4.sgui.api.gui.*;
 import eu.pb4.sgui.api.gui.broken.BookInputGui;
+import eu.pb4.sgui.api.gui.layered.Layer;
+import eu.pb4.sgui.api.gui.layered.LayerView;
+import eu.pb4.sgui.api.gui.layered.LayeredGui;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.block.Blocks;
@@ -38,35 +41,6 @@ public class SGuiTest implements ModInitializer {
 
     private static final Random RANDOM = new Random();
 
-    public void onInitialize() {
-        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
-            dispatcher.register(
-                literal("test").executes(SGuiTest::test)
-            );
-            dispatcher.register(
-                literal("test2").executes(SGuiTest::test2)
-            );
-            dispatcher.register(
-                    literal("test3").executes(SGuiTest::test3)
-            );
-            dispatcher.register(
-                    literal("test4").executes(SGuiTest::test4)
-            );
-            dispatcher.register(
-                    literal("test5").executes(SGuiTest::test5)
-            );
-			dispatcher.register(
-                    literal("test6").executes(SGuiTest::test6)
-            );
-            dispatcher.register(
-                    literal("test7").executes(SGuiTest::test7)
-			);
-            dispatcher.register(
-                    literal("test8").executes(SGuiTest::test8)
-            );
-        });
-    }
-
     private static int test(CommandContext<ServerCommandSource> objectCommandContext) {
         try {
             ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
@@ -88,7 +62,8 @@ public class SGuiTest implements ModInitializer {
                     Items.IRON_PICKAXE.getDefaultStack(),
                     Items.STONE_PICKAXE.getDefaultStack(),
                     Items.WOODEN_PICKAXE.getDefaultStack()
-            }, 10, false, (x, y, z) -> {}));
+            }, 10, false, (x, y, z) -> {
+            }));
 
             gui.setSlot(2, new AnimatedGuiElementBuilder()
                     .setItem(Items.NETHERITE_AXE).setDamage(150).saveItemStack()
@@ -103,7 +78,8 @@ public class SGuiTest implements ModInitializer {
             for (int x = 3; x < gui.getSize(); x++) {
                 ItemStack itemStack = Items.STONE.getDefaultStack();
                 itemStack.setCount(x);
-                gui.setSlot(x, new GuiElement(itemStack, (index, clickType, actionType) -> {}));
+                gui.setSlot(x, new GuiElement(itemStack, (index, clickType, actionType) -> {
+                }));
             }
 
             gui.setSlot(5, new GuiElementBuilder(Items.PLAYER_HEAD)
@@ -128,9 +104,7 @@ public class SGuiTest implements ModInitializer {
                     .addLoreLine(new LiteralText("Some lore"))
                     .addLoreLine(new LiteralText("More lore").formatted(Formatting.RED))
                     .setCount(3)
-                    .setCallback((index, clickType, actionType) -> {
-                        gui.close();
-                    })
+                    .setCallback((index, clickType, actionType) -> gui.close())
             );
 
             gui.setSlot(8, new GuiElementBuilder()
@@ -156,7 +130,7 @@ public class SGuiTest implements ModInitializer {
                         }
                     })
             );
-            gui.setSlotRedirect(4, new Slot(player.getEnderChestInventory(), 0, 0,0));
+            gui.setSlotRedirect(4, new Slot(player.getEnderChestInventory(), 0, 0, 0));
 
             gui.open();
         } catch (Exception e) {
@@ -304,10 +278,10 @@ public class SGuiTest implements ModInitializer {
                 }
 
                 @Override
-                public void onTick()  {
+                public void onTick() {
                     tick++;
                     if (tick % 30 == 0) {
-                        this.setLine(1, new LiteralText(this.getLine(1).asString() +  "^"));
+                        this.setLine(1, new LiteralText(this.getLine(1).asString() + "^"));
                         this.setSignType(BlockTags.WALL_SIGNS.getRandom(RANDOM));
                         this.setColor(DyeColor.byId(RANDOM.nextInt(15)));
                         this.updateSign();
@@ -322,11 +296,11 @@ public class SGuiTest implements ModInitializer {
         }
         return 0;
     }
-	
-	private static int test7(CommandContext<ServerCommandSource> objectCommandContext) {
-		try {
-			ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
-			MerchantGui gui = new MerchantGui(player, false) {
+
+    private static int test7(CommandContext<ServerCommandSource> objectCommandContext) {
+        try {
+            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
+            MerchantGui gui = new MerchantGui(player, false) {
 
                 @Override
                 public void onSelectTrade(TradeOffer offer) {
@@ -347,31 +321,31 @@ public class SGuiTest implements ModInitializer {
                 }
             };
 
-			gui.setTitle(new LiteralText("Trades wow!"));
-			gui.setIsLeveled(true);
-			gui.addTrade(new TradeOffer(
-					Items.STONE.getDefaultStack(),
-					new GuiElementBuilder(Items.DIAMOND_AXE)
-							.glow()
-							.setCount(1)
-							.setName(new LiteralText("Glowing Axe"))
-							.asStack(),
-					1,
-					0,
-					1
-			));
-			gui.open();
+            gui.setTitle(new LiteralText("Trades wow!"));
+            gui.setIsLeveled(true);
+            gui.addTrade(new TradeOffer(
+                    Items.STONE.getDefaultStack(),
+                    new GuiElementBuilder(Items.DIAMOND_AXE)
+                            .glow()
+                            .setCount(1)
+                            .setName(new LiteralText("Glowing Axe"))
+                            .asStack(),
+                    1,
+                    0,
+                    1
+            ));
+            gui.open();
 
-			gui.addTrade(new TradeOffer(
-					Items.EMERALD.getDefaultStack(),
-					new GuiElementBuilder(Items.STONE)
-							.setCount(16)
-							.asStack(),
-					100,
-					0,
-					1
-			));
-		} catch (Exception e) {
+            gui.addTrade(new TradeOffer(
+                    Items.EMERALD.getDefaultStack(),
+                    new GuiElementBuilder(Items.STONE)
+                            .setCount(16)
+                            .asStack(),
+                    100,
+                    0,
+                    1
+            ));
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return 0;
@@ -397,5 +371,95 @@ public class SGuiTest implements ModInitializer {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    private static int test9(CommandContext<ServerCommandSource> objectCommandContext) {
+        try {
+            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
+            LayeredGui gui = new LayeredGui(ScreenHandlerType.GENERIC_9X6, player, true);
+            GuiElementBuilder elementBuilder = new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE).setName(LiteralText.EMPTY.copy());
+            for (int a = 0; a < 9; a++) {
+                for (int b = 0; b < 5; b++) {
+                    gui.setSlot(a + (b * 2) * 9, elementBuilder);
+                }
+            }
+
+            elementBuilder = new GuiElementBuilder(Items.PLAYER_HEAD).setName(LiteralText.EMPTY.copy());
+            int i = 1;
+            Layer movingLayer = new Layer(2, 3);
+            while (movingLayer.getFirstEmptySlot() != -1) {
+                elementBuilder.setCount(i++);
+                movingLayer.addSlot(elementBuilder);
+            }
+
+            LayerView movingView = gui.addLayer(movingLayer, 1, 1);
+
+            Layer controller = new Layer(3, 3);
+
+            controller.setSlot(1, new GuiElementBuilder(Items.SLIME_BALL).setName(new LiteralText("^"))
+                    .setCallback((x, y, z) -> movingView.setY(movingView.getY() - 1)));
+            controller.setSlot(3, new GuiElementBuilder(Items.SLIME_BALL).setName(new LiteralText("<"))
+                    .setCallback((x, y, z) -> movingView.setX(movingView.getX() - 1)));
+            controller.setSlot(5, new GuiElementBuilder(Items.SLIME_BALL).setName(new LiteralText(">"))
+                    .setCallback((x, y, z) -> movingView.setX(movingView.getX() + 1)));
+            controller.setSlot(7, new GuiElementBuilder(Items.SLIME_BALL).setName(new LiteralText("v"))
+                    .setCallback((x, y, z) -> movingView.setY(movingView.getY() + 1)));
+
+            controller.setSlot(4, new GuiElementBuilder(Items.WHITE_STAINED_GLASS_PANE).setName(LiteralText.EMPTY.copy()));
+
+            gui.addLayer(controller, 5, 6).setZIndex(5);
+
+            gui.open();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    private static int snake(CommandContext<ServerCommandSource> objectCommandContext) {
+        try {
+            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
+            LayeredGui gui = new SnakeGui(player);
+            gui.open();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+
+        public void onInitialize() {
+        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
+            dispatcher.register(
+                    literal("test").executes(SGuiTest::test)
+            );
+            dispatcher.register(
+                    literal("test2").executes(SGuiTest::test2)
+            );
+            dispatcher.register(
+                    literal("test3").executes(SGuiTest::test3)
+            );
+            dispatcher.register(
+                    literal("test4").executes(SGuiTest::test4)
+            );
+            dispatcher.register(
+                    literal("test5").executes(SGuiTest::test5)
+            );
+            dispatcher.register(
+                    literal("test6").executes(SGuiTest::test6)
+            );
+            dispatcher.register(
+                    literal("test7").executes(SGuiTest::test7)
+            );
+            dispatcher.register(
+                    literal("test8").executes(SGuiTest::test8)
+            );
+            dispatcher.register(
+                    literal("test9").executes(SGuiTest::test9)
+            );
+            dispatcher.register(
+                    literal("snake").executes(SGuiTest::snake)
+            );
+        });
     }
 }

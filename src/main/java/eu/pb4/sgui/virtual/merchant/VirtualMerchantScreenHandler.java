@@ -25,7 +25,11 @@ public class VirtualMerchantScreenHandler extends VirtualScreenHandler {
 
     @Override
     public void onContentChanged(Inventory inventory) {
-        this.merchantInventory.updateOffers();
+        try {
+            this.merchantInventory.updateOffers();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         super.onContentChanged(inventory);
     }
 

@@ -19,6 +19,7 @@ import net.minecraft.text.Text;
  *
  * @see GuiElementBuilderInterface
  */
+@SuppressWarnings({"unused"})
 public class BookElementBuilder extends GuiElementBuilder {
 
     /**
@@ -160,7 +161,11 @@ public class BookElementBuilder extends GuiElementBuilder {
         } else if (this.item == Items.WRITABLE_BOOK){
             NbtList pages = this.getOrCreatePages();
             for (int i = 0; i < pages.size(); i++) {
-                pages.set(i, NbtString.of(Text.Serializer.fromLenientJson(pages.getString(i)).getString()));
+                try {
+                    pages.set(i, NbtString.of(Text.Serializer.fromLenientJson(pages.getString(i)).getString()));
+                } catch (Exception e) {
+                    pages.set(i, NbtString.of("Invalid page data!"));
+                }
             }
             this.getOrCreateTag().put("pages", pages);
 

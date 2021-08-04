@@ -30,8 +30,9 @@ public class VirtualMerchant extends SimpleMerchant {
     @Override
     public void onSellingItem(ItemStack stack) {
         ServerPlayerEntity player = (ServerPlayerEntity) this.getCurrentCustomer();
-        if (player.currentScreenHandler instanceof VirtualMerchantScreenHandler) {
-            ((VirtualMerchantScreenHandler) player.currentScreenHandler).getGui().onSuggestSell(((VirtualMerchantScreenHandler) player.currentScreenHandler).getGui().getSelectedTrade());
+        assert player != null;
+        if (player.currentScreenHandler instanceof VirtualMerchantScreenHandler current) {
+            current.getGui().getSelectedTrade();
         }
         super.onSellingItem(stack);
     }
