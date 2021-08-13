@@ -13,7 +13,8 @@
   ],
   "contact": {
     "homepage": "https://pb4.eu",
-    "sources": "https://github.com/Patbox/sgui"
+    "sources": "https://github.com/Patbox/sgui",
+    "issues": "https://github.com/Patbox/sgui/issues"
   },
   "license": "LGPLv3",
   "icon": "assets/icon.png",
