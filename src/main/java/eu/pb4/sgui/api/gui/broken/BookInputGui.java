@@ -67,8 +67,8 @@ public class BookInputGui implements GuiInterface {
         this.player = player;
         this.pages = new ArrayList<>();
         if (book != null && book.getItem() instanceof WritableBookItem) {
-            if (book.hasTag() && book.getTag().contains("pages", NbtElement.LIST_TYPE)) {
-                NbtList nbtList = book.getTag().getList("pages", NbtElement.STRING_TYPE);
+            if (book.hasNbt() && book.getNbt().contains("pages", NbtElement.LIST_TYPE)) {
+                NbtList nbtList = book.getNbt().getList("pages", NbtElement.STRING_TYPE);
 
                 for (int i = 0; i < nbtList.size(); ++i) {
                     String string = nbtList.getString(i);
@@ -100,7 +100,7 @@ public class BookInputGui implements GuiInterface {
         for (String string : this.pages) {
             list.add(NbtString.of(string));
         }
-        stack.getOrCreateTag().put("pages", list);
+        stack.getOrCreateNbt().put("pages", list);
 
         this.player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, PlayerInventory.OFF_HAND_SLOT, stack));
         this.player.networkHandler.sendPacket(new OpenWrittenBookS2CPacket(Hand.OFF_HAND));

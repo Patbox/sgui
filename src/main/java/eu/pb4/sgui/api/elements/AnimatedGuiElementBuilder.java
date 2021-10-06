@@ -316,7 +316,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
         ItemStack itemStack = new ItemStack(this.item, this.count);
 
         if (this.tag != null) {
-            itemStack.getOrCreateTag().copyFrom(this.tag);
+            itemStack.getOrCreateNbt().copyFrom(this.tag);
         }
 
         if (this.name != null) {
@@ -335,7 +335,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
         }
 
         if (this.lore.size() > 0) {
-            NbtCompound display = itemStack.getOrCreateSubTag("display");
+            NbtCompound display = itemStack.getOrCreateSubNbt("display");
             NbtList loreItems = new NbtList();
             for (Text l : this.lore) {
                 if (l instanceof MutableText) {
@@ -347,7 +347,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
         }
 
         if (this.hideFlags != 0) {
-            itemStack.getOrCreateTag().putByte("HideFlags", this.hideFlags);
+            itemStack.getOrCreateNbt().putByte("HideFlags", this.hideFlags);
         }
 
         return itemStack;

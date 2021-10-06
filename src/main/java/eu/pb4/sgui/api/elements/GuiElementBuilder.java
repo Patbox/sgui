@@ -74,7 +74,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      */
     public static GuiElementBuilder from(ItemStack stack) {
         GuiElementBuilder builder = new GuiElementBuilder(stack.getItem(), stack.getCount());
-        NbtCompound tag = stack.getOrCreateTag();
+        NbtCompound tag = stack.getOrCreateNbt();
 
         if (stack.hasCustomName()) {
             builder.setName((MutableText) stack.getName());
@@ -98,8 +98,8 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
             tag.remove("Enchantments");
         }
 
-        if (stack.getOrCreateTag().contains("HideFlags")) {
-            builder.hideFlags(stack.getOrCreateTag().getByte("HideFlags"));
+        if (stack.getOrCreateNbt().contains("HideFlags")) {
+            builder.hideFlags(stack.getOrCreateNbt().getByte("HideFlags"));
             tag.remove("HideFlags");
         }
 
@@ -109,7 +109,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
     }
 
     public static List<Text> getLore(ItemStack stack) {
-        return stack.getOrCreateSubTag("display").getList("Lore", NbtType.STRING).stream().map(tag -> Text.Serializer.fromJson(tag.asString())).collect(Collectors.toList());
+        return stack.getOrCreateSubNbt("display").getList("Lore", NbtType.STRING).stream().map(tag -> Text.Serializer.fromJson(tag.asString())).collect(Collectors.toList());
     }
 
     /**
@@ -334,7 +334,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
         ItemStack itemStack = new ItemStack(this.item, this.count);
 
         if (this.tag != null) {
-            itemStack.getOrCreateTag().copyFrom(this.tag);
+            itemStack.getOrCreateNbt().copyFrom(this.tag);
         }
 
         if (this.name != null) {
@@ -353,7 +353,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
         }
 
         if (this.lore.size() > 0) {
-            NbtCompound display = itemStack.getOrCreateSubTag("display");
+            NbtCompound display = itemStack.getOrCreateSubNbt("display");
             NbtList loreItems = new NbtList();
             for (Text l : this.lore) {
                 if (l instanceof MutableText) {
@@ -365,7 +365,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
         }
 
         if (this.hideFlags != 0) {
-            itemStack.getOrCreateTag().putByte("HideFlags", this.hideFlags);
+            itemStack.getOrCreateNbt().putByte("HideFlags", this.hideFlags);
         }
 
         return itemStack;

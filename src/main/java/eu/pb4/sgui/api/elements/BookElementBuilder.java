@@ -197,16 +197,16 @@ public class BookElementBuilder extends GuiElementBuilder {
 
         BookElementBuilder builder = new BookElementBuilder(book.getCount());
 
-        if (book.getOrCreateTag().contains("title")) {
-            builder.setTitle(book.getOrCreateTag().getString("title"));
+        if (book.getOrCreateNbt().contains("title")) {
+            builder.setTitle(book.getOrCreateNbt().getString("title"));
         }
 
-        if (book.getOrCreateTag().contains("author")) {
-            builder.setTitle(book.getOrCreateTag().getString("author"));
+        if (book.getOrCreateNbt().contains("author")) {
+            builder.setTitle(book.getOrCreateNbt().getString("author"));
         }
 
-        if (book.getOrCreateTag().contains("pages")) {
-            NbtList pages = book.getOrCreateTag().getList("pages", NbtElement.STRING_TYPE);
+        if (book.getOrCreateNbt().contains("pages")) {
+            NbtList pages = book.getOrCreateNbt().getList("pages", NbtElement.STRING_TYPE);
             for (NbtElement page : pages) {
                 builder.addPage(Text.Serializer.fromLenientJson(page.asString()));
             }
@@ -228,8 +228,8 @@ public class BookElementBuilder extends GuiElementBuilder {
             throw new IllegalArgumentException("Item must be a type of book");
         }
 
-        if (book.getOrCreateTag().contains("pages")) {
-            NbtList pages = book.getOrCreateTag().getList("pages", NbtElement.STRING_TYPE);
+        if (book.getOrCreateNbt().contains("pages")) {
+            NbtList pages = book.getOrCreateNbt().getList("pages", NbtElement.STRING_TYPE);
             if(index < pages.size()) {
                 return Text.Serializer.fromJson(pages.get(index).asString());
             }

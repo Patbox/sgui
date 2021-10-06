@@ -27,9 +27,9 @@
     "sgui.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.7.4",
+    "fabricloader": ">=0.12.0",
     "fabric": "*",
-    "minecraft": ">=1.17.1-beta.1"
+    "minecraft": "1.18.x"
   },
   "custom": {
     "modmenu": {
