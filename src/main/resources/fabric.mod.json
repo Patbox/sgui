@@ -27,7 +27,7 @@
     "sgui.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.12.0",
+    "fabricloader": ">=0.11.7",
     "fabric": "*",
     "minecraft": "1.18.x"
   },
