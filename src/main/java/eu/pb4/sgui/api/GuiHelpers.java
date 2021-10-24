@@ -1,9 +1,26 @@
 package eu.pb4.sgui.api;
 
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
+import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.server.network.ServerPlayerEntity;
 
 public final class GuiHelpers {
-    private GuiHelpers() {
+    public static void sendSlotUpdate(ServerPlayerEntity player, int syncId, int slot, ItemStack stack, int revision) {
+        player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(syncId, revision, slot, stack));
+    }
+
+    public static void sendSlotUpdate(ServerPlayerEntity player, int syncId, int slot, ItemStack stack) {
+        sendSlotUpdate(player, syncId, slot, stack, 0);
+    }
+
+    public static void sendPlayerScreenHandler(ServerPlayerEntity player) {
+        player.networkHandler.sendPacket(new InventoryS2CPacket(player.currentScreenHandler.syncId, player.currentScreenHandler.nextRevision(), player.currentScreenHandler.getStacks(), player.currentScreenHandler.getCursorStack()));
+    }
+
+    public static void sendPlayerInventory(ServerPlayerEntity player) {
+        player.networkHandler.sendPacket(new InventoryS2CPacket(player.playerScreenHandler.syncId, player.playerScreenHandler.nextRevision(), player.playerScreenHandler.getStacks(), player.playerScreenHandler.getCursorStack()));
     }
 
     public static int posToIndex(int x, int y, int height, int width) {
@@ -38,5 +55,8 @@ public final class GuiHelpers {
         }
 
         return 9;
+    }
+
+    private GuiHelpers() {
     }
 }

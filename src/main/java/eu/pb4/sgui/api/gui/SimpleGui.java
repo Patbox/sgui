@@ -1,6 +1,5 @@
 package eu.pb4.sgui.api.gui;
 
-import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.GuiHelpers;
 import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
@@ -8,15 +7,12 @@ import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
 import eu.pb4.sgui.virtual.inventory.VirtualScreenHandlerFactory;
 import eu.pb4.sgui.virtual.inventory.VirtualSlot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerPropertyUpdateS2CPacket;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.ApiStatus;
 
 import java.util.OptionalInt;
 
@@ -27,19 +23,12 @@ import java.util.OptionalInt;
  * interacting, redirecting and modifying slots and items.
  */
 @SuppressWarnings({"unused"})
-public class SimpleGui implements SlotGuiInterface {
-    protected final ServerPlayerEntity player;
-    protected final int size;
+public class SimpleGui extends BaseSlotGui {
     protected final int width;
     protected final int height;
     protected final ScreenHandlerType<?> type;
-    protected final GuiElementInterface[] elements;
-    protected final Slot[] slotRedirects;
     private final boolean includePlayer;
     private final int sizeCont;
-    protected boolean open = false;
-    protected boolean autoUpdate = true;
-    protected boolean reOpen = false;
     protected boolean lockPlayerInventory = false;
     protected VirtualScreenHandler screenHandler = null;
     protected int syncId = -1;
@@ -55,19 +44,12 @@ public class SimpleGui implements SlotGuiInterface {
      *                                    will be treated as slots of this gui
      */
     public SimpleGui(ScreenHandlerType<?> type, ServerPlayerEntity player, boolean includePlayerInventorySlots) {
-        this.player = player;
-
+        super( player, GuiHelpers.getHeight(type) * GuiHelpers.getWidth(type) + (includePlayerInventorySlots ? 36 : 0));
         this.height = GuiHelpers.getHeight(type);
         this.width = GuiHelpers.getWidth(type);
 
         this.type = type;
-        int tmp = includePlayerInventorySlots ? 36 : 0;
-        this.size = this.width * this.height + tmp;
         this.sizeCont = this.width * this.height;
-        this.elements = new GuiElementInterface[this.size];
-        this.slotRedirects = new Slot[this.size];
-
-
         this.includePlayer = includePlayerInventorySlots;
     }
 
@@ -91,65 +73,59 @@ public class SimpleGui implements SlotGuiInterface {
 
     @Override
     public void setSlot(int index, GuiElementInterface element) {
-        if (this.elements[index] != null) {
-            this.elements[index].onRemoved(this);
-        }
-        this.elements[index] = element;
-        this.slotRedirects[index] = null;
-        element.onAdded(this);
+        super.setSlot(index, element);
         if (this.open && this.autoUpdate && this.screenHandler != null) {
             this.screenHandler.setSlot(index, new VirtualSlot(this.screenHandler.inventory, index, 0, 0));
         }
     }
 
-    /**
-     * Allows to add own Slot instances, that can point to any inventory.
-     * Do not add duplicates (including player inventory) as it can cause item duplication!
-     *
-     * @param index the slot index (in this gui)
-     * @param slot  the slot to redirect to
-     * @see SimpleGui#addSlotRedirect(Slot)
-     */
+    @Override
     public void setSlotRedirect(int index, Slot slot) {
-        if (this.elements[index] != null) {
-            this.elements[index].onRemoved(this);
-            this.elements[index] = null;
-        }
-        this.slotRedirects[index] = slot;
+        super.setSlotRedirect(index, slot);
         if (this.open && this.autoUpdate && this.screenHandler != null) {
             this.screenHandler.setSlot(index, slot);
         }
-        this.hasRedirects = true;
     }
 
-    /**
-     * Returns the first empty slot inside the inventory.
-     *
-     * @return the index of the first empty slot or <code>-1</code> if full
-     */
-    public int getFirstEmptySlot() {
-        for (int i = 0; i < this.elements.length; i++) {
-            if (this.elements[i] == null && this.slotRedirects[i] == null) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * Reverts slot to it's original state.
-     *
-     * @param index slot index
-     */
+    @Override
     public void clearSlot(int index) {
-        this.elements[index] = null;
-        this.slotRedirects[index] = null;
-
+        super.clearSlot(index);
+        this.hasRedirects = true;
         if (this.open && this.autoUpdate) {
             if (this.screenHandler != null) {
                 this.screenHandler.setSlot(index, new VirtualSlot(this.screenHandler.inventory, index, 0, 0));
             }
         }
+    }
+
+    @Override
+    public boolean isOpen() {
+        return this.open;
+    }
+
+    @Override
+    public Text getTitle() {
+        return this.title;
+    }
+
+    @Override
+    public void setTitle(Text title) {
+        this.title = title;
+
+        if (this.open) {
+            this.reOpen = true;
+            this.sendGui();
+        }
+    }
+
+    @Override
+    public boolean getAutoUpdate() {
+        return this.autoUpdate;
+    }
+
+    @Override
+    public void setAutoUpdate(boolean value) {
+        this.autoUpdate = value;
     }
 
     /**
@@ -172,33 +148,6 @@ public class SimpleGui implements SlotGuiInterface {
         return this.sizeCont;
     }
 
-    /**
-     * Returns the element in the referenced slot.
-     *
-     * @param index the slot index
-     * @return the element or <code>null</code> if empty
-     * @see SimpleGui#getSlotRedirect(int)
-     */
-    public GuiElementInterface getSlot(int index) {
-        if (index >= 0 && index < this.size) {
-            return this.elements[index];
-        }
-        return null;
-    }
-
-    /**
-     * Returns the external slot the referenced slot is redirecting to.
-     *
-     * @param index the slot index
-     * @return the element or <code>null</code> if no redirect
-     * @see SimpleGui#getSlot(int)
-     */
-    public Slot getSlotRedirect(int index) {
-        if (index >= 0 && index < this.size) {
-            return this.slotRedirects[index];
-        }
-        return null;
-    }
 
     /**
      * Returns if this gui has slot redirects.
@@ -230,18 +179,6 @@ public class SimpleGui implements SlotGuiInterface {
     }
 
     /**
-     * Executes when player clicks any slot.
-     *
-     * @param index  the slot index
-     * @param type   the simplified type of click
-     * @param action Minecraft's Slot Action Type
-     * @return <code>true</code> if to allow manipulation of redirected slots, otherwise <code>false</code>
-     */
-    public boolean onAnyClick(int index, ClickType type, SlotActionType action) {
-        return true;
-    }
-
-    /**
      * Executes after player clicks any recipe from recipe book.
      *
      * @param recipe the selected recipe identifier
@@ -250,44 +187,9 @@ public class SimpleGui implements SlotGuiInterface {
     public void onCraftRequest(Identifier recipe, boolean shift) {
     }
 
-    /**
-     * Used internally to receive clicks from the client.
-     *
-     * @see SimpleGui#onClick(int, ClickType, SlotActionType, GuiElementInterface)
-     * @see SimpleGui#onAnyClick(int, ClickType, SlotActionType)
-     */
-    @ApiStatus.Internal
-    public boolean click(int index, ClickType type, SlotActionType action) {
-        GuiElementInterface element = this.getSlot(index);
-        if (element != null) {
-            element.getGuiCallback().click(index, type, action, this);
-        }
-        return this.onClick(index, type, action, element);
-    }
-
-    @Override
-    public Text getTitle() {
-        return this.title;
-    }
-
-    @Override
-    public void setTitle(Text title) {
-        this.title = title;
-
-        if (this.open) {
-            this.reOpen = true;
-            this.sendGui();
-        }
-    }
-
     @Override
     public ScreenHandlerType<?> getType() {
         return this.type;
-    }
-
-    @Override
-    public boolean isOpen() {
-        return this.open;
     }
 
     @Override
@@ -296,14 +198,9 @@ public class SimpleGui implements SlotGuiInterface {
             return false;
         } else {
             this.open = true;
-            this.onUpdate(true);
+            this.onOpen();
             return this.sendGui();
         }
-    }
-
-    @Override
-    public int getSize() {
-        return this.size;
     }
 
     @Override
@@ -316,7 +213,7 @@ public class SimpleGui implements SlotGuiInterface {
                 this.player.closeHandledScreen();
             }
 
-            this.player.networkHandler.sendPacket(new InventoryS2CPacket(this.player.playerScreenHandler.syncId, this.player.playerScreenHandler.nextRevision(), this.player.playerScreenHandler.getStacks(), ItemStack.EMPTY));
+            GuiHelpers.sendPlayerInventory(this.getPlayer());
             this.onClose();
         } else {
             this.reOpen = false;
@@ -331,21 +228,6 @@ public class SimpleGui implements SlotGuiInterface {
     @Override
     public void setLockPlayerInventory(boolean value) {
         this.lockPlayerInventory = value;
-    }
-
-    @Override
-    public boolean getAutoUpdate() {
-        return this.autoUpdate;
-    }
-
-    @Override
-    public void setAutoUpdate(boolean value) {
-        this.autoUpdate = value;
-    }
-
-    @Override
-    public ServerPlayerEntity getPlayer() {
-        return this.player;
     }
 
     @Override

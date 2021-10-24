@@ -222,21 +222,4 @@ public class SignGui implements GuiInterface {
     public int getSyncId() {
         return -1;
     }
-
-    @Deprecated
-    @Override
-    public int getSize() {
-        return 0;
-    }
-
-    @Deprecated
-    @Override
-    public boolean getLockPlayerInventory() {
-        return false;
-    }
-
-    @Deprecated
-    @Override
-    public void setLockPlayerInventory(boolean value) {
-    }
 }

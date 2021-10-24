@@ -1,13 +1,13 @@
 package eu.pb4.sgui.virtual.inventory;
 
 import eu.pb4.sgui.api.elements.GuiElementInterface;
-import eu.pb4.sgui.api.gui.SimpleGui;
+import eu.pb4.sgui.api.gui.SlotGuiInterface;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
 
-public record VirtualInventory(SimpleGui gui) implements Inventory {
+public record VirtualInventory(SlotGuiInterface gui) implements Inventory {
 
     @Override
     public int size() {

@@ -1,6 +1,6 @@
 package eu.pb4.sgui.virtual.inventory;
 
-import eu.pb4.sgui.api.gui.SimpleGui;
+import eu.pb4.sgui.api.gui.SlotGuiInterface;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.NamedScreenHandlerFactory;
@@ -8,7 +8,7 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
-public record VirtualScreenHandlerFactory(SimpleGui gui) implements NamedScreenHandlerFactory {
+public record VirtualScreenHandlerFactory(SlotGuiInterface gui) implements NamedScreenHandlerFactory {
 
     @Override
     public Text getDisplayName() {

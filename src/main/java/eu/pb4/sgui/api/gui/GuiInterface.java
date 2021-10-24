@@ -1,11 +1,8 @@
 package eu.pb4.sgui.api.gui;
 
-import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.ScreenProperty;
-import eu.pb4.sgui.api.elements.GuiElementInterface;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerPropertyUpdateS2CPacket;
 import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.registry.Registry;
@@ -67,15 +64,6 @@ public interface GuiInterface {
      */
     boolean open();
 
-    /**
-     * Returns the number of slots in the inventory.
-     *
-     * @return the inventory size
-     */
-    int getSize();
-
-    boolean getLockPlayerInventory();
-    void setLockPlayerInventory(boolean value);
     boolean getAutoUpdate();
     void setAutoUpdate(boolean value);
 
@@ -97,24 +85,7 @@ public interface GuiInterface {
         this.close(false);
     }
 
-    /**
-     * Executed when player clicks a {@link GuiElementInterface}
-     *
-     * @param index   slot index
-     * @param type    Simplified type of click
-     * @param action  Minecraft's Slot Action Type
-     * @param element Clicked GuiElement
-     * @return Returns false, for automatic handling and syncing or true, if you want to do it manually
-     */
-    default boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element) {
-        return false;
-    }
-
-    /**
-     * Executes before gui is (re)sent to player
-     *
-     * @param firstUpdate if this is the first send (open)
-     */
+    @Deprecated
     default void onUpdate(boolean firstUpdate) {
     }
 
@@ -122,6 +93,7 @@ public interface GuiInterface {
      * Executes when the screen is opened
      */
     default void onOpen() {
+        this.onUpdate(true);
     }
 
     /**

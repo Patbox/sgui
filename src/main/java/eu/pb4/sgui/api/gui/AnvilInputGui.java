@@ -1,9 +1,9 @@
 package eu.pb4.sgui.api.gui;
 
+import eu.pb4.sgui.api.GuiHelpers;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
@@ -83,7 +83,6 @@ public class AnvilInputGui extends SimpleGui {
         if (element != null) {
             stack = element.getItemStack();
         }
-
-        this.player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.syncId, 0,  2, stack));
+        GuiHelpers.sendSlotUpdate(player, this.syncId, 2, stack);
     }
 }

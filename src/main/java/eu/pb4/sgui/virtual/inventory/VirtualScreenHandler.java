@@ -1,6 +1,6 @@
 package eu.pb4.sgui.virtual.inventory;
 
-import eu.pb4.sgui.api.gui.SimpleGui;
+import eu.pb4.sgui.api.gui.SlotGuiInterface;
 import eu.pb4.sgui.virtual.VirtualScreenHandlerInterface;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -11,14 +11,18 @@ import net.minecraft.screen.slot.Slot;
 import org.jetbrains.annotations.Nullable;
 
 public class VirtualScreenHandler extends ScreenHandler implements VirtualScreenHandlerInterface {
-    private final SimpleGui gui;
+    private final SlotGuiInterface gui;
     public final VirtualInventory inventory;
 
-    public VirtualScreenHandler(@Nullable ScreenHandlerType<?> type, int syncId, SimpleGui gui, PlayerEntity player) {
+    public VirtualScreenHandler(@Nullable ScreenHandlerType<?> type, int syncId, SlotGuiInterface gui, PlayerEntity player) {
         super(type, syncId);
         this.gui = gui;
 
         this.inventory = new VirtualInventory(gui);
+        setupSlots(player);
+    }
+
+    protected void setupSlots(PlayerEntity player) {
         int n;
         int m;
 
@@ -54,7 +58,7 @@ public class VirtualScreenHandler extends ScreenHandler implements VirtualScreen
     }
 
     @Override
-    public SimpleGui getGui() {
+    public SlotGuiInterface getGui() {
         return this.gui;
     }
 

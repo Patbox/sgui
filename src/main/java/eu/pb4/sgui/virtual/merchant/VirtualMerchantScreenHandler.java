@@ -5,11 +5,9 @@ import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.screen.MerchantScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
 import net.minecraft.village.MerchantInventory;
 
 public class VirtualMerchantScreenHandler extends VirtualScreenHandler {

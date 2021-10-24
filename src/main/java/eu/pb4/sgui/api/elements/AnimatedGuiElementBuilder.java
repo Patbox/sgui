@@ -111,9 +111,19 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
      * @param name the name to use
      * @return this element builder
      */
-    public AnimatedGuiElementBuilder setName(MutableText name) {
-        this.name = name;
+    public AnimatedGuiElementBuilder setName(Text name) {
+        this.name = name.shallowCopy();
         return this;
+    }
+
+    /**
+     * Sets the name of the current element.
+     *
+     * @param name the name to use
+     * @return this element builder
+     */
+    public AnimatedGuiElementBuilder setName(MutableText name) {
+        return this.setName((Text) name);
     }
 
     /**
@@ -237,6 +247,18 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
     public AnimatedGuiElementBuilder unbreakable() {
         this.getOrCreateTag().putBoolean("Unbreakable", true);
         return hideFlag(ItemStack.TooltipSection.UNBREAKABLE);
+    }
+
+    /**
+     * Sets the skull owner tag of a player head.
+     * This method uses raw values required by client to display the skin
+     * Ideal for textures generated with 3rd party websites like mineskin.org
+     *
+     * @param value     texture value used by client
+     * @return this element builder
+     */
+    public AnimatedGuiElementBuilder setSkullOwner(String value) {
+        return this.setSkullOwner(value, null, null);
     }
 
     /**

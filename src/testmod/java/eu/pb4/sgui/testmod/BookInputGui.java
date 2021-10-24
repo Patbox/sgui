@@ -1,4 +1,4 @@
-package eu.pb4.sgui.api.gui.broken;
+package eu.pb4.sgui.testmod;
 
 import eu.pb4.sgui.api.gui.GuiInterface;
 import eu.pb4.sgui.virtual.FakeScreenHandler;
@@ -110,12 +110,6 @@ public class BookInputGui implements GuiInterface {
 
         return true;
     }
-
-    @Override
-    public int getSize() {
-        return this.pages.size();
-    }
-
 
     @Override
     public ServerPlayerEntity getPlayer() {
@@ -266,16 +260,5 @@ public class BookInputGui implements GuiInterface {
     @Override
     public int getSyncId() {
         return -1;
-    }
-
-    @Deprecated
-    @Override
-    public boolean getLockPlayerInventory() {
-        return false;
-    }
-
-    @Deprecated
-    @Override
-    public void setLockPlayerInventory(boolean value) {
     }
 }

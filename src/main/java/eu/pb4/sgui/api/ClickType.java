@@ -37,7 +37,8 @@ public enum ClickType {
     MOUSE_RIGHT_DRAG_END(false, true, false, false, 2, false, true),
     MOUSE_MIDDLE_DRAG_END(false, false, true, false, 2, false, true),
     MOUSE_DOUBLE_CLICK(false, false, true, false, -1, false, false),
-    UNKNOWN(false, false, false, false, -1, false, false);
+    UNKNOWN(false, false, false, false, -1, false, false),
+    OFFHAND_SWAP(false, false, false, false, 40, false, false);
 
     public final boolean isLeft;
     public final boolean isRight;
@@ -66,6 +67,8 @@ public enum ClickType {
             case SWAP:
                 if (button >= 0 && button < 9) {
                     return ClickType.values()[button + 4];
+                } else if (button == 40) {
+                    return ClickType.OFFHAND_SWAP;
                 }
                 break;
             case CLONE:

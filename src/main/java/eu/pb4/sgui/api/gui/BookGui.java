@@ -119,7 +119,7 @@ public class BookGui implements GuiInterface {
     public boolean open() {
         if (!this.player.isDisconnected() && !this.open) {
             this.open = true;
-            this.onUpdate(true);
+            this.onOpen();
             this.reOpen = true;
             OptionalInt temp = this.player.openHandledScreen(new BookScreenHandlerFactory(this));
             this.reOpen = false;
@@ -150,11 +150,6 @@ public class BookGui implements GuiInterface {
         }
     }
 
-    @Override
-    public int getSize() {
-        return 1;
-    }
-
     @Deprecated
     @Override
     public void setTitle(Text title) {
@@ -164,17 +159,6 @@ public class BookGui implements GuiInterface {
     @Override
     public Text getTitle() {
         return null;
-    }
-
-    @Deprecated
-    @Override
-    public boolean getLockPlayerInventory() {
-        return false;
-    }
-
-    @Deprecated
-    @Override
-    public void setLockPlayerInventory(boolean value) {
     }
 
     @Deprecated
