@@ -235,7 +235,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
      * @return this element builder
      */
     public AnimatedGuiElementBuilder setCustomModelData(int value) {
-        this.getOrCreateTag().putInt("CustomModelData", value);
+        this.getOrCreateNbt().putInt("CustomModelData", value);
         return this;
     }
 
@@ -245,7 +245,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
      * @return this element builder
      */
     public AnimatedGuiElementBuilder unbreakable() {
-        this.getOrCreateTag().putBoolean("Unbreakable", true);
+        this.getOrCreateNbt().putBoolean("Unbreakable", true);
         return hideFlag(ItemStack.TooltipSection.UNBREAKABLE);
     }
 
@@ -276,9 +276,9 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
     public AnimatedGuiElementBuilder setSkullOwner(GameProfile profile, @Nullable MinecraftServer server) {
         if (profile.getId() != null && server != null) {
             profile = server.getSessionService().fillProfileProperties(profile, false);
-            this.getOrCreateTag().put("SkullOwner", NbtHelper.writeGameProfile(new NbtCompound(), profile));
+            this.getOrCreateNbt().put("SkullOwner", NbtHelper.writeGameProfile(new NbtCompound(), profile));
         } else {
-            this.getOrCreateTag().putString("SkullOwner", profile.getName());
+            this.getOrCreateNbt().putString("SkullOwner", profile.getName());
         }
         return this;
     }
@@ -309,7 +309,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
 
         skullOwner.put("Id", NbtHelper.fromUuid(uuid != null ? uuid : Util.NIL_UUID));
         skullOwner.put("Properties", properties);
-        this.getOrCreateTag().put("SkullOwner", skullOwner);
+        this.getOrCreateNbt().put("SkullOwner", skullOwner);
 
         return this;
     }
@@ -338,7 +338,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
         ItemStack itemStack = new ItemStack(this.item, this.count);
 
         if (this.tag != null) {
-            itemStack.getOrCreateTag().copyFrom(this.tag);
+            itemStack.getOrCreateNbt().copyFrom(this.tag);
         }
 
         if (this.name != null) {
@@ -357,7 +357,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
         }
 
         if (this.lore.size() > 0) {
-            NbtCompound display = itemStack.getOrCreateSubTag("display");
+            NbtCompound display = itemStack.getOrCreateSubNbt("display");
             NbtList loreItems = new NbtList();
             for (Text l : this.lore) {
                 if (l instanceof MutableText) {
@@ -369,13 +369,13 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
         }
 
         if (this.hideFlags != 0) {
-            itemStack.getOrCreateTag().putByte("HideFlags", this.hideFlags);
+            itemStack.getOrCreateNbt().putByte("HideFlags", this.hideFlags);
         }
 
         return itemStack;
     }
 
-    private NbtCompound getOrCreateTag() {
+    private NbtCompound getOrCreateNbt() {
         if (this.tag == null) {
             this.tag = new NbtCompound();
         }

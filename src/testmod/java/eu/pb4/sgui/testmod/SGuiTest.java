@@ -170,6 +170,8 @@ public class SGuiTest implements ModInitializer {
                 player.sendMessage(new LiteralText(gui.getInput()), false);
             }));
 
+            gui.setSlot(30, Items.TNT.getDefaultStack());
+
             gui.open();
 
         } catch (Exception e) {
@@ -220,12 +222,12 @@ public class SGuiTest implements ModInitializer {
     private static int test4(CommandContext<ServerCommandSource> objectCommandContext) {
         try {
             ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
-            SimpleGui gui = new SimpleGui(ScreenHandlerType.GENERIC_3X3, player, false) {
+            SimpleGui gui = new SimpleGui(ScreenHandlerType.GENERIC_3X3, player, true) {
                 @Override
                 public void onClose() {
                     super.onClose();
 
-                    SimpleGui gui = new SimpleGui(ScreenHandlerType.GENERIC_9X1, player, false);
+                    SimpleGui gui = new SimpleGui(ScreenHandlerType.GENERIC_9X1, player, true);
                     gui.setTitle(new LiteralText("If you can take it, it's broken"));
                     gui.setSlot(0, new GuiElementBuilder(Items.DIAMOND, 5));
                     gui.open();

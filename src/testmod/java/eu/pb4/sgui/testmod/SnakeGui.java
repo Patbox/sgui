@@ -19,7 +19,7 @@ public class SnakeGui extends LayeredGui {
     static ItemStack create(String nbt) {
         ItemStack stack = Items.GRAY_BANNER.getDefaultStack();
         try {
-            stack.setTag(StringNbtReader.parse(nbt));
+            stack.setNbt(StringNbtReader.parse(nbt));
             stack.addHideFlag(ItemStack.TooltipSection.ADDITIONAL);
         } catch (Exception e) {}
 

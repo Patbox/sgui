@@ -22,6 +22,7 @@ import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.UpdateSelectedSlotS2CPacket;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.filter.TextStream;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
@@ -33,6 +34,8 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.List;
 
 
 @Mixin(ServerPlayNetworkHandler.class)
@@ -160,8 +163,8 @@ public abstract class ServerPlayNetworkHandlerMixin {
         }
     }
 
-    @Inject(method = "onSignUpdate(Lnet/minecraft/network/packet/c2s/play/UpdateSignC2SPacket;)V", at = @At("HEAD"), cancellable = true)
-    private void sgui_catchSignUpdate(UpdateSignC2SPacket packet, CallbackInfo ci) {
+    @Inject(method = "onSignUpdate", at = @At("HEAD"), cancellable = true)
+    private void sgui_catchSignUpdate(UpdateSignC2SPacket packet, List<TextStream.Message> signText, CallbackInfo ci) {
         try {
             if (this.player.currentScreenHandler instanceof FakeScreenHandler fake && fake.getGui() instanceof SignGui gui) {
                 for (int i = 0; i < packet.getText().length; i++) {
@@ -175,7 +178,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
         }
     }
 
-    @Inject(method = "onMerchantTradeSelect", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V"), cancellable = true)
+    @Inject(method = "onSelectMerchantTrade", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V"), cancellable = true)
     private void sgui_catchMerchantTradeSelect(SelectMerchantTradeC2SPacket packet, CallbackInfo ci) {
         if (this.player.currentScreenHandler instanceof VirtualMerchantScreenHandler merchantScreenHandler) {
             int id = packet.getTradeId();

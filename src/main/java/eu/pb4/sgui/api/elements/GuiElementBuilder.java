@@ -73,7 +73,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      */
     public static GuiElementBuilder from(ItemStack stack) {
         GuiElementBuilder builder = new GuiElementBuilder(stack.getItem(), stack.getCount());
-        NbtCompound tag = stack.getOrCreateTag().copy();
+        NbtCompound tag = stack.getOrCreateNbt().copy();
 
         if (stack.hasCustomName()) {
             builder.setName((MutableText) stack.getName());
@@ -97,8 +97,8 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
             tag.remove("Enchantments");
         }
 
-        if (stack.getOrCreateTag().contains("HideFlags")) {
-            builder.hideFlags(stack.getOrCreateTag().getByte("HideFlags"));
+        if (stack.getOrCreateNbt().contains("HideFlags")) {
+            builder.hideFlags(stack.getOrCreateNbt().getByte("HideFlags"));
             tag.remove("HideFlags");
         }
 
@@ -108,7 +108,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
     }
 
     public static List<Text> getLore(ItemStack stack) {
-        return stack.getOrCreateSubTag("display").getList("Lore", NbtElement.STRING_TYPE).stream().map(tag -> Text.Serializer.fromJson(tag.asString())).collect(Collectors.toList());
+        return stack.getOrCreateSubNbt("display").getList("Lore", NbtElement.STRING_TYPE).stream().map(tag -> Text.Serializer.fromJson(tag.asString())).collect(Collectors.toList());
     }
 
     /**
@@ -252,7 +252,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      * @return this element builder
      */
     public GuiElementBuilder setCustomModelData(int value) {
-        this.getOrCreateTag().putInt("CustomModelData", value);
+        this.getOrCreateNbt().putInt("CustomModelData", value);
         return this;
     }
 
@@ -262,7 +262,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      * @return this element builder
      */
     public GuiElementBuilder unbreakable() {
-        this.getOrCreateTag().putBoolean("Unbreakable", true);
+        this.getOrCreateNbt().putBoolean("Unbreakable", true);
         return hideFlag(ItemStack.TooltipSection.UNBREAKABLE);
     }
 
@@ -281,9 +281,9 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
     public GuiElementBuilder setSkullOwner(GameProfile profile, @Nullable MinecraftServer server) {
         if (profile.getId() != null && server != null) {
             profile = server.getSessionService().fillProfileProperties(profile, false);
-            this.getOrCreateTag().put("SkullOwner", NbtHelper.writeGameProfile(new NbtCompound(), profile));
+            this.getOrCreateNbt().put("SkullOwner", NbtHelper.writeGameProfile(new NbtCompound(), profile));
         } else {
-            this.getOrCreateTag().putString("SkullOwner", profile.getName());
+            this.getOrCreateNbt().putString("SkullOwner", profile.getName());
         }
         return this;
     }
@@ -326,7 +326,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
 
         skullOwner.put("Id", NbtHelper.fromUuid(uuid != null ? uuid : Util.NIL_UUID));
         skullOwner.put("Properties", properties);
-        this.getOrCreateTag().put("SkullOwner", skullOwner);
+        this.getOrCreateNbt().put("SkullOwner", skullOwner);
 
         return this;
     }
@@ -355,7 +355,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
         ItemStack itemStack = new ItemStack(this.item, this.count);
 
         if (this.tag != null) {
-            itemStack.getOrCreateTag().copyFrom(this.tag);
+            itemStack.getOrCreateNbt().copyFrom(this.tag);
         }
 
         if (this.name != null) {
@@ -374,7 +374,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
         }
 
         if (this.lore.size() > 0) {
-            NbtCompound display = itemStack.getOrCreateSubTag("display");
+            NbtCompound display = itemStack.getOrCreateSubNbt("display");
             NbtList loreItems = new NbtList();
             for (Text l : this.lore) {
                 if (l instanceof MutableText) {
@@ -386,13 +386,13 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
         }
 
         if (this.hideFlags != 0) {
-            itemStack.getOrCreateTag().putByte("HideFlags", this.hideFlags);
+            itemStack.getOrCreateNbt().putByte("HideFlags", this.hideFlags);
         }
 
         return itemStack;
     }
 
-    protected NbtCompound getOrCreateTag() {
+    protected NbtCompound getOrCreateNbt() {
         if (this.tag == null) {
             this.tag = new NbtCompound();
         }
