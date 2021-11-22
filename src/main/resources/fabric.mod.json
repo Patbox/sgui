@@ -19,9 +19,7 @@
   "icon": "assets/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": [
-      "eu.pb4.sgui.SGuiMod"
-    ]
+
   },
   "mixins": [
     "sgui.mixins.json"
