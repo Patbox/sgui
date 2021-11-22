@@ -2,6 +2,7 @@ package eu.pb4.sgui.virtual.book;
 
 import eu.pb4.sgui.api.gui.BookGui;
 import eu.pb4.sgui.virtual.VirtualScreenHandlerInterface;
+import eu.pb4.sgui.virtual.inventory.VirtualInventory;
 import eu.pb4.sgui.virtual.inventory.VirtualSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -17,21 +18,7 @@ public class BookScreenHandler extends ScreenHandler implements VirtualScreenHan
         super(ScreenHandlerType.LECTERN, syncId);
         this.gui = gui;
 
-        int n;
-        int m;
-
-        PlayerInventory playerInventory = player.getInventory();
-        this.addSlot(new BookSlot(playerInventory, 0, 0, 0, gui.getBook()));
-
-        for (n = 0; n < 3; ++n) {
-            for (m = 0; m < 9; ++m) {
-                this.addSlot(new Slot(playerInventory, m + n * 9 + 9, 0, 0));
-            }
-        }
-
-        for (n = 0; n < 9; ++n) {
-            this.addSlot(new Slot(playerInventory, n, 0, 0));
-        }
+        this.addSlot(new BookSlot(new BookInventory(gui), 0, 0, 0, gui.getBook()));
     }
 
     @Override
