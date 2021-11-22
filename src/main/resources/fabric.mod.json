@@ -25,7 +25,7 @@
     "sgui.mixins.json"
   ],
   "depends": {
-    "minecraft": ">=1.17.1"
+    "minecraft": ">=1.18-beta.5"
   },
   "custom": {
     "modmenu": {
