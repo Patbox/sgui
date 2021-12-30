@@ -196,17 +196,23 @@ public class MerchantGui extends SimpleGui {
     public void sendUpdate() {
         TradeOfferList tradeOfferList = this.merchant.getOffers();
         if (!tradeOfferList.isEmpty()) {
-            player.sendTradeOffers(this.syncId, tradeOfferList, this.merchant.getLevel(), this.merchant.getExperience(), this.merchant.isLeveledMerchant(), this.merchant.canRefreshTrades());
+            ServerPlayerEntity player = this.getPlayer();
+            if (player != null) {
+                player.sendTradeOffers(this.syncId, tradeOfferList, this.merchant.getLevel(), this.merchant.getExperience(), this.merchant.isLeveledMerchant(), this.merchant.canRefreshTrades());
+            }
         }
     }
 
     @Override
     protected boolean sendGui() {
         this.reOpen = true;
-        OptionalInt opSyncId = player.openHandledScreen(new SimpleNamedScreenHandlerFactory((syncId, playerInventory, playerx) -> new VirtualMerchantScreenHandler(syncId, this.player, this.merchant, this, this.merchantInventory), this.getTitle()));
+        ServerPlayerEntity player = this.getPlayer();
+        if (player == null) return false;
+
+        OptionalInt opSyncId = player.openHandledScreen(new SimpleNamedScreenHandlerFactory((syncId, playerInventory, playerx) -> new VirtualMerchantScreenHandler(syncId, player, this.merchant, this, this.merchantInventory), this.getTitle()));
         if (opSyncId.isPresent()) {
             this.syncId = opSyncId.getAsInt();
-            this.screenHandler = (VirtualMerchantScreenHandler) this.player.currentScreenHandler;
+            this.screenHandler = (VirtualMerchantScreenHandler) player.currentScreenHandler;
 
             TradeOfferList tradeOfferList = this.merchant.getOffers();
             if (!tradeOfferList.isEmpty()) {

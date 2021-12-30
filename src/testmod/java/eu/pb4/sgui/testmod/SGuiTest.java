@@ -47,7 +47,7 @@ public class SGuiTest implements ModInitializer {
             SimpleGui gui = new SimpleGui(ScreenHandlerType.GENERIC_3X3, player, false) {
                 @Override
                 public boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element) {
-                    this.player.sendMessage(new LiteralText(type.toString()), false);
+                    player.sendMessage(new LiteralText(type.toString()), false);
 
                     return super.onClick(index, type, action, element);
                 }
@@ -252,7 +252,7 @@ public class SGuiTest implements ModInitializer {
                 @Override
                 public void onCraftRequest(Identifier recipeId, boolean shift) {
                     super.onCraftRequest(recipeId, shift);
-                    this.player.sendMessage(new LiteralText(recipeId.toString() + " - " + shift), false);
+                    player.sendMessage(new LiteralText(recipeId.toString() + " - " + shift), false);
                 }
             };
 
@@ -312,7 +312,7 @@ public class SGuiTest implements ModInitializer {
 
                 @Override
                 public void onSelectTrade(TradeOffer offer) {
-                    this.player.sendMessage(new LiteralText("Selected Trade: " + this.getOfferIndex(offer)), false);
+                    player.sendMessage(new LiteralText("Selected Trade: " + this.getOfferIndex(offer)), false);
                 }
 
                 @Override

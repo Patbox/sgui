@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * It's a gui implementation for hotbar/player inventory usage
- *
+ * <p>
  * Unlike other Slot based guis, it doesn't extend SimpleGui
  */
 public class HotbarGui extends BaseSlotGui {
@@ -106,24 +106,26 @@ public class HotbarGui extends BaseSlotGui {
 
     @Override
     public boolean open() {
-        if (this.player.isDisconnected() || this.open) {
+        ServerPlayerEntity player = this.getPlayer();
+
+        if (player == null || player.isDisconnected() || this.open) {
             return false;
         } else {
             this.open = true;
             this.onOpen();
 
-            if (this.player.currentScreenHandler != this.player.playerScreenHandler && this.player.currentScreenHandler != this.screenHandler) {
-                this.player.closeHandledScreen();
+            if (player.currentScreenHandler != player.playerScreenHandler && player.currentScreenHandler != this.screenHandler) {
+                player.closeHandledScreen();
             }
 
             if (this.screenHandler == null) {
-                this.screenHandler = new HotbarScreenHandler(null, 0, this, this.player);
+                this.screenHandler = new HotbarScreenHandler(null, 0, this, player);
             }
 
-            this.player.currentScreenHandler = this.screenHandler;
+            player.currentScreenHandler = this.screenHandler;
 
-            GuiHelpers.sendPlayerScreenHandler(this.player);
-            this.player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(this.selectedSlot));
+            GuiHelpers.sendPlayerScreenHandler(player);
+            player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(this.selectedSlot));
             return true;
         }
     }
@@ -144,7 +146,10 @@ public class HotbarGui extends BaseSlotGui {
      * The vanilla action is always canceled.
      */
     public void onClickItem() {
-        if (this.player.isSneaking()) {
+        ServerPlayerEntity player = this.getPlayer();
+        if (player == null) return;
+
+        if (player.isSneaking()) {
             this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_RIGHT_SHIFT, SlotActionType.QUICK_MOVE);
         } else {
             this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_RIGHT, SlotActionType.PICKUP);
@@ -156,7 +161,10 @@ public class HotbarGui extends BaseSlotGui {
      * If you return false, vanilla action will be canceled
      */
     public boolean onHandSwing() {
-        if (this.player.isSneaking()) {
+        ServerPlayerEntity player = this.getPlayer();
+        if (player == null) return false;
+
+        if (player.isSneaking()) {
             this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_LEFT_SHIFT, SlotActionType.QUICK_MOVE);
         } else {
             this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_LEFT, SlotActionType.PICKUP);
@@ -169,7 +177,10 @@ public class HotbarGui extends BaseSlotGui {
      * If you return false, vanilla action will be canceled
      */
     public boolean onClickBlock(BlockHitResult hitResult) {
-        if (this.player.isSneaking()) {
+        ServerPlayerEntity player = this.getPlayer();
+        if (player == null) return false;
+
+        if (player.isSneaking()) {
             this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_RIGHT_SHIFT, SlotActionType.QUICK_MOVE);
         } else {
             this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_RIGHT, SlotActionType.PICKUP);
@@ -187,7 +198,10 @@ public class HotbarGui extends BaseSlotGui {
             case DROP_ITEM -> this.tickLimitedClick(this.selectedSlot, ClickType.DROP, SlotActionType.THROW);
             case DROP_ALL_ITEMS -> this.tickLimitedClick(this.selectedSlot, ClickType.CTRL_DROP, SlotActionType.THROW);
             case STOP_DESTROY_BLOCK -> {
-                if (this.player.isSneaking()) {
+                ServerPlayerEntity player = this.getPlayer();
+                if (player == null) return false;
+
+                if (player.isSneaking()) {
                     this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_LEFT_SHIFT, SlotActionType.QUICK_MOVE);
                 } else {
                     this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_LEFT, SlotActionType.PICKUP);
@@ -228,7 +242,11 @@ public class HotbarGui extends BaseSlotGui {
     public void setSelectedSlot(int value) {
         this.selectedSlot = MathHelper.clamp(value, 0, 8);
         if (this.open) {
-            this.player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(this.selectedSlot));
+            ServerPlayerEntity player = this.getPlayer();
+
+            if (player != null) {
+                player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(this.selectedSlot));
+            }
         }
     }
 
@@ -259,12 +277,15 @@ public class HotbarGui extends BaseSlotGui {
             this.open = false;
             this.reOpen = false;
 
-            if (!screenHandlerIsClosed && this.player.currentScreenHandler == this.screenHandler) {
-                this.player.closeHandledScreen();
+            ServerPlayerEntity player = this.getPlayer();
+            if (player == null) return;
+
+            if (!screenHandlerIsClosed && player.currentScreenHandler == this.screenHandler) {
+                player.closeHandledScreen();
             }
 
             this.onClose();
-            this.player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(this.player.getInventory().selectedSlot));
+            player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(player.getInventory().selectedSlot));
             GuiHelpers.sendPlayerInventory(this.getPlayer());
         } else {
             this.reOpen = false;

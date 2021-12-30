@@ -44,7 +44,7 @@ public class SimpleGui extends BaseSlotGui {
      *                                    will be treated as slots of this gui
      */
     public SimpleGui(ScreenHandlerType<?> type, ServerPlayerEntity player, boolean includePlayerInventorySlots) {
-        super( player, GuiHelpers.getHeight(type) * GuiHelpers.getWidth(type) + (includePlayerInventorySlots ? 36 : 0));
+        super(player, GuiHelpers.getHeight(type) * GuiHelpers.getWidth(type) + (includePlayerInventorySlots ? 36 : 0));
         this.height = GuiHelpers.getHeight(type);
         this.width = GuiHelpers.getWidth(type);
 
@@ -166,13 +166,17 @@ public class SimpleGui extends BaseSlotGui {
      */
     protected boolean sendGui() {
         this.reOpen = true;
-        OptionalInt temp = this.player.openHandledScreen(new VirtualScreenHandlerFactory(this));
-        this.reOpen = false;
-        if (temp.isPresent()) {
-            this.syncId = temp.getAsInt();
-            if (this.player.currentScreenHandler instanceof VirtualScreenHandler) {
-                this.screenHandler = (VirtualScreenHandler) this.player.currentScreenHandler;
-                return true;
+        ServerPlayerEntity player = this.getPlayer();
+        if (player != null) {
+            OptionalInt temp = player.openHandledScreen(new VirtualScreenHandlerFactory(this));
+            this.reOpen = false;
+
+            if (temp.isPresent()) {
+                this.syncId = temp.getAsInt();
+                if (player.currentScreenHandler instanceof VirtualScreenHandler) {
+                    this.screenHandler = (VirtualScreenHandler) player.currentScreenHandler;
+                    return true;
+                }
             }
         }
         return false;
@@ -194,7 +198,9 @@ public class SimpleGui extends BaseSlotGui {
 
     @Override
     public boolean open() {
-        if (this.player.isDisconnected() || this.open) {
+        ServerPlayerEntity player = this.getPlayer();
+
+        if (player == null || player.isDisconnected() || this.open) {
             return false;
         } else {
             this.open = true;
@@ -209,11 +215,13 @@ public class SimpleGui extends BaseSlotGui {
             this.open = false;
             this.reOpen = false;
 
-            if (!screenHandlerIsClosed && this.player.currentScreenHandler == this.screenHandler) {
-                this.player.closeHandledScreen();
+            ServerPlayerEntity player = this.getPlayer();
+            if (player != null) {
+                if (!screenHandlerIsClosed && player.currentScreenHandler == this.screenHandler) {
+                    player.closeHandledScreen();
+                }
+                GuiHelpers.sendPlayerInventory(player);
             }
-
-            GuiHelpers.sendPlayerInventory(this.getPlayer());
             this.onClose();
         } else {
             this.reOpen = false;
@@ -246,7 +254,10 @@ public class SimpleGui extends BaseSlotGui {
      */
     @Deprecated
     public void sendProperty(int property, int value) {
-        this.player.networkHandler.sendPacket(new ScreenHandlerPropertyUpdateS2CPacket(this.syncId, property, value));
+        ServerPlayerEntity player = this.getPlayer();
+        if (player != null) {
+            player.networkHandler.sendPacket(new ScreenHandlerPropertyUpdateS2CPacket(this.syncId, property, value));
+        }
     }
 
     @Deprecated

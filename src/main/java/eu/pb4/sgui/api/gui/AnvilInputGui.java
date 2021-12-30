@@ -83,6 +83,6 @@ public class AnvilInputGui extends SimpleGui {
         if (element != null) {
             stack = element.getItemStack();
         }
-        GuiHelpers.sendSlotUpdate(player, this.syncId, 2, stack);
+        GuiHelpers.sendSlotUpdate(getPlayer(), this.syncId, 2, stack);
     }
 }
