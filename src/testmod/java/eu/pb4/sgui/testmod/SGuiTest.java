@@ -208,7 +208,6 @@ public class SGuiTest implements ModInitializer {
                 @Override
                 public void onTakeBookButton() {
                     this.getPlayer().giveItemStack(this.getBook().copy());
-                    this.close();
                 }
             };
             gui.open();

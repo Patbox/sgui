@@ -218,9 +218,10 @@ public abstract class ServerPlayNetworkHandlerMixin {
     private void sgui_clickWithItem(PlayerInteractItemC2SPacket packet, CallbackInfo ci) {
         if (this.player.currentScreenHandler instanceof HotbarScreenHandler screenHandler) {
             var gui = screenHandler.getGui();
-            screenHandler.slotsOld.set(gui.getSelectedSlot() + 36, ItemStack.EMPTY);
-            screenHandler.slotsOld.set(45, ItemStack.EMPTY);
-
+            if (screenHandler.slotsOld != null) {
+                screenHandler.slotsOld.set(gui.getSelectedSlot() + 36, ItemStack.EMPTY);
+                screenHandler.slotsOld.set(45, ItemStack.EMPTY);
+            }
             gui.onClickItem();
             ci.cancel();
         }
@@ -233,8 +234,10 @@ public abstract class ServerPlayNetworkHandlerMixin {
 
             if (!gui.onClickBlock(packet.getBlockHitResult())) {
                 var pos = packet.getBlockHitResult().getBlockPos();
-                screenHandler.slotsOld.set(gui.getSelectedSlot() + 36, ItemStack.EMPTY);
-                screenHandler.slotsOld.set(45, ItemStack.EMPTY);
+                if (screenHandler.slotsOld != null) {
+                    screenHandler.slotsOld.set(gui.getSelectedSlot() + 36, ItemStack.EMPTY);
+                    screenHandler.slotsOld.set(45, ItemStack.EMPTY);
+                }
 
                 this.sendPacket(new BlockUpdateS2CPacket(pos, this.player.world.getBlockState(pos)));
                 pos = pos.offset(packet.getBlockHitResult().getSide());
@@ -251,8 +254,10 @@ public abstract class ServerPlayNetworkHandlerMixin {
 
             if (!gui.onPlayerAction(packet.getAction(), packet.getDirection())) {
                 var pos = packet.getPos();
-                screenHandler.slotsOld.set(gui.getSelectedSlot() + 36, ItemStack.EMPTY);
-                screenHandler.slotsOld.set(45, ItemStack.EMPTY);
+                if (screenHandler.slotsOld != null) {
+                    screenHandler.slotsOld.set(gui.getSelectedSlot() + 36, ItemStack.EMPTY);
+                    screenHandler.slotsOld.set(45, ItemStack.EMPTY);
+                }
                 this.sendPacket(new BlockUpdateS2CPacket(pos, this.player.world.getBlockState(pos)));
                 pos = pos.offset(packet.getDirection());
                 this.sendPacket(new BlockUpdateS2CPacket(pos, this.player.world.getBlockState(pos)));
@@ -285,8 +290,10 @@ public abstract class ServerPlayNetworkHandlerMixin {
             var isSneaking = buf.readBoolean();
 
             if (!gui.onClickEntity(entityId, type, isSneaking, interactionPos)) {
-                screenHandler.slotsOld.set(gui.getSelectedSlot() + 36, ItemStack.EMPTY);
-                screenHandler.slotsOld.set(45, ItemStack.EMPTY);
+                if (screenHandler.slotsOld != null) {
+                    screenHandler.slotsOld.set(gui.getSelectedSlot() + 36, ItemStack.EMPTY);
+                    screenHandler.slotsOld.set(45, ItemStack.EMPTY);
+                }
                 ci.cancel();
             }
         }

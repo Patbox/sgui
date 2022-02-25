@@ -45,7 +45,7 @@ public class BookGui implements GuiInterface {
     public BookGui(ServerPlayerEntity player, ItemStack book) {
         this.player = player;
 
-        if (ItemTags.LECTERN_BOOKS.contains(book.getItem())) {
+        if (!ItemTags.LECTERN_BOOKS.contains(book.getItem())) {
             throw new IllegalArgumentException("Item must be a book");
         }
         this.book = book;
@@ -127,6 +127,7 @@ public class BookGui implements GuiInterface {
                 this.syncId = temp.getAsInt();
                 if (this.player.currentScreenHandler instanceof BookScreenHandler) {
                     this.screenHandler = (BookScreenHandler) this.player.currentScreenHandler;
+                    this.sendProperty(ScreenProperty.SELECTED, this.page);
                     return true;
                 }
             }
