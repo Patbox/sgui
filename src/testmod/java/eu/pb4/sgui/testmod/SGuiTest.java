@@ -28,6 +28,7 @@ import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.village.TradeOffer;
 import org.jetbrains.annotations.Nullable;
 
@@ -289,7 +290,7 @@ public class SGuiTest implements ModInitializer {
                     tick++;
                     if (tick % 30 == 0) {
                         this.setLine(1, new LiteralText(this.getLine(1).asString() + "^"));
-                        this.setSignType(BlockTags.WALL_SIGNS.getRandom(RANDOM));
+                        this.setSignType(Registry.BLOCK.getEntryList(BlockTags.WALL_SIGNS).get().getRandom(RANDOM).get().value());
                         this.setColor(DyeColor.byId(RANDOM.nextInt(15)));
                         this.updateSign();
                         this.tick = 0;

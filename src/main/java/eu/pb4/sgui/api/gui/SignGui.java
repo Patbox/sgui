@@ -102,7 +102,7 @@ public class SignGui implements GuiInterface {
      * @param type a block in the {@link BlockTags#SIGNS} tag
      */
     public void setSignType(Block type) {
-        if (!BlockTags.SIGNS.contains(type)) {
+        if (!type.getRegistryEntry().isIn(BlockTags.SIGNS)) {
             throw new IllegalArgumentException("The type must be a sign");
         }
 

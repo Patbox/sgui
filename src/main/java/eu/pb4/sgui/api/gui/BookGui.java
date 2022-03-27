@@ -11,6 +11,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.tag.ItemTags;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.registry.Registry;
 
 import java.util.OptionalInt;
 
@@ -45,7 +46,7 @@ public class BookGui implements GuiInterface {
     public BookGui(ServerPlayerEntity player, ItemStack book) {
         this.player = player;
 
-        if (!ItemTags.LECTERN_BOOKS.contains(book.getItem())) {
+        if (!book.getItem().getRegistryEntry().isIn(ItemTags.LECTERN_BOOKS)) {
             throw new IllegalArgumentException("Item must be a book");
         }
         this.book = book;

@@ -152,7 +152,7 @@ public class SnakeGui extends LayeredGui {
                     this.sizeUp = true;
                     Pos applePos = new Pos(this.random.nextInt(9), this.random.nextInt(6));
 
-                    while (this.snakeParts.contains(applePos)) {
+                    while (this.snakeHead.equals(applePos) || this.snakeParts.contains(applePos)) {
                         applePos = new Pos(this.random.nextInt(9), this.random.nextInt(6));
                     }
                     this.apples.add(applePos);
@@ -161,7 +161,7 @@ public class SnakeGui extends LayeredGui {
                     if (this.applesEaten % 10 == 0) {
                         Pos gApplePos = new Pos(this.random.nextInt(9), this.random.nextInt(6));
 
-                        while (this.snakeParts.contains(applePos)) {
+                        while (this.snakeHead.equals(applePos) || this.snakeParts.contains(applePos)) {
                             gApplePos = new Pos(this.random.nextInt(9), this.random.nextInt(6));
                         }
 
@@ -173,9 +173,12 @@ public class SnakeGui extends LayeredGui {
 
                 if (this.goldApples.contains(this.snakeHead)) {
                     this.goldApples.remove(this.snakeHead);
-                    this.snakeParts.remove(0);
-                    this.snakeParts.remove(0);
-                    this.snakeParts.remove(0);
+
+                    int size = this.snakeParts.size() / 2;
+
+                    for (int i = 0; i < size; i++) {
+                        this.snakeParts.remove(0);
+                    }
 
                     this.points += 100;
                 }
