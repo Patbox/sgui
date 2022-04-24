@@ -4,6 +4,7 @@ import eu.pb4.sgui.api.gui.BookGui;
 import eu.pb4.sgui.virtual.VirtualScreenHandlerInterface;
 import eu.pb4.sgui.virtual.inventory.VirtualInventory;
 import eu.pb4.sgui.virtual.inventory.VirtualSlot;
+import net.minecraft.client.gui.screen.ingame.LecternScreen;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
@@ -36,6 +37,11 @@ public class BookScreenHandler extends ScreenHandler implements VirtualScreenHan
                 this.gui.onTakeBookButton();
                 return true;
             }
+        }
+        int pageNo = 100 - id;
+        if (pageNo > 0) {
+            this.gui.setPage(pageNo);
+            return true;
         }
         return false;
     }
