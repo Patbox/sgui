@@ -21,6 +21,7 @@ import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.tag.BlockTags;
+import net.minecraft.text.ClickEvent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
@@ -186,7 +187,14 @@ public class SGuiTest implements ModInitializer {
             ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
 
             BookElementBuilder bookBuilder = BookElementBuilder.from(player.getMainHandStack())
-                    .addPage(new LiteralText("test line one!"), new LiteralText("test line two!"))
+                    .addPage(new LiteralText("Test line one!"), new LiteralText("Test line two!"))
+                    .addPage(
+                            new LiteralText("Click to navigate to page: "),
+                            new LiteralText("1").styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, "1"))),
+                            new LiteralText("2").styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, "2"))),
+                            new LiteralText("3").styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, "3")))
+                    )
+                    .addPage(new LiteralText("This is page three!"))
                     .setTitle("The Test Book")
                     .setAuthor("aws404");
 

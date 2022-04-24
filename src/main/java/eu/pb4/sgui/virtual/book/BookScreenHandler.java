@@ -38,9 +38,8 @@ public class BookScreenHandler extends ScreenHandler implements VirtualScreenHan
                 return true;
             }
         }
-        int pageNo = 100 - id;
-        if (pageNo > 0) {
-            this.gui.setPage(pageNo);
+        if (id >= 100) {
+            this.gui.setPage(id - 100);
             return true;
         }
         return false;
