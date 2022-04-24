@@ -27,7 +27,7 @@ import java.util.OptionalInt;
 @SuppressWarnings("unused")
 public class BookGui implements GuiInterface {
     protected final ServerPlayerEntity player;
-    protected final ItemStack book;
+    protected ItemStack book;
     protected int page = 0;
     protected boolean open = false;
     protected boolean reOpen = false;
@@ -133,6 +133,16 @@ public class BookGui implements GuiInterface {
                 }
             }
         }
+        return false;
+    }
+
+    /**
+     * Called when player executes command via {@link net.minecraft.text.ClickEvent.Action#RUN_COMMAND}
+     *
+     * @param command input command
+     * @return Returns false, for continuing execution or true, if you want to cancel it
+     */
+    public boolean onCommand(String command) {
         return false;
     }
 

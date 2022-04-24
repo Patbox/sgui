@@ -34,22 +34,22 @@ public final class SimpleGuiBuilder implements SlotHolder {
      * Constructs a new simple container gui for the supplied player.
      *
      * @param type                        the screen handler that the client should display
-     * @param includePlayerInventorySlots if <code>true</code> the players inventory
+     * @param manipulatePlayerSlots if <code>true</code> the players inventory
      *                                    will be treated as slots of this gui
      */
-    public SimpleGuiBuilder(ScreenHandlerType<?> type, boolean includePlayerInventorySlots) {
+    public SimpleGuiBuilder(ScreenHandlerType<?> type, boolean manipulatePlayerSlots) {
         this.height = GuiHelpers.getHeight(type);
         this.width = GuiHelpers.getWidth(type);
 
         this.type = type;
 
-        int tmp = includePlayerInventorySlots ? 36 : 0;
+        int tmp = manipulatePlayerSlots ? 36 : 0;
         this.size = this.width * this.height + tmp;
         this.sizeCont = this.width * this.height;
         this.elements = new GuiElementInterface[this.size];
         this.slotRedirects = new Slot[this.size];
 
-        this.includePlayer = includePlayerInventorySlots;
+        this.includePlayer = manipulatePlayerSlots;
     }
 
     /**

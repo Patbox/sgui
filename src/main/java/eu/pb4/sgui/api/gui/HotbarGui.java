@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * It's a gui implementation for hotbar/player inventory usage
- *
+ * <p>
  * Unlike other Slot based guis, it doesn't extend SimpleGui
  */
 public class HotbarGui extends BaseSlotGui {
@@ -221,6 +221,13 @@ public class HotbarGui extends BaseSlotGui {
     }
 
     /**
+     * @return selectedSlot
+     */
+    public int getSelectedSlot() {
+        return this.selectedSlot;
+    }
+
+    /**
      * Changes selected slot and sends it to player
      *
      * @param value slot between 0 and 8
@@ -230,13 +237,6 @@ public class HotbarGui extends BaseSlotGui {
         if (this.open) {
             this.player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(this.selectedSlot));
         }
-    }
-
-    /**
-     * @return selectedSlot
-     */
-    public int getSelectedSlot() {
-        return this.selectedSlot;
     }
 
     @ApiStatus.Internal

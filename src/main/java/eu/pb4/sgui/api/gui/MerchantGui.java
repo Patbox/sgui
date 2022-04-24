@@ -34,12 +34,12 @@ public class MerchantGui extends SimpleGui {
     /**
      * Constructs a new MerchantGui for the supplied player.
      *
-     * @param player                      the player to serve this gui to
-     * @param includePlayerInventorySlots if <code>true</code> the players inventory
-     *                                    will be treated as slots of this gui
+     * @param player                the player to serve this gui to
+     * @param manipulatePlayerSlots if <code>true</code> the players inventory
+     *                              will be treated as slots of this gui
      */
-    public MerchantGui(ServerPlayerEntity player, boolean includePlayerInventorySlots) {
-        super(ScreenHandlerType.MERCHANT, player, includePlayerInventorySlots);
+    public MerchantGui(ServerPlayerEntity player, boolean manipulatePlayerSlots) {
+        super(ScreenHandlerType.MERCHANT, player, manipulatePlayerSlots);
         this.merchant = new VirtualMerchant(player);
         this.merchantInventory = new MerchantInventory(this.merchant);
         this.setTitle(LiteralText.EMPTY);
@@ -47,6 +47,24 @@ public class MerchantGui extends SimpleGui {
         this.setSlotRedirect(0, new Slot(this.merchantInventory, 0, 0, 0));
         this.setSlotRedirect(1, new Slot(this.merchantInventory, 1, 0, 0));
         this.setSlotRedirect(2, new VirtualTradeOutputSlot(player, merchant, this.merchantInventory, 2, 0, 0));
+    }
+
+    public static boolean areTradeOffersEqualIgnoreUses(@Nullable TradeOffer x, @Nullable TradeOffer y) {
+        if (x == null && y == null) {
+            return true;
+        } else if (x == null || y == null) {
+            return false;
+        }
+
+        return x.shouldRewardPlayerExperience() == y.shouldRewardPlayerExperience()
+                && x.getDemandBonus() == y.getDemandBonus()
+                && x.getMaxUses() == y.getMaxUses()
+                && x.getMerchantExperience() == y.getMerchantExperience()
+                && x.getSpecialPrice() == y.getSpecialPrice()
+                && ItemStack.areEqual(x.getSellItem(), y.getSellItem())
+                && ItemStack.areEqual(x.getOriginalFirstBuyItem(), y.getOriginalFirstBuyItem())
+                && ItemStack.areEqual(x.getSecondBuyItem(), y.getSecondBuyItem());
+
     }
 
     /**
@@ -92,6 +110,15 @@ public class MerchantGui extends SimpleGui {
     }
 
     /**
+     * Get the level of the the merchant.
+     *
+     * @return the {@link VillagerLevel}
+     */
+    public VillagerLevel getLevel() {
+        return VillagerLevel.values()[this.merchant.getLevel()];
+    }
+
+    /**
      * Sets the level of the merchant. <br>
      * Only visible if setIsLeveled has been set to <code>true</code>.
      *
@@ -106,12 +133,13 @@ public class MerchantGui extends SimpleGui {
     }
 
     /**
-     * Get the level of the the merchant.
+     * Gets the experience value of the merchant. <br>
+     * Takes into account changes from completed trades.
      *
-     * @return the {@link VillagerLevel}
+     * @return the experience of the merchant
      */
-    public VillagerLevel getLevel() {
-        return VillagerLevel.values()[this.merchant.getLevel()];
+    public int getExperience() {
+        return this.merchant.getExperience();
     }
 
     /**
@@ -128,16 +156,6 @@ public class MerchantGui extends SimpleGui {
         if (this.open && this.autoUpdate) {
             this.sendUpdate();
         }
-    }
-
-    /**
-     * Gets the experience value of the merchant. <br>
-     * Takes into account changes from completed trades.
-     *
-     * @return the experience of the merchant
-     */
-    public int getExperience() {
-        return this.merchant.getExperience();
     }
 
     /**
@@ -221,24 +239,6 @@ public class MerchantGui extends SimpleGui {
         return false;
     }
 
-    public static boolean areTradeOffersEqualIgnoreUses(@Nullable TradeOffer x, @Nullable TradeOffer y) {
-        if (x == null && y == null) {
-            return true;
-        } else if (x == null || y == null) {
-            return false;
-        }
-
-        return x.shouldRewardPlayerExperience() == y.shouldRewardPlayerExperience()
-                && x.getDemandBonus() == y.getDemandBonus()
-                && x.getMaxUses() == y.getMaxUses()
-                && x.getMerchantExperience() == y.getMerchantExperience()
-                && x.getSpecialPrice() == y.getSpecialPrice()
-                && ItemStack.areEqual(x.getSellItem(), y.getSellItem())
-                && ItemStack.areEqual(x.getOriginalFirstBuyItem(), y.getOriginalFirstBuyItem())
-                && ItemStack.areEqual(x.getSecondBuyItem(), y.getSecondBuyItem());
-
-    }
-
     /**
      * Villager Levels
      * <br>
@@ -249,6 +249,7 @@ public class MerchantGui extends SimpleGui {
     public enum VillagerLevel {
         /**
          * NONE will still show a level bar however it will never show progress.
+         *
          * @see MerchantGui#setIsLeveled(boolean) to disable completelty
          */
         NONE(-1),

@@ -298,4 +298,17 @@ public abstract class ServerPlayNetworkHandlerMixin {
             }
         }
     }
+
+    @Inject(method = "handleMessage", at = @At("HEAD"), cancellable = true)
+    private void sgui_onCommand(TextStream.Message message, CallbackInfo ci) {
+        if (this.player.currentScreenHandler instanceof BookScreenHandler handler) {
+            try {
+                if (handler.getGui().onCommand(message.getRaw())) {
+                    ci.cancel();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

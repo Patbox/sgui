@@ -21,10 +21,7 @@ import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.tag.BlockTags;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
+import net.minecraft.text.*;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -192,13 +189,15 @@ public class SGuiTest implements ModInitializer {
                             new LiteralText("Click to navigate to page: "),
                             new LiteralText("1").styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, "1"))),
                             new LiteralText("2").styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, "2"))),
-                            new LiteralText("3").styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, "3")))
+                            new LiteralText("3").styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, "3"))),
+                            new LiteralText("Command").styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "Hello World!")))
                     )
                     .addPage(new LiteralText("This is page three!"))
                     .setTitle("The Test Book")
                     .setAuthor("aws404");
 
             BookGui gui = new BookGui(player, bookBuilder) {
+                private boolean forceReopen;
                 private int tick = 0;
 
                 @Override
@@ -212,6 +211,24 @@ public class SGuiTest implements ModInitializer {
                         }
                         this.tick = 0;
                     }
+                }
+
+                @Override
+                public boolean onCommand(String command) {
+                    bookBuilder.addPage(Text.of(command));
+                    this.book = bookBuilder.asStack();
+
+                    this.forceReopen = true;
+                    return true;
+                }
+
+                @Override
+                public void onClose() {
+                    if (this.forceReopen) {
+                        this.open();
+                    }
+                    this.forceReopen = false;
+                    super.onClose();
                 }
 
                 @Override

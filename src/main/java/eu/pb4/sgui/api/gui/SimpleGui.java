@@ -38,19 +38,19 @@ public class SimpleGui extends BaseSlotGui {
     /**
      * Constructs a new simple container gui for the supplied player.
      *
-     * @param type                        the screen handler that the client should display
-     * @param player                      the player to server this gui to
-     * @param includePlayerInventorySlots if <code>true</code> the players inventory
-     *                                    will be treated as slots of this gui
+     * @param type                  the screen handler that the client should display
+     * @param player                the player to server this gui to
+     * @param manipulatePlayerSlots if <code>true</code> the players inventory
+     *                              will be treated as slots of this gui
      */
-    public SimpleGui(ScreenHandlerType<?> type, ServerPlayerEntity player, boolean includePlayerInventorySlots) {
-        super( player, GuiHelpers.getHeight(type) * GuiHelpers.getWidth(type) + (includePlayerInventorySlots ? 36 : 0));
+    public SimpleGui(ScreenHandlerType<?> type, ServerPlayerEntity player, boolean manipulatePlayerSlots) {
+        super(player, GuiHelpers.getHeight(type) * GuiHelpers.getWidth(type) + (manipulatePlayerSlots ? 36 : 0));
         this.height = GuiHelpers.getHeight(type);
         this.width = GuiHelpers.getWidth(type);
 
         this.type = type;
         this.sizeCont = this.width * this.height;
-        this.includePlayer = includePlayerInventorySlots;
+        this.includePlayer = manipulatePlayerSlots;
     }
 
     /**

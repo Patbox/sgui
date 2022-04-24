@@ -34,21 +34,21 @@ public class LayeredGui implements SlotGuiInterface {
     /**
      * Constructs a new layered container gui for the supplied player.
      *
-     * @param type                        the screen handler that the client should display
-     * @param player                      the player to server this gui to
-     * @param includePlayerInventorySlots if <code>true</code> the players inventory
-     *                                    will be treated as slots of this gui
+     * @param type                  the screen handler that the client should display
+     * @param player                the player to server this gui to
+     * @param manipulatePlayerSlots if <code>true</code> the players inventory
+     *                              will be treated as slots of this gui
      */
-    public LayeredGui(ScreenHandlerType<?> type, ServerPlayerEntity player, boolean includePlayerInventorySlots) {
+    public LayeredGui(ScreenHandlerType<?> type, ServerPlayerEntity player, boolean manipulatePlayerSlots) {
         int width = GuiHelpers.getWidth(type);
         if (width != 9) {
             type = ScreenHandlerType.GENERIC_9X3;
         }
 
-        this.height = GuiHelpers.getHeight(type) + (includePlayerInventorySlots ? 4 : 0);
+        this.height = GuiHelpers.getHeight(type) + (manipulatePlayerSlots ? 4 : 0);
         this.width = 9;
 
-        this.gui = new BackendSimpleGui(type, player, includePlayerInventorySlots, this);
+        this.gui = new BackendSimpleGui(type, player, manipulatePlayerSlots, this);
         this.size = this.width * this.height;
         this.backgroundLayer = new Layer(this.height, this.width);
         this.layers = new ArrayList<>();
@@ -110,8 +110,6 @@ public class LayeredGui implements SlotGuiInterface {
             }
         }
     }
-
-
 
 
     public int getHeight() {

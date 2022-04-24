@@ -10,8 +10,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 class BackendSimpleGui extends SimpleGui {
     public final LayeredGui gui;
 
-    public BackendSimpleGui(ScreenHandlerType<?> type, ServerPlayerEntity player, boolean includePlayerInventorySlots, LayeredGui gui) {
-        super(type, player, includePlayerInventorySlots);
+    public BackendSimpleGui(ScreenHandlerType<?> type, ServerPlayerEntity player, boolean manipulatePlayerSlots, LayeredGui gui) {
+        super(type, player, manipulatePlayerSlots);
         this.gui = gui;
     }
 
