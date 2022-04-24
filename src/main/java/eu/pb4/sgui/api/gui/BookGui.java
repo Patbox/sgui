@@ -70,7 +70,7 @@ public class BookGui implements GuiInterface {
      * @param page the page index, from 0
      */
     public void setPage(int page) {
-        this.page = MathHelper.clamp(page, 0, WrittenBookItem.getPageCount(this.getBook()));
+        this.page = page;
         this.sendProperty(ScreenProperty.SELECTED, this.page);
     }
 
