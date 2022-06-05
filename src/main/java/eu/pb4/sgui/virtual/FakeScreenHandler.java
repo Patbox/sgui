@@ -2,6 +2,7 @@ package eu.pb4.sgui.virtual;
 
 import eu.pb4.sgui.api.gui.GuiInterface;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 
 /**
@@ -35,5 +36,10 @@ public class FakeScreenHandler extends ScreenHandler implements VirtualScreenHan
             e.printStackTrace();
         }
         super.sendContentUpdates();
+    }
+
+    @Override
+    public ItemStack transferSlot(PlayerEntity player, int index) {
+        return ItemStack.EMPTY;
     }
 }

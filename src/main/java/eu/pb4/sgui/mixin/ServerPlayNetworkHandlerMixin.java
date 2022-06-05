@@ -21,13 +21,12 @@ import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.UpdateSelectedSlotS2CPacket;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.filter.FilteredMessage;
 import net.minecraft.server.filter.TextStream;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -36,7 +35,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
-
 
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin {
@@ -49,8 +47,6 @@ public abstract class ServerPlayNetworkHandlerMixin {
 
     @Shadow
     public abstract void sendPacket(Packet<?> packet);
-
-    @Shadow @Final private MinecraftServer server;
 
     @Inject(method = "onClickSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;updateLastActionTime()V", shift = At.Shift.AFTER), cancellable = true)
     private void sgui_handleGuiClicks(ClickSlotC2SPacket packet, CallbackInfo ci) {
@@ -164,11 +160,11 @@ public abstract class ServerPlayNetworkHandlerMixin {
     }
 
     @Inject(method = "onSignUpdate", at = @At("HEAD"), cancellable = true)
-    private void sgui_catchSignUpdate(UpdateSignC2SPacket packet, List<TextStream.Message> signText, CallbackInfo ci) {
+    private void sgui_catchSignUpdate(UpdateSignC2SPacket packet, List<FilteredMessage<String>> signText, CallbackInfo ci) {
         try {
             if (this.player.currentScreenHandler instanceof FakeScreenHandler fake && fake.getGui() instanceof SignGui gui) {
                 for (int i = 0; i < packet.getText().length; i++) {
-                    gui.setLineInternal(i, new LiteralText(packet.getText()[i]));
+                    gui.setLineInternal(i, Text.literal(packet.getText()[i]));
                 }
                 gui.close(true);
                 ci.cancel();
@@ -300,10 +296,23 @@ public abstract class ServerPlayNetworkHandlerMixin {
     }
 
     @Inject(method = "handleMessage", at = @At("HEAD"), cancellable = true)
-    private void sgui_onCommand(TextStream.Message message, CallbackInfo ci) {
+    private void sgui_onMessage(ChatMessageC2SPacket packet, FilteredMessage<String> message, CallbackInfo ci) {
         if (this.player.currentScreenHandler instanceof BookScreenHandler handler) {
             try {
-                if (handler.getGui().onCommand(message.getRaw())) {
+                if (handler.getGui().onCommand(message.raw())) {
+                    ci.cancel();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Inject(method = "onCommandExecution", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;getCommandSource()Lnet/minecraft/server/command/ServerCommandSource;", shift = At.Shift.BEFORE), cancellable = true)
+    private void sgui_onCommand(CommandExecutionC2SPacket packet, CallbackInfo ci) {
+        if (this.player.currentScreenHandler instanceof BookScreenHandler handler) {
+            try {
+                if (handler.getGui().onCommand("/" + packet.command())) {
                     ci.cancel();
                 }
             } catch (Exception e) {

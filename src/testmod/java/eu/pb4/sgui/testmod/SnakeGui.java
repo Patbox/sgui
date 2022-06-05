@@ -9,7 +9,7 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,24 +61,24 @@ public class SnakeGui extends LayeredGui {
 
     public SnakeGui(ServerPlayerEntity player) {
         super(ScreenHandlerType.GENERIC_9X6, player, true);
-        this.setTitle(new LiteralText("SGui Snake"));
+        this.setTitle(Text.literal("SGui Snake"));
 
         Layer controller = new Layer(3, 3);
         this.controller = controller;
 
-        controller.setSlot(1, new GuiElementBuilder(Items.MAGMA_CREAM).setName(new LiteralText("^"))
+        controller.setSlot(1, new GuiElementBuilder(Items.MAGMA_CREAM).setName(Text.literal("^"))
                 .setCallback((x, y, z) -> changeDirection(Direction.UP)));
 
-        controller.setSlot(3, new GuiElementBuilder(Items.MAGMA_CREAM).setName(new LiteralText("<"))
+        controller.setSlot(3, new GuiElementBuilder(Items.MAGMA_CREAM).setName(Text.literal("<"))
                 .setCallback((x, y, z) -> changeDirection(Direction.LEFT)));
 
-        controller.setSlot(5, new GuiElementBuilder(Items.MAGMA_CREAM).setName(new LiteralText(">"))
+        controller.setSlot(5, new GuiElementBuilder(Items.MAGMA_CREAM).setName(Text.literal(">"))
                 .setCallback((x, y, z) -> changeDirection(Direction.RIGHT)));
 
-        controller.setSlot(7, new GuiElementBuilder(Items.MAGMA_CREAM).setName(new LiteralText("v"))
+        controller.setSlot(7, new GuiElementBuilder(Items.MAGMA_CREAM).setName(Text.literal("v"))
                 .setCallback((x, y, z) -> changeDirection(Direction.DOWN)));
 
-        controller.setSlot(4, new GuiElementBuilder(Items.WHITE_STAINED_GLASS_PANE).setName(LiteralText.EMPTY.copy()));
+        controller.setSlot(4, new GuiElementBuilder(Items.WHITE_STAINED_GLASS_PANE).setName(Text.empty()));
 
         this.addLayer(controller, 3, 6).setZIndex(5);
 
@@ -102,14 +102,14 @@ public class SnakeGui extends LayeredGui {
 
         Layer backdrop = new Layer(4 ,9);
 
-        GuiElementBuilder builder = new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE).setName(LiteralText.EMPTY.copy());
+        GuiElementBuilder builder = new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE).setName(Text.empty());
 
         while (backdrop.getFirstEmptySlot() != -1) {
             backdrop.addSlot(builder);
         }
 
-        backdrop.setSlot(backdrop.getSize() - 1, new GuiElementBuilder(Items.BARRIER).setName(new LiteralText("Close")).setCallback((a, b, c, g) -> g.close()));
-        backdrop.setSlot(backdrop.getSize() - 9, new GuiElementBuilder(Items.EMERALD).setName(new LiteralText("Restart")).setCallback((a, b, c, g) -> new SnakeGui(this.getPlayer()).open()));
+        backdrop.setSlot(backdrop.getSize() - 1, new GuiElementBuilder(Items.BARRIER).setName(Text.literal("Close")).setCallback((a, b, c, g) -> g.close()));
+        backdrop.setSlot(backdrop.getSize() - 9, new GuiElementBuilder(Items.EMERALD).setName(Text.literal("Restart")).setCallback((a, b, c, g) -> new SnakeGui(this.getPlayer()).open()));
         this.addLayer(backdrop, 0, 6);
     }
 
@@ -202,7 +202,7 @@ public class SnakeGui extends LayeredGui {
 
         this.gameplayLayer.setSlot(this.snakeHead.index(), this.gameover ? Items.SKELETON_SKULL.getDefaultStack() : Items.CREEPER_HEAD.getDefaultStack());
 
-        LiteralText scoreText = new LiteralText("" + this.points);
+        var scoreText = Text.literal("" + this.points);
         for (int x = 0; x < 5; x++) {
             int score = (this.points / (int) Math.pow(10, x)) % 10;
             ItemStack stack1 = NUMBERS[score].copy();

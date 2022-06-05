@@ -46,7 +46,7 @@ public interface GuiElementInterface {
      * Can be used to create animations.
      */
     default ItemStack getItemStackForDisplay(GuiInterface gui) {
-        return this.getItemStackInternalUseOnly();
+        return this.getItemStack().copy();
     }
 
     /**
@@ -109,13 +109,6 @@ public interface GuiElementInterface {
          * @param gui    the gui being source of the click
          */
         void click(int index, ClickType type, SlotActionType action, SlotGuiInterface gui);
-    }
-
-
-    @ApiStatus.Internal
-    @Deprecated
-    default ItemStack getItemStackInternalUseOnly() {
-        return this.getItemStack().copy();
     }
 
     @Deprecated

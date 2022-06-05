@@ -112,18 +112,8 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
      * @return this element builder
      */
     public AnimatedGuiElementBuilder setName(Text name) {
-        this.name = name.shallowCopy();
+        this.name = name.copy();
         return this;
-    }
-
-    /**
-     * Sets the name of the current element.
-     *
-     * @param name the name to use
-     * @return this element builder
-     */
-    public AnimatedGuiElementBuilder setName(MutableText name) {
-        return this.setName((Text) name);
     }
 
     /**
@@ -375,7 +365,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
         return itemStack;
     }
 
-    private NbtCompound getOrCreateNbt() {
+    public NbtCompound getOrCreateNbt() {
         if (this.tag == null) {
             this.tag = new NbtCompound();
         }

@@ -7,7 +7,6 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.tag.ItemTags;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
 /**
@@ -48,7 +47,7 @@ public class BookElementBuilder extends GuiElementBuilder {
      * @see BookElementBuilder#setPage(int, Text...)
      */
     public BookElementBuilder addPage(Text... lines) {
-        LiteralText text = new LiteralText("");
+        var text = Text.literal("");
         for (Text line : lines) {
             text.append(line).append("\n");
         }
@@ -67,7 +66,7 @@ public class BookElementBuilder extends GuiElementBuilder {
      * @see BookElementBuilder#addPage(Text...)
      */
     public BookElementBuilder setPage(int index, Text... lines) {
-        LiteralText text = new LiteralText("");
+        var text = Text.literal("");
         for (Text line : lines) {
             text.append(line).append("\n");
         }
@@ -235,7 +234,7 @@ public class BookElementBuilder extends GuiElementBuilder {
             }
         }
 
-        return new LiteralText("");
+        return Text.literal("");
     }
 
     /**
@@ -250,7 +249,7 @@ public class BookElementBuilder extends GuiElementBuilder {
         if(index < pages.size()) {
             return Text.Serializer.fromJson(pages.get(index).asString());
         }
-        return new LiteralText("");
+        return Text.literal("");
     }
 
 }

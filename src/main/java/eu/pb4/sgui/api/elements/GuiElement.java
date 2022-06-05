@@ -1,5 +1,6 @@
 package eu.pb4.sgui.api.elements;
 
+import eu.pb4.sgui.api.gui.GuiInterface;
 import net.minecraft.item.ItemStack;
 
 /**
@@ -62,7 +63,7 @@ public class GuiElement implements GuiElementInterface {
     }
 
     @Override
-    public ItemStack getItemStackInternalUseOnly() {
+    public ItemStack getItemStackForDisplay(GuiInterface gui) {
         return this.item.copy();
     }
 }

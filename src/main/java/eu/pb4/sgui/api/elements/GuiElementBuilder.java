@@ -129,18 +129,8 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      * @return this element builder
      */
     public GuiElementBuilder setName(Text name) {
-        this.name = name.shallowCopy();
+        this.name = name.copy();
         return this;
-    }
-
-    /**
-     * Sets the name of the element.
-     *
-     * @param name the name to use
-     * @return this element builder
-     */
-    public GuiElementBuilder setName(MutableText name) {
-        return this.setName((Text) name);
     }
 
     /**
@@ -392,7 +382,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
         return itemStack;
     }
 
-    protected NbtCompound getOrCreateNbt() {
+    public NbtCompound getOrCreateNbt() {
         if (this.tag == null) {
             this.tag = new NbtCompound();
         }

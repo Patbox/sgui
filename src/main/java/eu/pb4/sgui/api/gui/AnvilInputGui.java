@@ -6,7 +6,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -44,7 +44,7 @@ public class AnvilInputGui extends SimpleGui {
      */
     public void setDefaultInputValue(String input) {
         ItemStack itemStack = Items.PAPER.getDefaultStack();
-        itemStack.setCustomName(new LiteralText(input));
+        itemStack.setCustomName(Text.literal(input));
         this.inputText = input;
         this.defaultText = input;
         this.setSlot(0, itemStack, ((index, type1, action, gui) -> {

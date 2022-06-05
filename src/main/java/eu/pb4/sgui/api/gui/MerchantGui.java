@@ -8,7 +8,7 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.village.MerchantInventory;
 import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOfferList;
@@ -42,7 +42,7 @@ public class MerchantGui extends SimpleGui {
         super(ScreenHandlerType.MERCHANT, player, manipulatePlayerSlots);
         this.merchant = new VirtualMerchant(player);
         this.merchantInventory = new MerchantInventory(this.merchant);
-        this.setTitle(LiteralText.EMPTY);
+        this.setTitle(Text.empty());
 
         this.setSlotRedirect(0, new Slot(this.merchantInventory, 0, 0, 0));
         this.setSlotRedirect(1, new Slot(this.merchantInventory, 1, 0, 0));
