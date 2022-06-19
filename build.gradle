@@ -51,7 +51,7 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	modCompileOnly modLocalRuntime("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
 
 	//modRuntime "com.github.SuperCoder7979:databreaker:0.2.6"
 
