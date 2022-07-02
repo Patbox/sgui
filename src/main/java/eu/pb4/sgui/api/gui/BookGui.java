@@ -2,16 +2,13 @@ package eu.pb4.sgui.api.gui;
 
 import eu.pb4.sgui.api.ScreenProperty;
 import eu.pb4.sgui.api.elements.BookElementBuilder;
+import eu.pb4.sgui.virtual.SguiScreenHandlerFactory;
 import eu.pb4.sgui.virtual.book.BookScreenHandler;
-import eu.pb4.sgui.virtual.book.BookScreenHandlerFactory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.WrittenBookItem;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.tag.ItemTags;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.Registry;
 
 import java.util.OptionalInt;
 
@@ -122,7 +119,7 @@ public class BookGui implements GuiInterface {
             this.open = true;
             this.onOpen();
             this.reOpen = true;
-            OptionalInt temp = this.player.openHandledScreen(new BookScreenHandlerFactory(this));
+            OptionalInt temp = this.player.openHandledScreen(new SguiScreenHandlerFactory<>(this, (syncId, inv, player) -> new BookScreenHandler(syncId, this, player)));
             this.reOpen = false;
             if (temp.isPresent()) {
                 this.syncId = temp.getAsInt();

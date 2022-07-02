@@ -144,6 +144,7 @@ public class SnakeGui extends LayeredGui {
 
                 if (this.snakeParts.contains(this.snakeHead)) {
                     this.gameover = true;
+                    this.setTitle(Text.literal("Game Over!"));
                     return;
                 }
 

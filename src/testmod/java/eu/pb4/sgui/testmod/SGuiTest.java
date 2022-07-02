@@ -260,6 +260,7 @@ public class SGuiTest implements ModInitializer {
             };
 
             gui.setSlot(0, new GuiElementBuilder(Items.BARRIER, 8).setCallback((x, y, z) -> gui.close()));
+            gui.setSlot(6, new GuiElementBuilder(Items.BARRIER, 9).setCallback((x, y, z) -> gui.onClose()));
 
             gui.setTitle(Text.literal("Close gui to test switching"));
             gui.open();

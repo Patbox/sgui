@@ -1,5 +1,6 @@
 package eu.pb4.sgui.api.gui;
 
+import eu.pb4.sgui.virtual.SguiScreenHandlerFactory;
 import eu.pb4.sgui.virtual.merchant.VirtualMerchant;
 import eu.pb4.sgui.virtual.merchant.VirtualMerchantScreenHandler;
 import eu.pb4.sgui.virtual.merchant.VirtualTradeOutputSlot;
@@ -221,7 +222,7 @@ public class MerchantGui extends SimpleGui {
     @Override
     protected boolean sendGui() {
         this.reOpen = true;
-        OptionalInt opSyncId = player.openHandledScreen(new SimpleNamedScreenHandlerFactory((syncId, playerInventory, playerx) -> new VirtualMerchantScreenHandler(syncId, this.player, this.merchant, this, this.merchantInventory), this.getTitle()));
+        OptionalInt opSyncId = player.openHandledScreen(new SguiScreenHandlerFactory<>(this, (syncId, playerInventory, playerx) -> new VirtualMerchantScreenHandler(syncId, this.player, this.merchant, this, this.merchantInventory)));
         if (opSyncId.isPresent()) {
             this.syncId = opSyncId.getAsInt();
             this.screenHandler = (VirtualMerchantScreenHandler) this.player.currentScreenHandler;

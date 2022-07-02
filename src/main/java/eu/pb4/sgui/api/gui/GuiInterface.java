@@ -65,6 +65,7 @@ public interface GuiInterface {
     boolean open();
 
     boolean getAutoUpdate();
+
     void setAutoUpdate(boolean value);
 
     /**
@@ -123,5 +124,9 @@ public interface GuiInterface {
         if (this.isOpen()) {
             this.getPlayer().networkHandler.sendPacket(new ScreenHandlerPropertyUpdateS2CPacket(this.getSyncId(), property.id(), value));
         }
+    }
+
+    default boolean resetMousePosition() {
+        return false;
     }
 }

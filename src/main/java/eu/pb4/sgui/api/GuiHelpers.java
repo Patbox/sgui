@@ -1,12 +1,26 @@
 package eu.pb4.sgui.api;
 
+import eu.pb4.sgui.api.gui.GuiInterface;
+import eu.pb4.sgui.impl.PlayerExtensions;
+import eu.pb4.sgui.virtual.VirtualScreenHandlerInterface;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 
+import javax.annotation.Nullable;
+
 public final class GuiHelpers {
+    @Nullable
+    public static GuiInterface getCurrentGui(ServerPlayerEntity player) {
+        return player.currentScreenHandler instanceof VirtualScreenHandlerInterface v ? v.getGui() : null;
+    }
+
+    public static void ignoreNextGuiClosing(ServerPlayerEntity player) {
+        ((PlayerExtensions) player).sgui_ignoreNextClose();
+    }
+
     public static void sendSlotUpdate(ServerPlayerEntity player, int syncId, int slot, ItemStack stack, int revision) {
         player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(syncId, revision, slot, stack));
     }

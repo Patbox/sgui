@@ -4,9 +4,10 @@ import eu.pb4.sgui.api.GuiHelpers;
 import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
 import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
-import eu.pb4.sgui.virtual.inventory.VirtualScreenHandlerFactory;
+import eu.pb4.sgui.virtual.SguiScreenHandlerFactory;
 import eu.pb4.sgui.virtual.inventory.VirtualSlot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.s2c.play.OpenScreenS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerPropertyUpdateS2CPacket;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
@@ -113,8 +114,8 @@ public class SimpleGui extends BaseSlotGui {
         this.title = title;
 
         if (this.open) {
-            this.reOpen = true;
-            this.sendGui();
+            this.player.networkHandler.sendPacket(new OpenScreenS2CPacket(this.syncId, this.type, title));
+            this.screenHandler.syncState();
         }
     }
 
@@ -166,7 +167,7 @@ public class SimpleGui extends BaseSlotGui {
      */
     protected boolean sendGui() {
         this.reOpen = true;
-        OptionalInt temp = this.player.openHandledScreen(new VirtualScreenHandlerFactory(this));
+        OptionalInt temp = this.player.openHandledScreen(SguiScreenHandlerFactory.ofDefault(this));
         this.reOpen = false;
         if (temp.isPresent()) {
             this.syncId = temp.getAsInt();
