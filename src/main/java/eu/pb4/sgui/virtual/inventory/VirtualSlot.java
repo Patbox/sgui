@@ -22,6 +22,22 @@ public class VirtualSlot extends Slot {
     }
 
     @Override
+    public boolean canTakePartial(PlayerEntity player) {
+        return false;
+    }
+
+    @Override
+    public ItemStack insertStack(ItemStack stack, int count) {
+        return stack;
+    }
+
+
+    @Override
+    public void setStack(ItemStack stack) {
+
+    }
+
+    @Override
     public boolean hasStack() {
         return true;
     }
