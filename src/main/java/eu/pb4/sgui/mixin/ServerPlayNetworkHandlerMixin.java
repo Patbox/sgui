@@ -160,7 +160,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
     }
 
     @Inject(method = "onSignUpdate", at = @At("HEAD"), cancellable = true)
-    private void sgui_catchSignUpdate(UpdateSignC2SPacket packet, List<FilteredMessage<String>> signText, CallbackInfo ci) {
+    private void sgui_catchSignUpdate(UpdateSignC2SPacket packet, List<FilteredMessage> signText, CallbackInfo ci) {
         try {
             if (this.player.currentScreenHandler instanceof FakeScreenHandler fake && fake.getGui() instanceof SignGui gui) {
                 for (int i = 0; i < packet.getText().length; i++) {
@@ -295,11 +295,11 @@ public abstract class ServerPlayNetworkHandlerMixin {
         }
     }
 
-    @Inject(method = "handleMessage", at = @At("HEAD"), cancellable = true)
-    private void sgui_onMessage(ChatMessageC2SPacket packet, FilteredMessage<String> message, CallbackInfo ci) {
+    @Inject(method = "method_44900", at = @At("HEAD"), cancellable = true)
+    private void sgui_onMessage(ChatMessageC2SPacket chatMessageC2SPacket, CallbackInfo ci) {
         if (this.player.currentScreenHandler instanceof BookScreenHandler handler) {
             try {
-                if (handler.getGui().onCommand(message.raw())) {
+                if (handler.getGui().onCommand(chatMessageC2SPacket.chatMessage())) {
                     ci.cancel();
                 }
             } catch (Exception e) {
@@ -308,7 +308,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
         }
     }
 
-    @Inject(method = "onCommandExecution", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;getCommandSource()Lnet/minecraft/server/command/ServerCommandSource;", shift = At.Shift.BEFORE), cancellable = true)
+    @Inject(method = "method_44356", at = @At("HEAD"), cancellable = true)
     private void sgui_onCommand(CommandExecutionC2SPacket packet, CallbackInfo ci) {
         if (this.player.currentScreenHandler instanceof BookScreenHandler handler) {
             try {
