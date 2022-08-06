@@ -18,6 +18,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlayerActionResponseS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.UpdateSelectedSlotS2CPacket;
 import net.minecraft.screen.ScreenHandler;
@@ -238,6 +239,8 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 this.sendPacket(new BlockUpdateS2CPacket(pos, this.player.world.getBlockState(pos)));
                 pos = pos.offset(packet.getBlockHitResult().getSide());
                 this.sendPacket(new BlockUpdateS2CPacket(pos, this.player.world.getBlockState(pos)));
+                this.sendPacket(new PlayerActionResponseS2CPacket(packet.getSequence()));
+
                 ci.cancel();
             }
         }
@@ -257,6 +260,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 this.sendPacket(new BlockUpdateS2CPacket(pos, this.player.world.getBlockState(pos)));
                 pos = pos.offset(packet.getDirection());
                 this.sendPacket(new BlockUpdateS2CPacket(pos, this.player.world.getBlockState(pos)));
+                this.sendPacket(new PlayerActionResponseS2CPacket(packet.getSequence()));
                 ci.cancel();
             }
         }
