@@ -198,9 +198,10 @@ public class SimpleGui extends BaseSlotGui {
         if (this.player.isDisconnected() || this.open) {
             return false;
         } else {
-            this.open = true;
             this.onOpen();
-            return this.sendGui();
+            var isOpen = this.sendGui();
+            this.open = isOpen;
+            return isOpen;
         }
     }
 
