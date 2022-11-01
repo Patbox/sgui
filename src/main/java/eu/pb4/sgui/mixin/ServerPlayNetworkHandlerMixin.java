@@ -16,6 +16,7 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.message.LastSeenMessageList;
 import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerActionResponseS2CPacket;
@@ -36,6 +37,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
+import java.util.Optional;
 
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin {
@@ -300,10 +302,10 @@ public abstract class ServerPlayNetworkHandlerMixin {
     }
 
     @Inject(method = "method_44900", at = @At("HEAD"), cancellable = true)
-    private void sgui_onMessage(ChatMessageC2SPacket chatMessageC2SPacket, CallbackInfo ci) {
+    private void sgui_onMessage(ChatMessageC2SPacket packet, Optional<LastSeenMessageList> optional, CallbackInfo ci) {
         if (this.player.currentScreenHandler instanceof BookScreenHandler handler) {
             try {
-                if (handler.getGui().onCommand(chatMessageC2SPacket.chatMessage())) {
+                if (handler.getGui().onCommand(packet.chatMessage())) {
                     ci.cancel();
                 }
             } catch (Exception e) {
@@ -313,7 +315,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
     }
 
     @Inject(method = "method_44356", at = @At("HEAD"), cancellable = true)
-    private void sgui_onCommand(CommandExecutionC2SPacket packet, CallbackInfo ci) {
+    private void sgui_onCommand(CommandExecutionC2SPacket packet, Optional<LastSeenMessageList> optional, CallbackInfo ci) {
         if (this.player.currentScreenHandler instanceof BookScreenHandler handler) {
             try {
                 if (handler.getGui().onCommand("/" + packet.command())) {
