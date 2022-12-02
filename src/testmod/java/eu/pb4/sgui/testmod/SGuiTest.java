@@ -15,19 +15,19 @@ import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.WrittenBookItem;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.tag.BlockTags;
 import net.minecraft.text.*;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.village.TradeOffer;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,6 +55,11 @@ public class SGuiTest implements ModInitializer {
                 public void onTick() {
                     this.setSlot(0, new GuiElementBuilder(Items.ARROW).setCount((int) (player.world.getTime() % 127)));
                     super.onTick();
+                }
+
+                @Override
+                public boolean canPlayerClose() {
+                    return false;
                 }
             };
 
@@ -215,6 +220,7 @@ public class SGuiTest implements ModInitializer {
 
                 @Override
                 public boolean onCommand(String command) {
+                    System.out.println(command);
                     bookBuilder.addPage(Text.of(command));
                     this.book = bookBuilder.asStack();
 
@@ -316,7 +322,7 @@ public class SGuiTest implements ModInitializer {
                     tick++;
                     if (tick % 30 == 0) {
                         this.setLine(1, Text.literal(this.getLine(1).getString() + "^"));
-                        this.setSignType(Registry.BLOCK.getEntryList(BlockTags.WALL_SIGNS).get().getRandom(RANDOM).get().value());
+                        this.setSignType(Registries.BLOCK.getEntryList(BlockTags.WALL_SIGNS).get().getRandom(RANDOM).get().value());
                         this.setColor(DyeColor.byId(RANDOM.nextInt(15)));
                         this.updateSign();
                         this.tick = 0;
@@ -468,6 +474,11 @@ public class SGuiTest implements ModInitializer {
                 }
 
                 @Override
+                public boolean canPlayerClose() {
+                    return false;
+                }
+
+                @Override
                 public boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element) {
                     player.sendMessage(Text.literal("CLICK!"), false);
                     player.sendMessage(Text.literal(type + " " + index), false);
@@ -543,7 +554,7 @@ public class SGuiTest implements ModInitializer {
                     .setItem(Items.BARRIER)
                     .glow()
                     .setName(Text.literal("Bye")
-                            .setStyle(Style.EMPTY.withItalic(false).withBold(true)))
+                            .setStyle(Style.EMPTY.withItalic(false).withBold(true).withFormatting(Formatting.RED)))
                     .addLoreLine(Text.literal("Some lore"))
                     .addLoreLine(Text.literal("More lore").formatted(Formatting.RED))
                     .setCount(3)

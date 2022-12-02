@@ -1,7 +1,8 @@
 package eu.pb4.sgui.api;
 
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.util.registry.Registry;
 import org.apache.commons.lang3.ArrayUtils;
 
 /**
@@ -59,7 +60,7 @@ public enum ScreenProperty {
     /**
      * The enchantment id of the respective enchantment (set to -1 to hide).
      * <p>
-     * To get the id use {@link Registry#getRawId(Object)} for {@link Registry#ENCHANTMENT}.
+     * To get the id use {@link Registry#getRawId(Object)} for {@link Registries#ENCHANTMENT}.
      */
     TOP_ENCHANTMENT_ID(4, ScreenHandlerType.ENCHANTMENT),
     MIDDLE_ENCHANTMENT_ID(5, ScreenHandlerType.ENCHANTMENT),
@@ -90,7 +91,7 @@ public enum ScreenProperty {
     POWER_LEVEL(0, ScreenHandlerType.BEACON),
     /**
      * The effect id for the respective effect
-     * To get the id use {@link Registry#getRawId(Object)} for {@link Registry#POTION}
+     * To get the id use {@link Registry#getRawId(Object)} for {@link Registries#POTION}
      */
     FIRST_EFFECT(1, ScreenHandlerType.BEACON),
     SECOND_EFFECT(2, ScreenHandlerType.BEACON),

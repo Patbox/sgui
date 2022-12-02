@@ -2,10 +2,10 @@ package eu.pb4.sgui.api.gui;
 
 import eu.pb4.sgui.api.ScreenProperty;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerPropertyUpdateS2CPacket;
+import net.minecraft.registry.Registries;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -86,15 +86,10 @@ public interface GuiInterface {
         this.close(false);
     }
 
-    @Deprecated
-    default void onUpdate(boolean firstUpdate) {
-    }
-
     /**
      * Executes when the screen is opened
      */
     default void onOpen() {
-        this.onUpdate(true);
     }
 
     /**
@@ -109,6 +104,15 @@ public interface GuiInterface {
     default void onTick() {
     }
 
+    default boolean canPlayerClose() {
+        return true;
+    }
+
+    default void handleException(Throwable throwable) {
+        throwable.printStackTrace();
+    }
+
+
     /**
      * Send additional properties to the GUI.
      *
@@ -119,10 +123,16 @@ public interface GuiInterface {
      */
     default void sendProperty(ScreenProperty property, int value) {
         if (!property.validFor(this.getType())) {
-            throw new IllegalArgumentException(String.format("The property '%s' is not valid for the handler '%s'", property.name(), Registry.SCREEN_HANDLER.getId(this.getType())));
+            throw new IllegalArgumentException(String.format("The property '%s' is not valid for the handler '%s'", property.name(), Registries.SCREEN_HANDLER.getId(this.getType())));
         }
         if (this.isOpen()) {
             this.getPlayer().networkHandler.sendPacket(new ScreenHandlerPropertyUpdateS2CPacket(this.getSyncId(), property.id(), value));
+        }
+    }
+
+    default void sendRawProperty(int id, int value) {
+        if (this.isOpen()) {
+            this.getPlayer().networkHandler.sendPacket(new ScreenHandlerPropertyUpdateS2CPacket(this.getSyncId(), id, value));
         }
     }
 

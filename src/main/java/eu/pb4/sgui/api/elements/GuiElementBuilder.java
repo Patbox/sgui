@@ -1,18 +1,21 @@
 package eu.pb4.sgui.api.elements;
 
 import com.mojang.authlib.GameProfile;
+import eu.pb4.sgui.api.GuiHelpers;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.*;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextColor;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -76,7 +79,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
         NbtCompound tag = stack.getOrCreateNbt().copy();
 
         if (stack.hasCustomName()) {
-            builder.setName((MutableText) stack.getName());
+            builder.setName(stack.getName());
             tag.getCompound("display").remove("Name");
         }
 
@@ -92,7 +95,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
 
         if (stack.hasEnchantments()) {
             for (NbtElement enc : stack.getEnchantments()) {
-                Registry.ENCHANTMENT.getOrEmpty(Identifier.tryParse(((NbtCompound) enc).getString("id"))).ifPresent(enchantment -> builder.enchant(enchantment, ((NbtCompound) enc).getInt("lvl")));
+                Registries.ENCHANTMENT.getOrEmpty(Identifier.tryParse(((NbtCompound) enc).getString("id"))).ifPresent(enchantment -> builder.enchant(enchantment, ((NbtCompound) enc).getInt("lvl")));
             }
             tag.remove("Enchantments");
         }
@@ -349,10 +352,9 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
         }
 
         if (this.name != null) {
-            if (this.name instanceof MutableText) {
-                ((MutableText) this.name).styled(style -> style.withItalic(style.isItalic()));
-            }
-            itemStack.setCustomName(this.name);
+            var name = this.name.copy().styled(GuiHelpers.STYLE_CLEARER);
+
+            itemStack.setCustomName(name);
         }
 
         if (this.item.isDamageable() && this.damage != -1) {
@@ -367,9 +369,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
             NbtCompound display = itemStack.getOrCreateSubNbt("display");
             NbtList loreItems = new NbtList();
             for (Text l : this.lore) {
-                if (l instanceof MutableText) {
-                    ((MutableText) l).styled(style -> style.withItalic(style.isItalic()));
-                }
+                l = l.copy().styled(GuiHelpers.STYLE_CLEARER);
                 loreItems.add(NbtString.of(Text.Serializer.toJson(l)));
             }
             display.put("Lore", loreItems);

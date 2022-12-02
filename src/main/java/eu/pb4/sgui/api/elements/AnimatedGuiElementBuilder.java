@@ -1,6 +1,7 @@
 package eu.pb4.sgui.api.elements;
 
 import com.mojang.authlib.GameProfile;
+import eu.pb4.sgui.api.GuiHelpers;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.Item;
@@ -332,10 +333,9 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
         }
 
         if (this.name != null) {
-            if (this.name instanceof MutableText) {
-                ((MutableText) this.name).styled(style -> style.withItalic(style.isItalic()));
-            }
-            itemStack.setCustomName(this.name);
+            var name = this.name.copy().styled(GuiHelpers.STYLE_CLEARER);
+
+            itemStack.setCustomName(name);
         }
 
         if (this.item.isDamageable() && this.damage != -1) {
@@ -350,9 +350,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
             NbtCompound display = itemStack.getOrCreateSubNbt("display");
             NbtList loreItems = new NbtList();
             for (Text l : this.lore) {
-                if (l instanceof MutableText) {
-                    ((MutableText) l).styled(style -> style.withItalic(style.isItalic()));
-                }
+                l = l.copy().styled(GuiHelpers.STYLE_CLEARER);
                 loreItems.add(NbtString.of(Text.Serializer.toJson(l)));
             }
             display.put("Lore", loreItems);
