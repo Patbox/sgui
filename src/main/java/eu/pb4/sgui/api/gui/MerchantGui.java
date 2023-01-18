@@ -76,7 +76,7 @@ public class MerchantGui extends SimpleGui {
     public void addTrade(TradeOffer trade) {
         this.merchant.getOffers().add(trade);
 
-        if (this.open && this.autoUpdate) {
+        if (this.isOpen() && this.autoUpdate) {
             this.sendUpdate();
         }
     }
@@ -91,7 +91,7 @@ public class MerchantGui extends SimpleGui {
     public void setTrade(int index, TradeOffer trade) {
         this.merchant.getOffers().add(index, trade);
 
-        if (this.open && this.autoUpdate) {
+        if (this.isOpen() && this.autoUpdate) {
             this.sendUpdate();
         }
     }
@@ -105,7 +105,7 @@ public class MerchantGui extends SimpleGui {
     public void setIsLeveled(boolean isLeveled) {
         this.merchant.setLeveled(isLeveled);
 
-        if (this.open && this.autoUpdate) {
+        if (this.isOpen() && this.autoUpdate) {
             this.sendUpdate();
         }
     }
@@ -128,7 +128,7 @@ public class MerchantGui extends SimpleGui {
     public void setLevel(VillagerLevel level) {
         this.merchant.setLevel(level.ordinal());
 
-        if (this.open && this.autoUpdate) {
+        if (this.isOpen() && this.autoUpdate) {
             this.sendUpdate();
         }
     }
@@ -154,7 +154,7 @@ public class MerchantGui extends SimpleGui {
     public void setExperience(int experience) {
         this.merchant.setExperienceFromServer(experience);
 
-        if (this.open && this.autoUpdate) {
+        if (this.isOpen() && this.autoUpdate) {
             this.sendUpdate();
         }
     }

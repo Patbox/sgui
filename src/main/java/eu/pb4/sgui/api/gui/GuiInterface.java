@@ -89,6 +89,18 @@ public interface GuiInterface {
     /**
      * Executes when the screen is opened
      */
+    default void beforeOpen() {
+    }
+
+    /**
+     * Executes when the screen is opened
+     */
+    default void afterOpen() {
+    }
+
+    /**
+     * Executes when the screen is opened
+     */
     default void onOpen() {
     }
 

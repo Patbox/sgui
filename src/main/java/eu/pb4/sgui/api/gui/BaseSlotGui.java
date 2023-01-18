@@ -1,5 +1,6 @@
 package eu.pb4.sgui.api.gui;
 
+import eu.pb4.sgui.api.GuiHelpers;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
@@ -10,6 +11,10 @@ public abstract class BaseSlotGui implements SlotGuiInterface {
     protected final ServerPlayerEntity player;
     protected final GuiElementInterface[] elements;
     protected final Slot[] slotRedirects;
+    /**
+     * @Deprecated Use isOpen() instead
+     */
+    @Deprecated(forRemoval = true)
     protected boolean open = false;
     protected boolean autoUpdate = true;
     protected boolean reOpen = false;
@@ -79,7 +84,7 @@ public abstract class BaseSlotGui implements SlotGuiInterface {
 
     @Override
     public boolean isOpen() {
-        return this.open;
+        return GuiHelpers.getCurrentGui(this.player) == this;
     }
 
     @Override

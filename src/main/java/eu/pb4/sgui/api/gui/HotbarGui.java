@@ -74,7 +74,7 @@ public class HotbarGui extends BaseSlotGui {
     @Override
     public void setSlot(int index, GuiElementInterface element) {
         super.setSlot(index, element);
-        if (this.open && this.autoUpdate && this.screenHandler != null) {
+        if (this.isOpen() && this.autoUpdate) {
             this.screenHandler.setSlot(GUI_TO_VANILLA_IDS[index], new VirtualSlot(this.screenHandler.inventory, index, 0, 0));
         }
     }
@@ -82,7 +82,7 @@ public class HotbarGui extends BaseSlotGui {
     public void setSlotRedirect(int index, Slot slot) {
         super.setSlotRedirect(index, slot);
 
-        if (this.open && this.autoUpdate && this.screenHandler != null) {
+        if (this.isOpen() && this.autoUpdate) {
             this.screenHandler.setSlot(GUI_TO_VANILLA_IDS[index], slot);
         }
         this.hasRedirects = true;
@@ -92,7 +92,7 @@ public class HotbarGui extends BaseSlotGui {
     public void clearSlot(int index) {
         super.clearSlot(index);
 
-        if (this.open && this.autoUpdate) {
+        if (this.isOpen() && this.autoUpdate) {
             if (this.screenHandler != null) {
                 this.screenHandler.setSlot(GUI_TO_VANILLA_IDS[index], new VirtualSlot(this.screenHandler.inventory, index, 0, 0));
             }
@@ -106,26 +106,33 @@ public class HotbarGui extends BaseSlotGui {
 
     @Override
     public boolean open() {
-        if (this.player.isDisconnected() || this.open) {
+        if (this.player.isDisconnected() || this.isOpen()) {
             return false;
         } else {
-            this.open = true;
-            this.onOpen();
-
-            if (this.player.currentScreenHandler != this.player.playerScreenHandler && this.player.currentScreenHandler != this.screenHandler) {
-                this.player.closeHandledScreen();
-            }
-
-            if (this.screenHandler == null) {
-                this.screenHandler = new HotbarScreenHandler(null, 0, this, this.player);
-            }
-
-            this.player.currentScreenHandler = this.screenHandler;
-
-            GuiHelpers.sendPlayerScreenHandler(this.player);
-            this.player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(this.selectedSlot));
+            this.beforeOpen();
+            this.openScreenHandler();
+            this.afterOpen();
             return true;
         }
+    }
+
+    private void openScreenHandler() {
+        //noinspection removal
+        this.open = true;
+        this.onOpen();
+
+        if (this.player.currentScreenHandler != this.player.playerScreenHandler && this.player.currentScreenHandler != this.screenHandler) {
+            this.player.closeHandledScreen();
+        }
+
+        if (this.screenHandler == null) {
+            this.screenHandler = new HotbarScreenHandler(null, 0, this, this.player);
+        }
+
+        this.player.currentScreenHandler = this.screenHandler;
+
+        GuiHelpers.sendPlayerScreenHandler(this.player);
+        this.player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(this.selectedSlot));
     }
 
     /**
@@ -234,7 +241,7 @@ public class HotbarGui extends BaseSlotGui {
      */
     public void setSelectedSlot(int value) {
         this.selectedSlot = MathHelper.clamp(value, 0, 8);
-        if (this.open) {
+        if (this.isOpen()) {
             this.player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(this.selectedSlot));
         }
     }
@@ -255,17 +262,19 @@ public class HotbarGui extends BaseSlotGui {
 
     @Override
     public void close(boolean screenHandlerIsClosed) {
-        if (this.open && !this.reOpen) {
+        if ((this.isOpen() || screenHandlerIsClosed) && !this.reOpen) {
+            //noinspection removal
             this.open = false;
             this.reOpen = false;
 
             if (!screenHandlerIsClosed && this.player.currentScreenHandler == this.screenHandler) {
                 this.player.closeHandledScreen();
+                this.player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(this.player.getInventory().selectedSlot));
             }
 
+            this.player.currentScreenHandler.syncState();
+
             this.onClose();
-            this.player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(this.player.getInventory().selectedSlot));
-            GuiHelpers.sendPlayerInventory(this.getPlayer());
         } else {
             this.reOpen = false;
         }

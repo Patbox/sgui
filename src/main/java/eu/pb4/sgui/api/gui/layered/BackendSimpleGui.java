@@ -38,4 +38,14 @@ class BackendSimpleGui extends SimpleGui {
     public void onOpen() {
         this.gui.onOpen();
     }
+
+    @Override
+    public void beforeOpen() {
+        this.gui.beforeOpen();
+    }
+
+    @Override
+    public void afterOpen() {
+        this.gui.afterOpen();
+    }
 }

@@ -1,5 +1,9 @@
 package eu.pb4.sgui.api.elements;
 
+import eu.pb4.sgui.api.ClickType;
+
+import java.util.function.Consumer;
+
 /**
  * This is the interface used by all gui element builders.
  *
@@ -26,6 +30,14 @@ public interface GuiElementBuilderInterface<T extends GuiElementBuilderInterface
      */
     default T setCallback(GuiElementInterface.ItemClickCallback callback) {
         return this.setCallback((GuiElementInterface.ClickCallback) callback);
+    }
+
+    default T setCallback(Runnable callback) {
+        return this.setCallback((a, b, c, d) -> callback.run());
+    }
+
+    default T setCallback(Consumer<ClickType> callback) {
+        return this.setCallback((a, b, c, d) -> callback.accept(b));
     }
 
     /**

@@ -3,6 +3,7 @@ package eu.pb4.sgui.testmod;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.context.CommandContext;
 import eu.pb4.sgui.api.ClickType;
+import eu.pb4.sgui.api.GuiHelpers;
 import eu.pb4.sgui.api.elements.*;
 import eu.pb4.sgui.api.gui.*;
 import eu.pb4.sgui.api.gui.layered.Layer;
@@ -29,10 +30,13 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.village.TradeOffer;
+import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -593,6 +597,49 @@ public class SGuiTest implements ModInitializer {
         return 0;
     }
 
+    private static int test11(CommandContext<ServerCommandSource> objectCommandContext) {
+        try {
+            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
+
+            var num = new MutableInt();
+            var creator = new MutableObject<Supplier<SimpleGui>>();
+            creator.setValue(() -> {
+                var previousGui = GuiHelpers.getCurrentGui(player);
+                var gui = new SimpleGui(ScreenHandlerType.HOPPER, player, true);
+                var next = new MutableObject<SimpleGui>();
+                gui.setTitle(Text.literal("Simple Nested gui test: " + num.getAndIncrement()));
+                gui.setSlot(0, new GuiElementBuilder(Items.TRIDENT).setName(Text.literal("Go deeper"))
+                        .setCallback(() -> {
+                            if (next.getValue() == null) {
+                                next.setValue(creator.getValue().get());
+                            }
+
+                            next.getValue().open();
+                        })
+                );
+
+                gui.setSlot(1, new GuiElementBuilder(Items.BARRIER).setName(Text.literal("Go back"))
+                        .setCallback(() -> {
+                            if (previousGui != null) {
+                                previousGui.open();
+                            } else {
+                                gui.close();
+                            }
+                        })
+                );
+
+                gui.setSlot(10, new GuiElementBuilder(Items.STICK).setCount(num.getValue()));
+                return gui;
+            });
+
+            creator.getValue().get().open();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     private static int snake(CommandContext<ServerCommandSource> objectCommandContext) {
         try {
             ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
@@ -636,6 +683,9 @@ public class SGuiTest implements ModInitializer {
             );
             dispatcher.register(
                     literal("test10").executes(SGuiTest::test10)
+            );
+            dispatcher.register(
+                    literal("test11").executes(SGuiTest::test11)
             );
             dispatcher.register(
                     literal("snake").executes(SGuiTest::snake)

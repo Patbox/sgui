@@ -26,6 +26,7 @@ public class BookGui implements GuiInterface {
     protected final ServerPlayerEntity player;
     protected ItemStack book;
     protected int page = 0;
+    @Deprecated(forRemoval = true)
     protected boolean open = false;
     protected boolean reOpen = false;
     protected BookScreenHandler screenHandler = null;
@@ -110,24 +111,33 @@ public class BookGui implements GuiInterface {
 
     @Override
     public boolean isOpen() {
-        return this.open;
+        return this.screenHandler == this.player.currentScreenHandler;
     }
 
     @Override
     public boolean open() {
-        if (!this.player.isDisconnected() && !this.open) {
-            this.open = true;
-            this.onOpen();
-            this.reOpen = true;
-            OptionalInt temp = this.player.openHandledScreen(new SguiScreenHandlerFactory<>(this, (syncId, inv, player) -> new BookScreenHandler(syncId, this, player)));
-            this.reOpen = false;
-            if (temp.isPresent()) {
-                this.syncId = temp.getAsInt();
-                if (this.player.currentScreenHandler instanceof BookScreenHandler) {
-                    this.screenHandler = (BookScreenHandler) this.player.currentScreenHandler;
-                    this.sendProperty(ScreenProperty.SELECTED, this.page);
-                    return true;
-                }
+        var state = false;
+        if (!this.player.isDisconnected() && !this.isOpen()) {
+            this.beforeOpen();
+            state = this.setupScreenHandler();
+            this.afterOpen();
+        }
+        return state;
+    }
+
+    protected boolean setupScreenHandler() {
+        //noinspection removal
+        this.open = true;
+        this.onOpen();
+        this.reOpen = true;
+        OptionalInt temp = this.player.openHandledScreen(new SguiScreenHandlerFactory<>(this, (syncId, inv, player) -> new BookScreenHandler(syncId, this, player)));
+        this.reOpen = false;
+        if (temp.isPresent()) {
+            this.syncId = temp.getAsInt();
+            if (this.player.currentScreenHandler instanceof BookScreenHandler) {
+                this.screenHandler = (BookScreenHandler) this.player.currentScreenHandler;
+                this.sendProperty(ScreenProperty.SELECTED, this.page);
+                return true;
             }
         }
         return false;
@@ -145,8 +155,9 @@ public class BookGui implements GuiInterface {
 
     @Override
     public void close(boolean screenHandlerIsClosed) {
-        if (this.open && !this.reOpen) {
-            this.open = false;
+        if (this.isOpen() && !this.reOpen) {
+            //noinspection removal
+            this.open = this.isOpen();
             this.reOpen = false;
 
             if (!screenHandlerIsClosed && this.player.currentScreenHandler == this.screenHandler) {

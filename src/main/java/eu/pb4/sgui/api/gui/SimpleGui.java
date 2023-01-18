@@ -75,7 +75,7 @@ public class SimpleGui extends BaseSlotGui {
     @Override
     public void setSlot(int index, GuiElementInterface element) {
         super.setSlot(index, element);
-        if (this.open && this.autoUpdate && this.screenHandler != null) {
+        if (this.isOpen() && this.autoUpdate) {
             this.screenHandler.setSlot(index, new VirtualSlot(this.screenHandler.inventory, index, 0, 0));
         }
     }
@@ -83,7 +83,7 @@ public class SimpleGui extends BaseSlotGui {
     @Override
     public void setSlotRedirect(int index, Slot slot) {
         super.setSlotRedirect(index, slot);
-        if (this.open && this.autoUpdate && this.screenHandler != null) {
+        if (this.isOpen() && this.autoUpdate) {
             this.screenHandler.setSlot(index, slot);
         }
     }
@@ -92,16 +92,14 @@ public class SimpleGui extends BaseSlotGui {
     public void clearSlot(int index) {
         super.clearSlot(index);
         this.hasRedirects = true;
-        if (this.open && this.autoUpdate) {
-            if (this.screenHandler != null) {
-                this.screenHandler.setSlot(index, new VirtualSlot(this.screenHandler.inventory, index, 0, 0));
-            }
+        if (this.isOpen() && this.autoUpdate) {
+            this.screenHandler.setSlot(index, new VirtualSlot(this.screenHandler.inventory, index, 0, 0));
         }
     }
 
     @Override
     public boolean isOpen() {
-        return this.open;
+        return this.screenHandler != null && this.screenHandler == this.player.currentScreenHandler;
     }
 
     @Override
@@ -113,7 +111,7 @@ public class SimpleGui extends BaseSlotGui {
     public void setTitle(Text title) {
         this.title = title;
 
-        if (this.open) {
+        if (this.isOpen()) {
             this.player.networkHandler.sendPacket(new OpenScreenS2CPacket(this.syncId, this.type, title));
             this.screenHandler.syncState();
         }
@@ -195,27 +193,31 @@ public class SimpleGui extends BaseSlotGui {
 
     @Override
     public boolean open() {
-        if (this.player.isDisconnected() || this.open) {
+        if (this.player.isDisconnected() || this.isOpen()) {
             return false;
         } else {
+            this.beforeOpen();
             this.onOpen();
-            var isOpen = this.sendGui();
-            this.open = isOpen;
-            return isOpen;
+            this.sendGui();
+            //noinspection removal
+            this.open = this.isOpen();
+            this.afterOpen();
+            return this.isOpen();
         }
     }
 
     @Override
     public void close(boolean screenHandlerIsClosed) {
-        if (this.open && !this.reOpen) {
-            this.open = false;
+        if ((this.isOpen() || screenHandlerIsClosed) && !this.reOpen) {
             this.reOpen = false;
 
             if (!screenHandlerIsClosed && this.player.currentScreenHandler == this.screenHandler) {
                 this.player.closeHandledScreen();
+                this.screenHandler = null;
             }
 
-            GuiHelpers.sendPlayerInventory(this.getPlayer());
+            this.player.currentScreenHandler.syncState();
+
             this.onClose();
         } else {
             this.reOpen = false;
