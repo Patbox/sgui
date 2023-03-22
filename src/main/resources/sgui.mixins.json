@@ -7,7 +7,7 @@
     "ScreenHandlerMixin",
     "ServerPlayerEntityMixin",
     "ServerPlayNetworkHandlerMixin",
-    "SignBlockEntityAccessor"
+    "class_8242Accessor"
   ],
   "injectors": {
     "defaultRequire": 1

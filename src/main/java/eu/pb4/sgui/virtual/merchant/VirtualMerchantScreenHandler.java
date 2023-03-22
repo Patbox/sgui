@@ -77,7 +77,8 @@ public class VirtualMerchantScreenHandler extends VirtualScreenHandler {
         return newCursorStack;
     }
 
-    @Override
+    // TODO:
+    /*@Override
     public void close(PlayerEntity playerEntity) {
         super.close(playerEntity);
         this.merchant.setCustomer(null);
@@ -98,7 +99,7 @@ public class VirtualMerchantScreenHandler extends VirtualScreenHandler {
             }
 
         }
-    }
+    }*/
 
     public void selectNewTrade(int tradeIndex) {
         this.merchantInventory.setOfferIndex(tradeIndex);

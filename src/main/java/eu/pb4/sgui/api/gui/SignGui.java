@@ -1,6 +1,6 @@
 package eu.pb4.sgui.api.gui;
 
-import eu.pb4.sgui.mixin.SignBlockEntityAccessor;
+import eu.pb4.sgui.mixin.class_8242Accessor;
 import eu.pb4.sgui.virtual.FakeScreenHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -65,7 +65,7 @@ public class SignGui implements GuiInterface {
      * @param text the Text for the line, note that all formatting is stripped when the player closes the sign
      */
     public void setLine(int line, Text text) {
-        this.signEntity.setTextOnRow(line, text);
+        this.signEntity.method_49853().method_49857(line, text);
         this.sendLineUpdate.add(line);
 
         if (this.open & this.autoUpdate) {
@@ -80,7 +80,7 @@ public class SignGui implements GuiInterface {
      * @return the text on the line
      */
     public Text getLine(int line) {
-        return this.signEntity.getTextOnRow(line, false);
+        return this.signEntity.method_49853().method_49859(line, false);
     }
 
     /**
@@ -89,7 +89,7 @@ public class SignGui implements GuiInterface {
      * @param color the default sign color
      */
     public void setColor(DyeColor color) {
-        ((SignBlockEntityAccessor) this.signEntity).setTextColorNoUpdate(color);
+        ((class_8242Accessor) this.signEntity.method_49853()).setTextColorNoUpdate(color);
 
         if (this.open && this.autoUpdate) {
             this.updateSign();
@@ -149,7 +149,7 @@ public class SignGui implements GuiInterface {
 
         this.player.networkHandler.sendPacket(new BlockUpdateS2CPacket(this.signEntity.getPos(), this.type));
         this.player.networkHandler.sendPacket(this.signEntity.toUpdatePacket());
-        this.player.networkHandler.sendPacket(new SignEditorOpenS2CPacket(this.signEntity.getPos()));
+        this.player.networkHandler.sendPacket(new SignEditorOpenS2CPacket(this.signEntity.getPos(), true));
 
         this.reOpen = false;
         this.open = true;
@@ -166,7 +166,7 @@ public class SignGui implements GuiInterface {
             this.player.networkHandler.sendPacket(new BlockUpdateS2CPacket(player.world, signEntity.getPos()));
 
             if (alreadyClosed && this.player.currentScreenHandler == this.screenHandler) {
-                this.player.closeScreenHandler();
+                this.player.onHandledScreenClosed();
             } else {
                 this.player.closeHandledScreen();
             }
@@ -196,7 +196,7 @@ public class SignGui implements GuiInterface {
         if (this.reOpen && this.sendLineUpdate.contains(line)) {
             this.sendLineUpdate.remove((Integer) line);
         } else {
-            this.signEntity.setTextOnRow(line, text);
+            this.signEntity.method_49853().method_49857(line, text);
         }
     }
 
