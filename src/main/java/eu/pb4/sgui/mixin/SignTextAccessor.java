@@ -1,12 +1,12 @@
 package eu.pb4.sgui.mixin;
 
-import net.minecraft.class_8242;
+import net.minecraft.block.entity.SignText;
 import net.minecraft.util.DyeColor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(class_8242.class)
-public interface class_8242Accessor {
-    @Accessor("field_43303")
+@Mixin(SignText.class)
+public interface SignTextAccessor {
+    @Accessor("color")
     void setTextColorNoUpdate(DyeColor color);
 }

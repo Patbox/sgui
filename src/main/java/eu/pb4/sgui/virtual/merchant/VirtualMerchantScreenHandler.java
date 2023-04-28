@@ -77,12 +77,11 @@ public class VirtualMerchantScreenHandler extends VirtualScreenHandler {
         return newCursorStack;
     }
 
-    // TODO:
-    /*@Override
-    public void close(PlayerEntity playerEntity) {
-        super.close(playerEntity);
+    @Override
+    public void onClosed(PlayerEntity playerEntity) {
+        super.onClosed(playerEntity);
         this.merchant.setCustomer(null);
-        if (!playerEntity.world.isClient) {
+        if (!playerEntity.getWorld().isClient) {
             if (!playerEntity.isAlive() || playerEntity instanceof ServerPlayerEntity && ((ServerPlayerEntity)playerEntity).isDisconnected()) {
                 ItemStack itemStack = this.merchantInventory.removeStack(0);
                 if (!itemStack.isEmpty()) {
@@ -99,7 +98,7 @@ public class VirtualMerchantScreenHandler extends VirtualScreenHandler {
             }
 
         }
-    }*/
+    }
 
     public void selectNewTrade(int tradeIndex) {
         this.merchantInventory.setOfferIndex(tradeIndex);

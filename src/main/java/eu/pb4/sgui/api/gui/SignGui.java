@@ -1,6 +1,6 @@
 package eu.pb4.sgui.api.gui;
 
-import eu.pb4.sgui.mixin.class_8242Accessor;
+import eu.pb4.sgui.mixin.SignTextAccessor;
 import eu.pb4.sgui.virtual.FakeScreenHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -55,7 +55,7 @@ public class SignGui implements GuiInterface {
      */
     public SignGui(ServerPlayerEntity player)  {
         this.player = player;
-        this.signEntity = new SignBlockEntity(new BlockPos(player.getBlockPos().getX(), player.world.getTopY() - 1, player.getBlockPos().getZ()), Blocks.OAK_SIGN.getDefaultState());
+        this.signEntity = new SignBlockEntity(new BlockPos(player.getBlockPos().getX(), player.getServerWorld().getTopY() - 1, player.getBlockPos().getZ()), Blocks.OAK_SIGN.getDefaultState());
     }
 
     /**
@@ -65,7 +65,7 @@ public class SignGui implements GuiInterface {
      * @param text the Text for the line, note that all formatting is stripped when the player closes the sign
      */
     public void setLine(int line, Text text) {
-        this.signEntity.method_49853().method_49857(line, text);
+        this.signEntity.getFrontText().withMessage(line, text);
         this.sendLineUpdate.add(line);
 
         if (this.open & this.autoUpdate) {
@@ -80,7 +80,7 @@ public class SignGui implements GuiInterface {
      * @return the text on the line
      */
     public Text getLine(int line) {
-        return this.signEntity.method_49853().method_49859(line, false);
+        return this.signEntity.getFrontText().getMessage(line, false);
     }
 
     /**
@@ -89,7 +89,7 @@ public class SignGui implements GuiInterface {
      * @param color the default sign color
      */
     public void setColor(DyeColor color) {
-        ((class_8242Accessor) this.signEntity.method_49853()).setTextColorNoUpdate(color);
+        ((SignTextAccessor) this.signEntity.getFrontText()).setTextColorNoUpdate(color);
 
         if (this.open && this.autoUpdate) {
             this.updateSign();
@@ -163,7 +163,7 @@ public class SignGui implements GuiInterface {
             this.open = false;
             this.reOpen = false;
 
-            this.player.networkHandler.sendPacket(new BlockUpdateS2CPacket(player.world, signEntity.getPos()));
+            this.player.networkHandler.sendPacket(new BlockUpdateS2CPacket(player.getServerWorld(), signEntity.getPos()));
 
             if (alreadyClosed && this.player.currentScreenHandler == this.screenHandler) {
                 this.player.onHandledScreenClosed();
@@ -196,7 +196,7 @@ public class SignGui implements GuiInterface {
         if (this.reOpen && this.sendLineUpdate.contains(line)) {
             this.sendLineUpdate.remove((Integer) line);
         } else {
-            this.signEntity.method_49853().method_49857(line, text);
+            this.signEntity.getFrontText().withMessage(line, text);
         }
     }
 

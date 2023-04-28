@@ -255,9 +255,9 @@ public abstract class ServerPlayNetworkHandlerMixin {
                     screenHandler.slotsOld.set(45, ItemStack.EMPTY);
                 }
 
-                this.sendPacket(new BlockUpdateS2CPacket(pos, this.player.world.getBlockState(pos)));
+                this.sendPacket(new BlockUpdateS2CPacket(pos, this.player.getServerWorld().getBlockState(pos)));
                 pos = pos.offset(packet.getBlockHitResult().getSide());
-                this.sendPacket(new BlockUpdateS2CPacket(pos, this.player.world.getBlockState(pos)));
+                this.sendPacket(new BlockUpdateS2CPacket(pos, this.player.getServerWorld().getBlockState(pos)));
                 this.sendPacket(new PlayerActionResponseS2CPacket(packet.getSequence()));
 
                 ci.cancel();
@@ -276,9 +276,9 @@ public abstract class ServerPlayNetworkHandlerMixin {
                     screenHandler.slotsOld.set(gui.getSelectedSlot() + 36, ItemStack.EMPTY);
                     screenHandler.slotsOld.set(45, ItemStack.EMPTY);
                 }
-                this.sendPacket(new BlockUpdateS2CPacket(pos, this.player.world.getBlockState(pos)));
+                this.sendPacket(new BlockUpdateS2CPacket(pos, this.player.getServerWorld().getBlockState(pos)));
                 pos = pos.offset(packet.getDirection());
-                this.sendPacket(new BlockUpdateS2CPacket(pos, this.player.world.getBlockState(pos)));
+                this.sendPacket(new BlockUpdateS2CPacket(pos, this.player.getServerWorld().getBlockState(pos)));
                 this.sendPacket(new PlayerActionResponseS2CPacket(packet.getSequence()));
                 ci.cancel();
             }
