@@ -7,7 +7,7 @@
     "ScreenHandlerMixin",
     "ServerPlayerEntityMixin",
     "ServerPlayNetworkHandlerMixin",
-    "SignTextAccessor"
+    "SignBlockEntityAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

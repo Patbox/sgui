@@ -125,7 +125,7 @@ public class BookInputGui implements GuiInterface {
             this.player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, PlayerInventory.OFF_HAND_SLOT, this.player.getOffHandStack()));
 
             if (alreadyClosed && this.player.currentScreenHandler == this.screenHandler) {
-                this.player.closeScreenHandler();
+                this.player.onHandledScreenClosed();
             } else {
                 this.player.closeHandledScreen();
             }

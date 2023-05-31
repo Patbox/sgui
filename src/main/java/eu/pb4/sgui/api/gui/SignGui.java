@@ -1,7 +1,7 @@
 package eu.pb4.sgui.api.gui;
 
-import eu.pb4.sgui.mixin.SignTextAccessor;
 import eu.pb4.sgui.virtual.FakeScreenHandler;
+import eu.pb4.sgui.virtual.sign.VirtualSignBlockEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -38,7 +38,7 @@ import java.util.List;
  */
 public class SignGui implements GuiInterface {
 
-    protected final SignBlockEntity signEntity;
+    protected final VirtualSignBlockEntity signEntity;
     protected BlockState type = Blocks.OAK_SIGN.getDefaultState();
     protected boolean autoUpdate = true;
 
@@ -55,7 +55,7 @@ public class SignGui implements GuiInterface {
      */
     public SignGui(ServerPlayerEntity player)  {
         this.player = player;
-        this.signEntity = new SignBlockEntity(new BlockPos(player.getBlockPos().getX(), player.getServerWorld().getTopY() - 1, player.getBlockPos().getZ()), Blocks.OAK_SIGN.getDefaultState());
+        this.signEntity = new VirtualSignBlockEntity(new BlockPos(player.getBlockPos().getX(), Math.min(player.getWorld().getTopY() - 1, player.getBlockPos().getY() + 5), player.getBlockPos().getZ()), Blocks.OAK_SIGN.getDefaultState());
     }
 
     /**
@@ -65,7 +65,7 @@ public class SignGui implements GuiInterface {
      * @param text the Text for the line, note that all formatting is stripped when the player closes the sign
      */
     public void setLine(int line, Text text) {
-        this.signEntity.getFrontText().withMessage(line, text);
+        this.signEntity.changeText(signText -> signText.withMessage(line, text), true);
         this.sendLineUpdate.add(line);
 
         if (this.open & this.autoUpdate) {
@@ -89,7 +89,7 @@ public class SignGui implements GuiInterface {
      * @param color the default sign color
      */
     public void setColor(DyeColor color) {
-        ((SignTextAccessor) this.signEntity.getFrontText()).setTextColorNoUpdate(color);
+        this.signEntity.changeText(signText -> signText.withColor(color), true);
 
         if (this.open && this.autoUpdate) {
             this.updateSign();
