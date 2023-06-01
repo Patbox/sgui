@@ -47,6 +47,7 @@ public class SignGui implements GuiInterface {
     protected boolean open = false;
     protected boolean reOpen = false;
     protected FakeScreenHandler screenHandler;
+    private final Text[] texts = new Text[4];
 
     /**
      * Constructs a new SignGui for the provided player
@@ -67,6 +68,7 @@ public class SignGui implements GuiInterface {
     public void setLine(int line, Text text) {
         this.signEntity.changeText(signText -> signText.withMessage(line, text), true);
         this.sendLineUpdate.add(line);
+        this.texts[line] = text;
 
         if (this.open & this.autoUpdate) {
             this.updateSign();
@@ -80,7 +82,7 @@ public class SignGui implements GuiInterface {
      * @return the text on the line
      */
     public Text getLine(int line) {
-        return this.signEntity.getFrontText().getMessage(line, false);
+        return this.texts[line];
     }
 
     /**
@@ -197,6 +199,7 @@ public class SignGui implements GuiInterface {
             this.sendLineUpdate.remove((Integer) line);
         } else {
             this.signEntity.getFrontText().withMessage(line, text);
+            this.texts[line] = text;
         }
     }
 

@@ -323,14 +323,14 @@ public class SGuiTest implements ModInitializer {
 
                 @Override
                 public void onTick() {
-                    tick++;
-                    if (tick % 30 == 0) {
-                        this.setLine(1, Text.literal(this.getLine(1).getString() + "^"));
-                        this.setSignType(Registries.BLOCK.getEntryList(BlockTags.WALL_SIGNS).get().getRandom(RANDOM).get().value());
-                        this.setColor(DyeColor.byId(RANDOM.nextInt(15)));
-                        this.updateSign();
-                        this.tick = 0;
-                    }
+                    //tick++;
+                    //if (tick % 30 == 0) {
+                    //    this.setLine(1, Text.literal(this.getLine(1).getString() + "^"));
+                     //   this.setSignType(Registries.BLOCK.getEntryList(BlockTags.WALL_SIGNS).get().getRandom(RANDOM).get().value());
+                   //     this.setColor(DyeColor.byId(RANDOM.nextInt(15)));
+                   //     this.updateSign();
+                    //    this.tick = 0;
+                  //  }
                 }
             };
             gui.open();

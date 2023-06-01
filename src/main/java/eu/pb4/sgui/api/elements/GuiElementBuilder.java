@@ -187,7 +187,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      * @return this element builder
      */
     public GuiElementBuilder hideFlags() {
-        this.hideFlags = 127;
+        this.hideFlags = (byte) 0xFF;
         return this;
     }
 
