@@ -23,7 +23,7 @@ import java.util.OptionalInt;
 @Mixin(ServerPlayerEntity.class)
 public abstract class ServerPlayerEntityMixin extends PlayerEntity implements PlayerExtensions {
     @Shadow
-    public abstract void closeScreenHandler();
+    public abstract void onHandledScreenClosed();
 
     @Unique
     private boolean sgui$ignoreNext = false;
@@ -32,7 +32,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Pl
         super(world, pos, yaw, gameProfile);
     }
 
-    @Inject(method = "openHandledScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;closeHandledScreen()V", shift = At.Shift.BEFORE), cancellable = true)
+    @Inject(method = "openHandledScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;closeHandledScreen()V", shift = At.Shift.BEFORE))
     private void sgui$dontForceCloseFor(NamedScreenHandlerFactory factory, CallbackInfoReturnable<OptionalInt> cir) {
         if (factory instanceof SguiScreenHandlerFactory<?> sguiScreenHandlerFactory && !sguiScreenHandlerFactory.gui().resetMousePosition()) {
             this.sgui$ignoreNext = true;
@@ -43,7 +43,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Pl
     private void sgui$ignoreClosing(CallbackInfo ci) {
         if (this.sgui$ignoreNext) {
             this.sgui$ignoreNext = false;
-            this.closeScreenHandler();
+            this.onHandledScreenClosed();
             ci.cancel();
         }
     }

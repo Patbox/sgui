@@ -1,7 +1,7 @@
 package eu.pb4.sgui.api.gui;
 
-import eu.pb4.sgui.mixin.SignBlockEntityAccessor;
 import eu.pb4.sgui.virtual.FakeScreenHandler;
+import eu.pb4.sgui.virtual.sign.VirtualSignBlockEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -38,7 +38,7 @@ import java.util.List;
  */
 public class SignGui implements GuiInterface {
 
-    protected final SignBlockEntity signEntity;
+    protected final VirtualSignBlockEntity signEntity;
     protected BlockState type = Blocks.OAK_SIGN.getDefaultState();
     protected boolean autoUpdate = true;
 
@@ -55,7 +55,7 @@ public class SignGui implements GuiInterface {
      */
     public SignGui(ServerPlayerEntity player)  {
         this.player = player;
-        this.signEntity = new SignBlockEntity(new BlockPos(player.getBlockPos().getX(), player.world.getTopY() - 1, player.getBlockPos().getZ()), Blocks.OAK_SIGN.getDefaultState());
+        this.signEntity = new VirtualSignBlockEntity(new BlockPos(player.getBlockPos().getX(), Math.min(player.getWorld().getTopY() - 1, player.getBlockPos().getY() + 5), player.getBlockPos().getZ()), Blocks.OAK_SIGN.getDefaultState());
     }
 
     /**
@@ -65,7 +65,7 @@ public class SignGui implements GuiInterface {
      * @param text the Text for the line, note that all formatting is stripped when the player closes the sign
      */
     public void setLine(int line, Text text) {
-        this.signEntity.setTextOnRow(line, text);
+        this.signEntity.changeText(signText -> signText.withMessage(line, text), true);
         this.sendLineUpdate.add(line);
 
         if (this.open & this.autoUpdate) {
@@ -80,7 +80,7 @@ public class SignGui implements GuiInterface {
      * @return the text on the line
      */
     public Text getLine(int line) {
-        return this.signEntity.getTextOnRow(line, false);
+        return this.signEntity.getFrontText().getMessage(line, false);
     }
 
     /**
@@ -89,7 +89,7 @@ public class SignGui implements GuiInterface {
      * @param color the default sign color
      */
     public void setColor(DyeColor color) {
-        ((SignBlockEntityAccessor) this.signEntity).setTextColorNoUpdate(color);
+        this.signEntity.changeText(signText -> signText.withColor(color), true);
 
         if (this.open && this.autoUpdate) {
             this.updateSign();
@@ -149,7 +149,7 @@ public class SignGui implements GuiInterface {
 
         this.player.networkHandler.sendPacket(new BlockUpdateS2CPacket(this.signEntity.getPos(), this.type));
         this.player.networkHandler.sendPacket(this.signEntity.toUpdatePacket());
-        this.player.networkHandler.sendPacket(new SignEditorOpenS2CPacket(this.signEntity.getPos()));
+        this.player.networkHandler.sendPacket(new SignEditorOpenS2CPacket(this.signEntity.getPos(), true));
 
         this.reOpen = false;
         this.open = true;
@@ -163,10 +163,10 @@ public class SignGui implements GuiInterface {
             this.open = false;
             this.reOpen = false;
 
-            this.player.networkHandler.sendPacket(new BlockUpdateS2CPacket(player.world, signEntity.getPos()));
+            this.player.networkHandler.sendPacket(new BlockUpdateS2CPacket(player.getServerWorld(), signEntity.getPos()));
 
             if (alreadyClosed && this.player.currentScreenHandler == this.screenHandler) {
-                this.player.closeScreenHandler();
+                this.player.onHandledScreenClosed();
             } else {
                 this.player.closeHandledScreen();
             }
@@ -196,7 +196,7 @@ public class SignGui implements GuiInterface {
         if (this.reOpen && this.sendLineUpdate.contains(line)) {
             this.sendLineUpdate.remove((Integer) line);
         } else {
-            this.signEntity.setTextOnRow(line, text);
+            this.signEntity.getFrontText().withMessage(line, text);
         }
     }
 

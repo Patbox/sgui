@@ -57,7 +57,7 @@ public class SGuiTest implements ModInitializer {
 
                 @Override
                 public void onTick() {
-                    this.setSlot(0, new GuiElementBuilder(Items.ARROW).setCount((int) (player.world.getTime() % 127)));
+                    this.setSlot(0, new GuiElementBuilder(Items.ARROW).setCount((int) (player.getServerWorld().getTime() % 127)));
                     super.onTick();
                 }
 
@@ -491,7 +491,7 @@ public class SGuiTest implements ModInitializer {
 
                 @Override
                 public void onTick() {
-                    this.setSlot(1, new GuiElementBuilder(Items.ARROW).setCount((int) (player.world.getTime() % 127)));
+                    this.setSlot(1, new GuiElementBuilder(Items.ARROW).setCount((int) (player.getWorld().getTime() % 127)));
                     super.onTick();
                 }
 
@@ -521,7 +521,7 @@ public class SGuiTest implements ModInitializer {
             }, 10, false, (x, y, z) -> {
             }));
 
-            gui.setSlot(1, new GuiElementBuilder(Items.SPECTRAL_ARROW).setCount((int) (player.world.getTime() % 128)));
+            gui.setSlot(1, new GuiElementBuilder(Items.SPECTRAL_ARROW).setCount((int) (player.getWorld().getTime() % 128)));
 
             gui.setSlot(2, new AnimatedGuiElementBuilder()
                     .setItem(Items.NETHERITE_AXE).setDamage(150).saveItemStack()
