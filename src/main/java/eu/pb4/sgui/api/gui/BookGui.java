@@ -5,9 +5,9 @@ import eu.pb4.sgui.api.elements.BookElementBuilder;
 import eu.pb4.sgui.virtual.SguiScreenHandlerFactory;
 import eu.pb4.sgui.virtual.book.BookScreenHandler;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tag.ItemTags;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.tag.ItemTags;
 import net.minecraft.text.Text;
 
 import java.util.OptionalInt;
