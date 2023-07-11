@@ -8,17 +8,23 @@ import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Style;
+import net.minecraft.text.TextColor;
+import net.minecraft.util.Formatting;
 
 import javax.annotation.Nullable;
+import java.util.function.UnaryOperator;
 
 public final class GuiHelpers {
+    public static final UnaryOperator<Style> STYLE_CLEARER = style -> style.withItalic(style.isItalic()).withColor(style.getColor() != null ? style.getColor() : TextColor.fromFormatting(Formatting.WHITE));
+
     @Nullable
     public static GuiInterface getCurrentGui(ServerPlayerEntity player) {
         return player.currentScreenHandler instanceof VirtualScreenHandlerInterface v ? v.getGui() : null;
     }
 
     public static void ignoreNextGuiClosing(ServerPlayerEntity player) {
-        ((PlayerExtensions) player).sgui_ignoreNextClose();
+        ((PlayerExtensions) player).sgui$ignoreNextClose();
     }
 
     public static void sendSlotUpdate(ServerPlayerEntity player, int syncId, int slot, ItemStack stack, int revision) {

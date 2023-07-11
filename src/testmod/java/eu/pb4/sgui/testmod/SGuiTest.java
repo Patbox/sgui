@@ -56,6 +56,11 @@ public class SGuiTest implements ModInitializer {
                     this.setSlot(0, new GuiElementBuilder(Items.ARROW).setCount((int) (player.world.getTime() % 127)));
                     super.onTick();
                 }
+
+                @Override
+                public boolean canPlayerClose() {
+                    return false;
+                }
             };
 
             gui.setTitle(Text.literal("Nice"));
@@ -215,6 +220,7 @@ public class SGuiTest implements ModInitializer {
 
                 @Override
                 public boolean onCommand(String command) {
+                    System.out.println(command);
                     bookBuilder.addPage(Text.of(command));
                     this.book = bookBuilder.asStack();
 
@@ -468,6 +474,11 @@ public class SGuiTest implements ModInitializer {
                 }
 
                 @Override
+                public boolean canPlayerClose() {
+                    return false;
+                }
+
+                @Override
                 public boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element) {
                     player.sendMessage(Text.literal("CLICK!"), false);
                     player.sendMessage(Text.literal(type + " " + index), false);
@@ -543,7 +554,7 @@ public class SGuiTest implements ModInitializer {
                     .setItem(Items.BARRIER)
                     .glow()
                     .setName(Text.literal("Bye")
-                            .setStyle(Style.EMPTY.withItalic(false).withBold(true)))
+                            .setStyle(Style.EMPTY.withItalic(false).withBold(true).withFormatting(Formatting.RED)))
                     .addLoreLine(Text.literal("Some lore"))
                     .addLoreLine(Text.literal("More lore").formatted(Formatting.RED))
                     .setCount(3)

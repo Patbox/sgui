@@ -27,37 +27,37 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Pl
     @Shadow public abstract void closeScreenHandler();
 
     @Unique
-    private boolean sgui_ignoreNext = false;
+    private boolean sgui$ignoreNext = false;
 
     public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile, @Nullable PlayerPublicKey publicKey) {
         super(world, pos, yaw, gameProfile, publicKey);
     }
 
     @Inject(method = "openHandledScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;closeHandledScreen()V", shift = At.Shift.BEFORE), cancellable = true)
-    private void sgui_dontForceCloseFor(NamedScreenHandlerFactory factory, CallbackInfoReturnable<OptionalInt> cir) {
+    private void sgui$dontForceCloseFor(NamedScreenHandlerFactory factory, CallbackInfoReturnable<OptionalInt> cir) {
         if (factory instanceof SguiScreenHandlerFactory<?> sguiScreenHandlerFactory && !sguiScreenHandlerFactory.gui().resetMousePosition()) {
-            this.sgui_ignoreNext = true;
+            this.sgui$ignoreNext = true;
         }
     }
 
     @Inject(method = "closeHandledScreen", at = @At("HEAD"), cancellable = true)
-    private void sgui_ignoreClosing(CallbackInfo ci) {
-        if (this.sgui_ignoreNext) {
-            this.sgui_ignoreNext = false;
+    private void sgui$ignoreClosing(CallbackInfo ci) {
+        if (this.sgui$ignoreNext) {
+            this.sgui$ignoreNext = false;
             this.closeScreenHandler();
             ci.cancel();
         }
     }
 
     @Inject(method = "onDeath", at = @At("TAIL"))
-    private void sgui_onDeath(DamageSource source, CallbackInfo ci) {
+    private void sgui$onDeath(DamageSource source, CallbackInfo ci) {
         if (this.currentScreenHandler instanceof VirtualScreenHandlerInterface handler) {
             handler.getGui().close(true);
         }
     }
 
     @Override
-    public void sgui_ignoreNextClose() {
-        this.sgui_ignoreNext = true;
+    public void sgui$ignoreNextClose() {
+        this.sgui$ignoreNext = true;
     }
 }

@@ -35,11 +35,6 @@ class BackendSimpleGui extends SimpleGui {
     }
 
     @Override
-    public void onUpdate(boolean firstUpdate) {
-        this.gui.onUpdate(firstUpdate);
-    }
-
-    @Override
     public void onOpen() {
         this.gui.onOpen();
     }

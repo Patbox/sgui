@@ -86,15 +86,10 @@ public interface GuiInterface {
         this.close(false);
     }
 
-    @Deprecated
-    default void onUpdate(boolean firstUpdate) {
-    }
-
     /**
      * Executes when the screen is opened
      */
     default void onOpen() {
-        this.onUpdate(true);
     }
 
     /**
@@ -107,6 +102,14 @@ public interface GuiInterface {
      * Executes each tick while the screen is open
      */
     default void onTick() {
+    }
+
+    default boolean canPlayerClose() {
+        return true;
+    }
+
+    default void handleException(Throwable throwable) {
+        throwable.printStackTrace();
     }
 
     /**
@@ -123,6 +126,12 @@ public interface GuiInterface {
         }
         if (this.isOpen()) {
             this.getPlayer().networkHandler.sendPacket(new ScreenHandlerPropertyUpdateS2CPacket(this.getSyncId(), property.id(), value));
+        }
+    }
+
+    default void sendRawProperty(int id, int value) {
+        if (this.isOpen()) {
+            this.getPlayer().networkHandler.sendPacket(new ScreenHandlerPropertyUpdateS2CPacket(this.getSyncId(), id, value));
         }
     }
 
