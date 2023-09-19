@@ -199,8 +199,6 @@ public class SimpleGui extends BaseSlotGui {
             this.beforeOpen();
             this.onOpen();
             this.sendGui();
-            //noinspection removal
-            this.open = this.isOpen();
             this.afterOpen();
             return this.isOpen();
         }
@@ -209,8 +207,6 @@ public class SimpleGui extends BaseSlotGui {
     @Override
     public void close(boolean screenHandlerIsClosed) {
         if ((this.isOpen() || screenHandlerIsClosed) && !this.reOpen) {
-            this.reOpen = false;
-
             if (!screenHandlerIsClosed && this.player.currentScreenHandler == this.screenHandler) {
                 this.player.closeHandledScreen();
                 this.screenHandler = null;

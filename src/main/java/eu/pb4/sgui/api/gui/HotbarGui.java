@@ -117,8 +117,6 @@ public class HotbarGui extends BaseSlotGui {
     }
 
     private void openScreenHandler() {
-        //noinspection removal
-        this.open = true;
         this.onOpen();
 
         if (this.player.currentScreenHandler != this.player.playerScreenHandler && this.player.currentScreenHandler != this.screenHandler) {
@@ -263,10 +261,6 @@ public class HotbarGui extends BaseSlotGui {
     @Override
     public void close(boolean screenHandlerIsClosed) {
         if ((this.isOpen() || screenHandlerIsClosed) && !this.reOpen) {
-            //noinspection removal
-            this.open = false;
-            this.reOpen = false;
-
             if (!screenHandlerIsClosed && this.player.currentScreenHandler == this.screenHandler) {
                 this.player.closeHandledScreen();
                 this.player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(this.player.getInventory().selectedSlot));

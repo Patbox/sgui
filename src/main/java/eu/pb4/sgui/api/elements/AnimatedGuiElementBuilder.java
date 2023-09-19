@@ -266,8 +266,12 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
      */
     public AnimatedGuiElementBuilder setSkullOwner(GameProfile profile, @Nullable MinecraftServer server) {
         if (profile.getId() != null && server != null) {
-            profile = server.getSessionService().fillProfileProperties(profile, false);
-            this.getOrCreateNbt().put("SkullOwner", NbtHelper.writeGameProfile(new NbtCompound(), profile));
+            if (server.getSessionService().getTextures(profile, false).isEmpty()) {
+                var tmp = server.getSessionService().fetchProfile(profile.getId(), false);
+                if (tmp != null) {
+                    profile = tmp.profile();
+                }
+            }            this.getOrCreateNbt().put("SkullOwner", NbtHelper.writeGameProfile(new NbtCompound(), profile));
         } else {
             this.getOrCreateNbt().putString("SkullOwner", profile.getName());
         }

@@ -11,11 +11,6 @@ public abstract class BaseSlotGui implements SlotGuiInterface {
     protected final ServerPlayerEntity player;
     protected final GuiElementInterface[] elements;
     protected final Slot[] slotRedirects;
-    /**
-     * @Deprecated Use isOpen() instead
-     */
-    @Deprecated(forRemoval = true)
-    protected boolean open = false;
     protected boolean autoUpdate = true;
     protected boolean reOpen = false;
     protected final int size;
