@@ -2,6 +2,7 @@ package eu.pb4.sgui.api.gui;
 
 import eu.pb4.sgui.virtual.FakeScreenHandler;
 import eu.pb4.sgui.virtual.sign.VirtualSignBlockEntity;
+import net.minecraft.block.AbstractSignBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -104,7 +105,7 @@ public class SignGui implements GuiInterface {
      * @param type a block in the {@link BlockTags#SIGNS} tag
      */
     public void setSignType(Block type) {
-        if (!type.getRegistryEntry().isIn(BlockTags.SIGNS)) {
+        if (!(type instanceof AbstractSignBlock)) {
             throw new IllegalArgumentException("The type must be a sign");
         }
 

@@ -1,6 +1,7 @@
 package eu.pb4.sgui.api.elements;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.minecraft.MinecraftProfileTextures;
 import eu.pb4.sgui.api.GuiHelpers;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
@@ -111,7 +112,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
     }
 
     public static List<Text> getLore(ItemStack stack) {
-        return stack.getOrCreateSubNbt("display").getList("Lore", NbtElement.STRING_TYPE).stream().map(tag -> Text.Serializer.fromJson(tag.asString())).collect(Collectors.toList());
+        return stack.getOrCreateSubNbt("display").getList("Lore", NbtElement.STRING_TYPE).stream().map(tag -> Text.Serialization.fromJson(tag.asString())).collect(Collectors.toList());
     }
 
     /**
@@ -273,7 +274,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      */
     public GuiElementBuilder setSkullOwner(GameProfile profile, @Nullable MinecraftServer server) {
         if (profile.getId() != null && server != null) {
-            if (server.getSessionService().getTextures(profile, false).isEmpty()) {
+            if (server.getSessionService().getTextures(profile) == MinecraftProfileTextures.EMPTY) {
                 var tmp = server.getSessionService().fetchProfile(profile.getId(), false);
                 if (tmp != null) {
                     profile = tmp.profile();
@@ -376,7 +377,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
             NbtList loreItems = new NbtList();
             for (Text l : this.lore) {
                 l = l.copy().styled(GuiHelpers.STYLE_CLEARER);
-                loreItems.add(NbtString.of(Text.Serializer.toJson(l)));
+                loreItems.add(NbtString.of(Text.Serialization.toJsonString(l)));
             }
             display.put("Lore", loreItems);
         }

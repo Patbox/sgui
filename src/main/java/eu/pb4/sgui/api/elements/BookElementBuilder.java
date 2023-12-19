@@ -51,7 +51,7 @@ public class BookElementBuilder extends GuiElementBuilder {
         for (Text line : lines) {
             text.append(line).append("\n");
         }
-        this.getOrCreatePages().add(NbtString.of(Text.Serializer.toJson(text)));
+        this.getOrCreatePages().add(NbtString.of(Text.Serialization.toJsonString(text)));
         return this;
     }
 
@@ -70,7 +70,7 @@ public class BookElementBuilder extends GuiElementBuilder {
         for (Text line : lines) {
             text.append(line).append("\n");
         }
-        this.getOrCreatePages().set(index, NbtString.of(Text.Serializer.toJson(text)));
+        this.getOrCreatePages().set(index, NbtString.of(Text.Serialization.toJsonString(text)));
         return this;
     }
 
@@ -161,7 +161,7 @@ public class BookElementBuilder extends GuiElementBuilder {
             NbtList pages = this.getOrCreatePages();
             for (int i = 0; i < pages.size(); i++) {
                 try {
-                    pages.set(i, NbtString.of(Text.Serializer.fromLenientJson(pages.getString(i)).getString()));
+                    pages.set(i, NbtString.of(Text.Serialization.fromLenientJson(pages.getString(i)).getString()));
                 } catch (Exception e) {
                     pages.set(i, NbtString.of("Invalid page data!"));
                 }
@@ -207,7 +207,7 @@ public class BookElementBuilder extends GuiElementBuilder {
         if (book.getOrCreateNbt().contains("pages")) {
             NbtList pages = book.getOrCreateNbt().getList("pages", NbtElement.STRING_TYPE);
             for (NbtElement page : pages) {
-                builder.addPage(Text.Serializer.fromLenientJson(page.asString()));
+                builder.addPage(Text.Serialization.fromLenientJson(page.asString()));
             }
         }
 
@@ -230,7 +230,7 @@ public class BookElementBuilder extends GuiElementBuilder {
         if (book.getOrCreateNbt().contains("pages")) {
             NbtList pages = book.getOrCreateNbt().getList("pages", NbtElement.STRING_TYPE);
             if(index < pages.size()) {
-                return Text.Serializer.fromJson(pages.get(index).asString());
+                return Text.Serialization.fromJson(pages.get(index).asString());
             }
         }
 
@@ -247,7 +247,7 @@ public class BookElementBuilder extends GuiElementBuilder {
     public static Text getPageContents(BookElementBuilder book, int index) {
         NbtList pages = book.getOrCreatePages();
         if(index < pages.size()) {
-            return Text.Serializer.fromJson(pages.get(index).asString());
+            return Text.Serialization.fromJson(pages.get(index).asString());
         }
         return Text.literal("");
     }
