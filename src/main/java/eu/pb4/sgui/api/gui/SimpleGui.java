@@ -6,9 +6,12 @@ import eu.pb4.sgui.api.elements.GuiElementInterface;
 import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
 import eu.pb4.sgui.virtual.SguiScreenHandlerFactory;
 import eu.pb4.sgui.virtual.inventory.VirtualSlot;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.OpenScreenS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerPropertyUpdateS2CPacket;
+import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -177,6 +180,7 @@ public class SimpleGui extends BaseSlotGui {
         return false;
     }
 
+
     /**
      * Executes after player clicks any recipe from recipe book.
      *
@@ -199,8 +203,18 @@ public class SimpleGui extends BaseSlotGui {
             this.beforeOpen();
             this.onOpen();
             this.sendGui();
-            this.afterOpen();
             return this.isOpen();
+        }
+    }
+
+    public ScreenHandler openAsScreenHandler(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
+        if (this.player.isDisconnected() || player != this.player || this.isOpen()) {
+            return null;
+        } else {
+            this.beforeOpen();
+            this.onOpen();
+            this.screenHandler = new VirtualScreenHandler(this.getType(), syncId, this, player);
+            return this.screenHandler;
         }
     }
 

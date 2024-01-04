@@ -6,6 +6,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.ScreenHandlerListener;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import org.jetbrains.annotations.Nullable;
@@ -55,6 +56,12 @@ public class VirtualScreenHandler extends ScreenHandler implements VirtualScreen
                 this.addSlot(new Slot(playerInventory, n, 0, 0));
             }
         }
+    }
+
+    @Override
+    public void addListener(ScreenHandlerListener listener) {
+        super.addListener(listener);
+        this.gui.afterOpen();
     }
 
     @Override

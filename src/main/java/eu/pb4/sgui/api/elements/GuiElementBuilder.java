@@ -77,7 +77,10 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      */
     public static GuiElementBuilder from(ItemStack stack) {
         GuiElementBuilder builder = new GuiElementBuilder(stack.getItem(), stack.getCount());
-        NbtCompound tag = stack.getOrCreateNbt().copy();
+        if (!stack.hasNbt()) {
+            return builder;
+        }
+        NbtCompound tag = stack.getNbt().copy();
 
         if (stack.hasCustomName()) {
             builder.setName(stack.getName());
