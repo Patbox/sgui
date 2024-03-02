@@ -158,7 +158,7 @@ public class VirtualScreenHandler extends ScreenHandler implements VirtualScreen
 
                 itemStack = slot2.getStack();
 
-                if (!(slot2 instanceof VirtualSlot) && stack != itemStack && !itemStack.isEmpty() && ItemStack.canCombine(stack, itemStack) && slot2.canInsert(stack)) {
+                if (!(slot2 instanceof VirtualSlot) && stack != itemStack && !itemStack.isEmpty() && ItemStack.areItemsAndComponentsEqual(stack, itemStack) && slot2.canInsert(stack)) {
                     int j = itemStack.getCount() + stack.getCount();
                     int max = Math.min(slot2.getMaxItemCount(), stack.getMaxCount());
                     if (j <= max) {

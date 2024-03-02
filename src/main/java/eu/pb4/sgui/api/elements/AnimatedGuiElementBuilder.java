@@ -2,20 +2,20 @@ package eu.pb4.sgui.api.elements;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTextures;
-import eu.pb4.sgui.api.GuiHelpers;
+import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.CustomModelDataComponent;
+import net.minecraft.component.type.LoreComponent;
+import net.minecraft.component.type.ProfileComponent;
+import net.minecraft.component.type.UnbreakableComponent;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.util.Util;
+import net.minecraft.util.Unit;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -32,16 +32,9 @@ import java.util.*;
  */
 @SuppressWarnings({"unused"})
 public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<AnimatedGuiElementBuilder> {
-    protected final Map<Enchantment, Integer> enchantments = new HashMap<>();
     protected final List<ItemStack> itemStacks = new ArrayList<>();
-    protected Item item = Items.STONE;
-    protected NbtCompound tag;
-    protected int count = 1;
-    protected Text name = null;
-    protected List<Text> lore = new ArrayList<>();
-    protected int damage = -1;
+    protected ItemStack itemStack = new ItemStack(Items.STONE);
     protected GuiElement.ClickCallback callback = GuiElement.EMPTY_CALLBACK;
-    protected byte hideFlags = 0;
     protected int interval = 1;
     protected boolean random = false;
 
@@ -82,175 +75,130 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
      * @return this element builder
      */
     public AnimatedGuiElementBuilder saveItemStack() {
-        this.itemStacks.add(asStack());
-
-        this.item = Items.STONE;
-        this.tag = null;
-        this.count = 1;
-        this.name = null;
-        this.lore = new ArrayList<>();
-        this.damage = -1;
-        this.hideFlags = 0;
-        this.enchantments.clear();
-
+        this.itemStacks.add(this.itemStack.copy());
+        this.itemStack = new ItemStack(Items.STONE);
         return this;
     }
 
     /**
-     * Sets the type of Item of the current element.
+     * Sets the type of Item of the element.
      *
      * @param item the item to use
      * @return this element builder
      */
     public AnimatedGuiElementBuilder setItem(Item item) {
-        this.item = item;
+        this.itemStack = new ItemStack(item.getRegistryEntry(), this.itemStack.getCount(), this.itemStack.getComponentChanges());
         return this;
     }
 
     /**
-     * Sets the name of the current element.
+     * Sets the name of the element.
      *
      * @param name the name to use
      * @return this element builder
      */
     public AnimatedGuiElementBuilder setName(Text name) {
-        this.name = name.copy();
+        this.itemStack.set(DataComponentTypes.CUSTOM_NAME, name.copy());
         return this;
     }
 
     /**
-     * Sets the number of items in the current element.
+     * Sets the number of items in the element.
      *
      * @param count the number of items
      * @return this element builder
      */
     public AnimatedGuiElementBuilder setCount(int count) {
-        this.count = count;
+        this.itemStack.setCount(count);
         return this;
     }
 
     /**
-     * Sets the lore lines of the current element.
+     * Sets the lore lines of the element.
      *
      * @param lore a list of all the lore lines
      * @return this element builder
      */
     public AnimatedGuiElementBuilder setLore(List<Text> lore) {
-        this.lore = lore;
+        this.itemStack.set(DataComponentTypes.LORE, new LoreComponent(lore));
         return this;
     }
 
     /**
-     * Adds a line of lore to the current element.
+     * Adds a line of lore to the element.
      *
      * @param lore the line to add
      * @return this element builder
      */
     public AnimatedGuiElementBuilder addLoreLine(Text lore) {
-        this.lore.add(lore);
+        this.itemStack.apply(DataComponentTypes.LORE, LoreComponent.DEFAULT, lore, LoreComponent::of);
         return this;
     }
 
     /**
-     * Set the damage of the current element. This will only be
+     * Set the damage of the element. This will only be
      * visible if the item supports has durability.
      *
      * @param damage the amount of durability the item is missing
      * @return this element builder
      */
     public AnimatedGuiElementBuilder setDamage(int damage) {
-        this.damage = damage;
+        this.itemStack.set(DataComponentTypes.DAMAGE, damage);
         return this;
     }
 
     /**
-     * Hides all {@link net.minecraft.item.ItemStack.TooltipSection}s from the current element display
+     * Hides all Tooltips added through this builder from the element display
      *
      * @return this element builder
      */
     public AnimatedGuiElementBuilder hideFlags() {
-        this.hideFlags = 127;
+        // TODO 1.20.5
+        this.itemStack.set(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
         return this;
     }
 
     /**
-     * Hides a {@link net.minecraft.item.ItemStack.TooltipSection}
-     * from the current elements display.
-     *
-     * @param section the section to hide
-     * @return this element builder
-     */
-    public AnimatedGuiElementBuilder hideFlag(ItemStack.TooltipSection section) {
-        this.hideFlags = (byte) (this.hideFlags | section.getFlag());
-        return this;
-    }
-
-    /**
-     * Set the {@link net.minecraft.item.ItemStack.TooltipSection}s to
-     * hide from the current elements display, by the flags.
-     *
-     * @param value the flags to hide
-     * @return this element builder
-     * @see AnimatedGuiElementBuilder#hideFlag(ItemStack.TooltipSection)
-     */
-    public AnimatedGuiElementBuilder hideFlags(byte value) {
-        this.hideFlags = value;
-        return this;
-    }
-
-    /**
-     * Give the current element the specified enchantment.
+     * Give the element the specified enchantment.
      *
      * @param enchantment the enchantment to apply
      * @param level       the level of the specified enchantment
      * @return this element builder
      */
     public AnimatedGuiElementBuilder enchant(Enchantment enchantment, int level) {
-        this.enchantments.put(enchantment, level);
+        this.itemStack.addEnchantment(enchantment, level);
         return this;
     }
 
     /**
-     * Sets the current element to have an enchantment glint.
+     * Sets the element to have an enchantment glint.
      *
      * @return this element builder
      */
     public AnimatedGuiElementBuilder glow() {
-        this.enchantments.put(Enchantments.LUCK_OF_THE_SEA, 1);
-        return hideFlag(ItemStack.TooltipSection.ENCHANTMENTS);
+        this.itemStack.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
+        return this;
     }
 
     /**
-     * Sets the custom model data of the current element.
+     * Sets the custom model data of the element.
      *
      * @param value the value used for custom model data
      * @return this element builder
      */
     public AnimatedGuiElementBuilder setCustomModelData(int value) {
-        this.getOrCreateNbt().putInt("CustomModelData", value);
+        this.itemStack.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(value));
         return this;
     }
 
     /**
-     * Sets the current element to be unbreakable, also hides the durability bar.
+     * Sets the element to be unbreakable, also hides the durability bar.
      *
      * @return this element builder
      */
     public AnimatedGuiElementBuilder unbreakable() {
-        this.getOrCreateNbt().putBoolean("Unbreakable", true);
-        return hideFlag(ItemStack.TooltipSection.UNBREAKABLE);
-    }
-
-    /**
-     * Sets the skull owner tag of a player head.
-     * This method uses raw values required by client to display the skin
-     * Ideal for textures generated with 3rd party websites like mineskin.org
-     *
-     * @param value     texture value used by client
-     * @return this element builder
-     */
-    public AnimatedGuiElementBuilder setSkullOwner(String value) {
-        return this.setSkullOwner(value, null, null);
+        this.itemStack.set(DataComponentTypes.UNBREAKABLE, new UnbreakableComponent(true));
+        return this;
     }
 
     /**
@@ -272,11 +220,23 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
                 if (tmp != null) {
                     profile = tmp.profile();
                 }
-            }            this.getOrCreateNbt().put("SkullOwner", NbtHelper.writeGameProfile(new NbtCompound(), profile));
-        } else {
-            this.getOrCreateNbt().putString("SkullOwner", profile.getName());
+            }
+
         }
+        this.itemStack.set(DataComponentTypes.PROFILE, new ProfileComponent(profile));
         return this;
+    }
+
+    /**
+     * Sets the skull owner tag of a player head.
+     * This method uses raw values required by client to display the skin
+     * Ideal for textures generated with 3rd party websites like mineskin.org
+     *
+     * @param value     texture value used by client
+     * @return this element builder
+     */
+    public AnimatedGuiElementBuilder setSkullOwner(String value) {
+        return this.setSkullOwner(value, null, null);
     }
 
     /**
@@ -290,23 +250,9 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
      * @return this element builder
      */
     public AnimatedGuiElementBuilder setSkullOwner(String value, @Nullable String signature, @Nullable UUID uuid) {
-        NbtCompound skullOwner = new NbtCompound();
-        NbtCompound properties = new NbtCompound();
-        NbtCompound valueData = new NbtCompound();
-        NbtList textures = new NbtList();
-
-        valueData.putString("Value", value);
-        if (signature != null) {
-            valueData.putString("Signature", signature);
-        }
-
-        textures.add(valueData);
-        properties.put("textures", textures);
-
-        skullOwner.put("Id", NbtHelper.fromUuid(uuid != null ? uuid : Util.NIL_UUID));
-        skullOwner.put("Properties", properties);
-        this.getOrCreateNbt().put("SkullOwner", skullOwner);
-
+        PropertyMap map = new PropertyMap();
+        map.put("textures", new Property("textures", value, signature));
+        this.itemStack.set(DataComponentTypes.PROFILE, new ProfileComponent("???", Optional.ofNullable(uuid), map));
         return this;
     }
 
@@ -331,48 +277,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
      * @see AnimatedGuiElementBuilder#build()
      */
     public ItemStack asStack() {
-        ItemStack itemStack = new ItemStack(this.item, this.count);
-
-        if (this.tag != null) {
-            itemStack.getOrCreateNbt().copyFrom(this.tag);
-        }
-
-        if (this.name != null) {
-            var name = this.name.copy().styled(GuiHelpers.STYLE_CLEARER);
-
-            itemStack.setCustomName(name);
-        }
-
-        if (this.item.isDamageable() && this.damage != -1) {
-            itemStack.setDamage(damage);
-        }
-
-        for (Map.Entry<Enchantment, Integer> entry : this.enchantments.entrySet()) {
-            itemStack.addEnchantment(entry.getKey(), entry.getValue());
-        }
-
-        if (this.lore.size() > 0) {
-            NbtCompound display = itemStack.getOrCreateSubNbt("display");
-            NbtList loreItems = new NbtList();
-            for (Text l : this.lore) {
-                l = l.copy().styled(GuiHelpers.STYLE_CLEARER);
-                loreItems.add(NbtString.of(Text.Serialization.toJsonString(l)));
-            }
-            display.put("Lore", loreItems);
-        }
-
-        if (this.hideFlags != 0) {
-            itemStack.getOrCreateNbt().putByte("HideFlags", this.hideFlags);
-        }
-
-        return itemStack;
-    }
-
-    public NbtCompound getOrCreateNbt() {
-        if (this.tag == null) {
-            this.tag = new NbtCompound();
-        }
-        return this.tag;
+        return this.itemStack.copy();
     }
 
     public AnimatedGuiElement build() {
