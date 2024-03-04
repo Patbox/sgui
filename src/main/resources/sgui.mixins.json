@@ -4,6 +4,7 @@
   "package": "eu.pb4.sgui.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "PlayerInteractEntityC2SPacketAccessor",
     "ScreenHandlerMixin",
     "ServerPlayerEntityMixin",
     "ServerPlayNetworkHandlerMixin",

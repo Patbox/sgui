@@ -17,7 +17,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.message.LastSeenMessageList;
-import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.screen.ScreenHandler;
@@ -295,7 +294,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
         if (this.player.currentScreenHandler instanceof HotbarScreenHandler screenHandler) {
             var gui = screenHandler.getGui();
             var buf = new PacketByteBuf(Unpooled.buffer());
-            packet.write(buf);
+            ((PlayerInteractEntityC2SPacketAccessor)packet).invokeWrite(buf);
 
             int entityId = buf.readVarInt();
             var type = buf.readEnumConstant(HotbarGui.EntityInteraction.class);

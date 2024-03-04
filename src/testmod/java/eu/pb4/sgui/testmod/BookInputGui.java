@@ -2,6 +2,8 @@ package eu.pb4.sgui.testmod;
 
 import eu.pb4.sgui.api.gui.GuiInterface;
 import eu.pb4.sgui.virtual.FakeScreenHandler;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.WritableBookContentComponent;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -13,6 +15,7 @@ import net.minecraft.network.packet.s2c.play.OpenWrittenBookS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.RawFilteredPair;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import org.jetbrains.annotations.ApiStatus;
@@ -67,13 +70,8 @@ public class BookInputGui implements GuiInterface {
         this.player = player;
         this.pages = new ArrayList<>();
         if (book != null && book.getItem() instanceof WritableBookItem) {
-            if (book.hasNbt() && book.getNbt().contains("pages", NbtElement.LIST_TYPE)) {
-                NbtList nbtList = book.getNbt().getList("pages", NbtElement.STRING_TYPE);
-
-                for (int i = 0; i < nbtList.size(); ++i) {
-                    String string = nbtList.getString(i);
-                    this.pages.add(string);
-                }
+            for (RawFilteredPair<String> page : book.get(DataComponentTypes.WRITABLE_BOOK_CONTENT).pages()) {
+                this.pages.add(page.raw());
             }
         }
     }
@@ -96,11 +94,7 @@ public class BookInputGui implements GuiInterface {
         this.player.currentScreenHandler = this.screenHandler;
 
         ItemStack stack = Items.WRITABLE_BOOK.getDefaultStack();
-        NbtList list = new NbtList();
-        for (String string : this.pages) {
-            list.add(NbtString.of(string));
-        }
-        stack.getOrCreateNbt().put("pages", list);
+        stack.set(DataComponentTypes.WRITABLE_BOOK_CONTENT, new WritableBookContentComponent(pages.stream().map(RawFilteredPair::of).toList()));
 
         this.player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, PlayerInventory.OFF_HAND_SLOT, stack));
         this.player.networkHandler.sendPacket(new OpenWrittenBookS2CPacket(Hand.OFF_HAND));
