@@ -19,6 +19,7 @@ import net.minecraft.item.WrittenBookItem;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.command.ServerCommandSource;
@@ -310,6 +311,7 @@ public class SGuiTest implements ModInitializer {
                 {
                     this.setSignType(Blocks.ACACIA_WALL_SIGN);
                     this.setColor(DyeColor.WHITE);
+                    this.setLine(0, ScreenTexts.OK);
                     this.setLine(1, Text.literal("^"));
                     this.setLine(2, Text.literal("Input your"));
                     this.setLine(3, Text.literal("value here"));
@@ -318,7 +320,7 @@ public class SGuiTest implements ModInitializer {
 
                 @Override
                 public void onClose() {
-                    this.player.sendMessage(Text.literal("Input was: " + this.getLine(0).getString()), false);
+                    this.player.sendMessage(Text.literal("Input was: " + this.getLine(0).toString()), false);
                 }
 
                 @Override

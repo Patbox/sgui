@@ -61,7 +61,7 @@ public class BookScreenHandler extends ScreenHandler implements VirtualScreenHan
         try {
             this.gui.onTick();
         } catch (Exception e) {
-            e.printStackTrace();
+            this.gui.handleException(e);
         }
         super.sendContentUpdates();
     }

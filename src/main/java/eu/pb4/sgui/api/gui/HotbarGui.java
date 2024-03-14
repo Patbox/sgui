@@ -75,7 +75,7 @@ public class HotbarGui extends BaseSlotGui {
     public void setSlot(int index, GuiElementInterface element) {
         super.setSlot(index, element);
         if (this.isOpen() && this.autoUpdate) {
-            this.screenHandler.setSlot(GUI_TO_VANILLA_IDS[index], new VirtualSlot(this.screenHandler.inventory, index, 0, 0));
+            this.screenHandler.setSlot(GUI_TO_VANILLA_IDS[index], new VirtualSlot(this, index, 0, 0));
         }
     }
 
@@ -94,7 +94,7 @@ public class HotbarGui extends BaseSlotGui {
 
         if (this.isOpen() && this.autoUpdate) {
             if (this.screenHandler != null) {
-                this.screenHandler.setSlot(GUI_TO_VANILLA_IDS[index], new VirtualSlot(this.screenHandler.inventory, index, 0, 0));
+                this.screenHandler.setSlot(GUI_TO_VANILLA_IDS[index], new VirtualSlot(this, index, 0, 0));
             }
         }
     }

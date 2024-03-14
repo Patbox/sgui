@@ -123,13 +123,13 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
                 this.sgui$previousScreen = this.player.currentScreenHandler;
             } else {
                 var screenHandler = this.player.currentScreenHandler;
-                if (screenHandler.getType() != null) {
-                    try {
+                try {
+                    if (screenHandler.getType() != null) {
                         this.sendPacket(new OpenScreenS2CPacket(screenHandler.syncId, screenHandler.getType(), handler.getGui().getTitle()));
                         screenHandler.syncState();
-                    } catch (Throwable e) {
-
                     }
+                } catch (Throwable ignored) {
+
                 }
                 info.cancel();
             }

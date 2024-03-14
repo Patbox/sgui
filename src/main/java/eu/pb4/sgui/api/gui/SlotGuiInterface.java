@@ -3,8 +3,14 @@ package eu.pb4.sgui.api.gui;
 import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.SlotHolder;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
+import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
+import eu.pb4.sgui.virtual.inventory.VirtualSlot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 public interface SlotGuiInterface extends SlotHolder, GuiInterface {
 
@@ -57,4 +63,130 @@ public interface SlotGuiInterface extends SlotHolder, GuiInterface {
     default boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element) {
         return false;
     }
+
+    @Nullable
+    default Slot getSlotRedirectOrPlayer(int index) {
+        if (index < this.getSize()) {
+            return this.getSlotRedirect(index);
+        }
+
+        if (this.getPlayer().currentScreenHandler instanceof VirtualScreenHandler virt && virt.getGui() == this && index < virt.slots.size()) {
+            return virt.slots.get(index);
+        }
+        return null;
+    }
+
+    default ItemStack quickMove(int index) {
+        ItemStack itemStack = ItemStack.EMPTY;
+        Slot slot = this.getSlotRedirectOrPlayer(index);
+        if (slot != null && slot.hasStack() && !(slot instanceof VirtualSlot)) {
+            ItemStack itemStack2 = slot.getStack();
+            itemStack = itemStack2.copy();
+            if (index < this.getVirtualSize()) {
+                if (!this.insertItem(itemStack2, this.getVirtualSize(), this.getVirtualSize() + 9 * 4, true)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (!this.insertItem(itemStack2, 0, this.getVirtualSize(), false)) {
+                return ItemStack.EMPTY;
+            }
+            if (itemStack2.isEmpty()) {
+                slot.setStack(ItemStack.EMPTY);
+            } else {
+                slot.markDirty();
+            }
+        } else if (slot instanceof VirtualSlot) {
+            return slot.getStack();
+        }
+
+        return itemStack;
+    }
+
+    default boolean insertItem(ItemStack stack, int startIndex, int endIndex, boolean fromLast) {
+        boolean bl = false;
+        int i = startIndex;
+        if (fromLast) {
+            i = endIndex - 1;
+        }
+
+        Slot slot;
+        ItemStack itemStack;
+        if (stack.isStackable()) {
+            while(!stack.isEmpty()) {
+                if (fromLast) {
+                    if (i < startIndex) {
+                        break;
+                    }
+                } else if (i >= endIndex) {
+                    break;
+                }
+
+                slot = this.getSlotRedirectOrPlayer(i);
+                if (slot != null && slot.canInsert(stack)) {
+                    itemStack = slot.getStack();
+                    if (!itemStack.isEmpty() && ItemStack.canCombine(stack, itemStack)) {
+                        int j = itemStack.getCount() + stack.getCount();
+                        if (j <= stack.getMaxCount()) {
+                            stack.setCount(0);
+                            itemStack.setCount(j);
+                            slot.markDirty();
+                            bl = true;
+                        } else if (itemStack.getCount() < stack.getMaxCount()) {
+                            stack.decrement(stack.getMaxCount() - itemStack.getCount());
+                            itemStack.setCount(stack.getMaxCount());
+                            slot.markDirty();
+                            bl = true;
+                        }
+                    }
+                }
+
+                if (fromLast) {
+                    --i;
+                } else {
+                    ++i;
+                }
+            }
+        }
+
+        if (!stack.isEmpty()) {
+            if (fromLast) {
+                i = endIndex - 1;
+            } else {
+                i = startIndex;
+            }
+
+            while(true) {
+                if (fromLast) {
+                    if (i < startIndex) {
+                        break;
+                    }
+                } else if (i >= endIndex) {
+                    break;
+                }
+
+                slot = this.getSlotRedirectOrPlayer(i);
+                if (slot != null) {
+                    itemStack = slot.getStack();
+                    if (itemStack.isEmpty() && slot.canInsert(stack)) {
+                        if (stack.getCount() > slot.getMaxItemCount()) {
+                            slot.setStack(stack.split(slot.getMaxItemCount()));
+                        } else {
+                            slot.setStack(stack.split(stack.getCount()));
+                        }
+
+                        slot.markDirty();
+                        bl = true;
+                        break;
+                    }
+                }
+
+                if (fromLast) {
+                    --i;
+                } else {
+                    ++i;
+                }
+            }
+        }
+
+        return bl;
+    };
 }

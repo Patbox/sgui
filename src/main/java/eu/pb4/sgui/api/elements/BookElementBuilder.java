@@ -134,9 +134,9 @@ public class BookElementBuilder extends GuiElementBuilder {
 
     @Override
     public GuiElementBuilder setItem(Item item) {
-        if (!(item.getRegistryEntry().isIn(ItemTags.LECTERN_BOOKS))) {
+        /*if (!(item.getRegistryEntry().isIn(ItemTags.LECTERN_BOOKS))) {
             throw new IllegalArgumentException("Item must be a type of book");
-        }
+        }*/
 
         return super.setItem(item);
     }
@@ -223,9 +223,9 @@ public class BookElementBuilder extends GuiElementBuilder {
      * @throws IllegalArgumentException if the item is not a book
      */
     public static Text getPageContents(ItemStack book, int index) {
-        if (!book.getItem().getRegistryEntry().isIn(ItemTags.LECTERN_BOOKS)) {
+        /*if (!book.getItem().getRegistryEntry().isIn(ItemTags.LECTERN_BOOKS)) {
             throw new IllegalArgumentException("Item must be a type of book");
-        }
+        }*/
 
         if (book.getOrCreateNbt().contains("pages")) {
             NbtList pages = book.getOrCreateNbt().getList("pages", NbtElement.STRING_TYPE);

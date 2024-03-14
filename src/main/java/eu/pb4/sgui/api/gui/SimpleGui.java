@@ -79,7 +79,7 @@ public class SimpleGui extends BaseSlotGui {
     public void setSlot(int index, GuiElementInterface element) {
         super.setSlot(index, element);
         if (this.isOpen() && this.autoUpdate) {
-            this.screenHandler.setSlot(index, new VirtualSlot(this.screenHandler.inventory, index, 0, 0));
+            this.screenHandler.setSlot(index, new VirtualSlot(this, index, 0, 0));
         }
     }
 
@@ -96,7 +96,7 @@ public class SimpleGui extends BaseSlotGui {
         super.clearSlot(index);
         this.hasRedirects = true;
         if (this.isOpen() && this.autoUpdate) {
-            this.screenHandler.setSlot(index, new VirtualSlot(this.screenHandler.inventory, index, 0, 0));
+            this.screenHandler.setSlot(index, new VirtualSlot(this, index, 0, 0));
         }
     }
 
