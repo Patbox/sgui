@@ -47,10 +47,15 @@ public class BookElementBuilder extends GuiElementBuilder {
      * @see BookElementBuilder#setPage(int, Text...)
      */
     public BookElementBuilder addPage(Text... lines) {
-        var text = Text.literal("");
+        var text = Text.empty();
         for (Text line : lines) {
             text.append(line).append("\n");
         }
+        this.getOrCreatePages().add(NbtString.of(Text.Serialization.toJsonString(text)));
+        return this;
+    }
+
+    public BookElementBuilder addPage(Text text) {
         this.getOrCreatePages().add(NbtString.of(Text.Serialization.toJsonString(text)));
         return this;
     }
@@ -66,10 +71,15 @@ public class BookElementBuilder extends GuiElementBuilder {
      * @see BookElementBuilder#addPage(Text...)
      */
     public BookElementBuilder setPage(int index, Text... lines) {
-        var text = Text.literal("");
+        var text = Text.empty();
         for (Text line : lines) {
             text.append(line).append("\n");
         }
+        this.getOrCreatePages().set(index, NbtString.of(Text.Serialization.toJsonString(text)));
+        return this;
+    }
+
+    public BookElementBuilder setPage(int index, Text text) {
         this.getOrCreatePages().set(index, NbtString.of(Text.Serialization.toJsonString(text)));
         return this;
     }
