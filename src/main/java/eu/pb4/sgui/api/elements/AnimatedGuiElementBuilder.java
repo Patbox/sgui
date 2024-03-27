@@ -131,7 +131,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
      * @return this element builder
      */
     public AnimatedGuiElementBuilder addLoreLine(Text lore) {
-        this.itemStack.apply(DataComponentTypes.LORE, LoreComponent.DEFAULT, lore, LoreComponent::of);
+        this.itemStack.apply(DataComponentTypes.LORE, LoreComponent.DEFAULT, lore, LoreComponent::with);
         return this;
     }
 

@@ -336,7 +336,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
     }
 
     @Inject(method = "method_44356", at = @At("HEAD"), cancellable = true)
-    private void sgui$onCommand(CommandExecutionC2SPacket packet, Optional<LastSeenMessageList> optional, CallbackInfo ci) {
+    private void sgui$onCommand(CommandExecutionC2SPacket packet, CallbackInfo ci) {
         if (this.player.currentScreenHandler instanceof BookScreenHandler handler) {
             try {
                 if (handler.getGui().onCommand("/" + packet.command())) {
