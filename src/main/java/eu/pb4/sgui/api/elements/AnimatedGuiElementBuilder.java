@@ -252,7 +252,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
     public AnimatedGuiElementBuilder setSkullOwner(String value, @Nullable String signature, @Nullable UUID uuid) {
         PropertyMap map = new PropertyMap();
         map.put("textures", new Property("textures", value, signature));
-        this.itemStack.set(DataComponentTypes.PROFILE, new ProfileComponent("???", Optional.ofNullable(uuid), map));
+        this.itemStack.set(DataComponentTypes.PROFILE, new ProfileComponent(Optional.empty(), Optional.ofNullable(uuid), map));
         return this;
     }
 
