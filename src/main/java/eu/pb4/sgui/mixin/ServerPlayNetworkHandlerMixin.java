@@ -43,6 +43,9 @@ import java.util.Optional;
 public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkHandler {
 
     @Unique
+    private boolean sgui$bookIgnoreClose = false;
+
+    @Unique
     private ScreenHandler sgui$previousScreen = null;
 
     @Shadow
@@ -119,6 +122,12 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
     @Inject(method = "onCloseHandledScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V", shift = At.Shift.AFTER), cancellable = true)
     private void sgui$storeScreenHandler(CloseHandledScreenC2SPacket packet, CallbackInfo info) {
         if (this.player.currentScreenHandler instanceof VirtualScreenHandlerInterface handler) {
+            if (sgui$bookIgnoreClose && this.player.currentScreenHandler instanceof BookScreenHandler) {
+                sgui$bookIgnoreClose = false;
+                info.cancel();
+                return;
+            }
+
             if (handler.getGui().canPlayerClose()) {
                 this.sgui$previousScreen = this.player.currentScreenHandler;
             } else {
@@ -340,6 +349,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
     private void sgui$onCommand(CommandExecutionC2SPacket packet, Optional<LastSeenMessageList> optional, CallbackInfo ci) {
         if (this.player.currentScreenHandler instanceof BookScreenHandler handler) {
             try {
+                sgui$bookIgnoreClose = true;
                 if (handler.getGui().onCommand("/" + packet.command())) {
                     ci.cancel();
                 }
