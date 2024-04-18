@@ -12,6 +12,7 @@ import eu.pb4.sgui.api.gui.layered.LayeredGui;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.block.Blocks;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -31,6 +32,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.village.TradeOffer;
+import net.minecraft.village.TradedItem;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.Nullable;
@@ -213,8 +215,9 @@ public class SGuiTest implements ModInitializer {
                 @Override
                 public void onTick() {
                     this.tick++;
+                    int pages = getBook().get(DataComponentTypes.WRITTEN_BOOK_CONTENT).pages().size();
                     if (this.tick % 20 == 0) {
-                        if (this.page >= WrittenBookItem.getPageCount(getBook()) - 1) {
+                        if (this.page >= pages - 1) {
                             this.setPage(0);
                         } else {
                             this.setPage(getPage() + 1);
@@ -361,7 +364,8 @@ public class SGuiTest implements ModInitializer {
                 @Override
                 public void onSuggestSell(TradeOffer offer) {
                     if (offer != null && offer.getSellItem() != null) {
-                        offer.getSellItem().setCustomName(((MutableText) player.getName()).append(Text.literal("'s ")).append(offer.getSellItem().getName()));
+
+                        offer.getSellItem().set(DataComponentTypes.CUSTOM_NAME, ((MutableText) player.getName()).append(Text.literal("'s ")).append(offer.getSellItem().getName()));
                         this.sendUpdate();
                     }
                 }
@@ -370,7 +374,7 @@ public class SGuiTest implements ModInitializer {
             gui.setTitle(Text.literal("Trades wow!"));
             gui.setIsLeveled(true);
             gui.addTrade(new TradeOffer(
-                    Items.STONE.getDefaultStack(),
+                    new TradedItem(Items.STONE),
                     new GuiElementBuilder(Items.DIAMOND_AXE)
                             .glow()
                             .setCount(1)
@@ -383,7 +387,7 @@ public class SGuiTest implements ModInitializer {
             gui.open();
 
             gui.addTrade(new TradeOffer(
-                    Items.EMERALD.getDefaultStack(),
+                    new TradedItem(Items.EMERALD),
                     new GuiElementBuilder(Items.STONE)
                             .setCount(16)
                             .asStack(),

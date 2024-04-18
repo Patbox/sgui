@@ -5,14 +5,16 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.block.entity.SignText;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 /**
  * SignBlockEntity which doesn't invoke {@link SignBlockEntity#updateListeners()}
  */
 public class VirtualSignBlockEntity extends SignBlockEntity {
 
-    public VirtualSignBlockEntity(BlockPos pos, BlockState state) {
+    public VirtualSignBlockEntity(World world, BlockPos pos, BlockState state) {
         super(pos, state);
+        this.setWorld(world);
     }
 
     public boolean setText(SignText text, boolean front) {

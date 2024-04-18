@@ -13,6 +13,7 @@ import net.minecraft.text.Text;
 import net.minecraft.village.MerchantInventory;
 import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOfferList;
+import net.minecraft.village.TradedItem;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -64,7 +65,7 @@ public class MerchantGui extends SimpleGui {
                 && x.getSpecialPrice() == y.getSpecialPrice()
                 && ItemStack.areEqual(x.getSellItem(), y.getSellItem())
                 && ItemStack.areEqual(x.getOriginalFirstBuyItem(), y.getOriginalFirstBuyItem())
-                && ItemStack.areEqual(x.getSecondBuyItem(), y.getSecondBuyItem());
+                && ItemStack.areEqual(x.getSecondBuyItem().map(TradedItem::itemStack).orElse(ItemStack.EMPTY), y.getSecondBuyItem().map(TradedItem::itemStack).orElse(ItemStack.EMPTY));
 
     }
 

@@ -4,41 +4,44 @@ import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.layered.Layer;
 import eu.pb4.sgui.api.gui.layered.LayeredGui;
+import net.minecraft.block.entity.BannerPatterns;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.BannerPatternsComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.DyeColor;
+import net.minecraft.util.Unit;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class SnakeGui extends LayeredGui {
-    static ItemStack create(String nbt) {
-        ItemStack stack = Items.GRAY_BANNER.getDefaultStack();
-        try {
-            stack.setNbt(StringNbtReader.parse(nbt));
-            stack.addHideFlag(ItemStack.TooltipSection.ADDITIONAL);
-        } catch (Exception e) {}
 
+    static ItemStack create(BannerPatternsComponent component) {
+        ItemStack stack = Items.GRAY_BANNER.getDefaultStack();
+        stack.set(DataComponentTypes.BANNER_PATTERNS, component);
+        stack.set(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
         return stack;
     }
 
-    static ItemStack[] NUMBERS = new ItemStack[] {
-            create("{BlockEntityTag:{Patterns:[{Pattern:bs,Color:0},{Pattern:ls,Color:0},{Pattern:ts,Color:0},{Pattern:rs,Color:0},{Pattern:dls,Color:0},{Pattern:bo,Color:7}]}}"),
-            create("{BlockEntityTag:{Patterns:[{Pattern:cs,Color:0},{Pattern:tl,Color:0},{Pattern:cbo,Color:7},{Pattern:bs,Color:0},{Pattern:bo,Color:7}]}}"),
-            create("{BlockEntityTag:{Patterns:[{Pattern:ts,Color:0},{Pattern:mr,Color:7},{Pattern:bs,Color:0},{Pattern:dls,Color:0},{Pattern:bo,Color:7}]}}"),
-            create("{BlockEntityTag:{Patterns:[{Pattern:bs,Color:0},{Pattern:ms,Color:0},{Pattern:ts,Color:0},{Pattern:cbo,Color:7},{Pattern:rs,Color:0},{Pattern:bo,Color:7}]}}"),
-            create("{BlockEntityTag:{Patterns:[{Pattern:ls,Color:0},{Pattern:hhb,Color:7},{Pattern:rs,Color:0},{Pattern:ms,Color:0},{Pattern:bo,Color:7}]}}"),
-            create("{BlockEntityTag:{Patterns:[{Pattern:bs,Color:0},{Pattern:mr,Color:7},{Pattern:ts,Color:0},{Pattern:drs,Color:0},{Pattern:bo,Color:7}]}}"),
-            create("{BlockEntityTag:{Patterns:[{Pattern:bs,Color:0},{Pattern:rs,Color:0},{Pattern:hh,Color:7},{Pattern:ms,Color:0},{Pattern:ts,Color:0},{Pattern:ls,Color:0},{Pattern:bo,Color:7}]}}"),
-            create("{BlockEntityTag:{Patterns:[{Pattern:dls,Color:0},{Pattern:ts,Color:0},{Pattern:bo,Color:7}]}}"),
-            create("{BlockEntityTag:{Patterns:[{Pattern:dls,Color:0},{Pattern:ts,Color:0},{Pattern:bo,Color:7}]}}"),
-            create("{BlockEntityTag:{Patterns:[{Pattern:ls,Color:0},{Pattern:hhb,Color:7},{Pattern:ms,Color:0},{Pattern:ts,Color:0},{Pattern:rs,Color:0},{Pattern:bs,Color:0},{Pattern:bo,Color:7}]}}")
-    };
 
+    static final ItemStack[] NUMBERS = new ItemStack[]{
+        create(new BannerPatternsComponent.Builder().add(BannerPatterns.STRIPE_BOTTOM, DyeColor.WHITE).add(BannerPatterns.STRIPE_LEFT, DyeColor.WHITE).add(BannerPatterns.STRIPE_TOP, DyeColor.WHITE).add(BannerPatterns.STRIPE_RIGHT, DyeColor.WHITE).add(BannerPatterns.STRIPE_DOWNLEFT, DyeColor.WHITE).add(BannerPatterns.BORDER, DyeColor.GRAY).build()),
+        create(new BannerPatternsComponent.Builder().add(BannerPatterns.STRIPE_CENTER, DyeColor.WHITE).add(BannerPatterns.SQUARE_TOP_LEFT, DyeColor.WHITE).add(BannerPatterns.CURLY_BORDER, DyeColor.GRAY).add(BannerPatterns.STRIPE_BOTTOM, DyeColor.WHITE).add(BannerPatterns.BORDER, DyeColor.GRAY).build()),
+        create(new BannerPatternsComponent.Builder().add(BannerPatterns.STRIPE_TOP, DyeColor.WHITE).add(BannerPatterns.RHOMBUS, DyeColor.GRAY).add(BannerPatterns.STRIPE_BOTTOM, DyeColor.WHITE).add(BannerPatterns.STRIPE_DOWNLEFT, DyeColor.WHITE).add(BannerPatterns.BORDER, DyeColor.GRAY).build()),
+        create(new BannerPatternsComponent.Builder().add(BannerPatterns.STRIPE_BOTTOM, DyeColor.WHITE).add(BannerPatterns.STRIPE_MIDDLE, DyeColor.WHITE).add(BannerPatterns.STRIPE_TOP, DyeColor.WHITE).add(BannerPatterns.CURLY_BORDER, DyeColor.GRAY).add(BannerPatterns.STRIPE_RIGHT, DyeColor.WHITE).add(BannerPatterns.BORDER, DyeColor.GRAY).build()),
+        create(new BannerPatternsComponent.Builder().add(BannerPatterns.STRIPE_LEFT, DyeColor.WHITE).add(BannerPatterns.HALF_HORIZONTAL_BOTTOM, DyeColor.GRAY).add(BannerPatterns.STRIPE_RIGHT, DyeColor.WHITE).add(BannerPatterns.STRIPE_MIDDLE, DyeColor.WHITE).add(BannerPatterns.BORDER, DyeColor.GRAY).build()),
+        create(new BannerPatternsComponent.Builder().add(BannerPatterns.STRIPE_BOTTOM, DyeColor.WHITE).add(BannerPatterns.RHOMBUS, DyeColor.GRAY).add(BannerPatterns.STRIPE_TOP, DyeColor.WHITE).add(BannerPatterns.STRIPE_DOWNRIGHT, DyeColor.WHITE).add(BannerPatterns.BORDER, DyeColor.GRAY).build()),
+        create(new BannerPatternsComponent.Builder().add(BannerPatterns.STRIPE_BOTTOM, DyeColor.WHITE).add(BannerPatterns.STRIPE_RIGHT, DyeColor.WHITE).add(BannerPatterns.HALF_HORIZONTAL, DyeColor.GRAY).add(BannerPatterns.STRIPE_MIDDLE, DyeColor.WHITE).add(BannerPatterns.STRIPE_TOP, DyeColor.WHITE).add(BannerPatterns.STRIPE_LEFT, DyeColor.WHITE).add(BannerPatterns.BORDER, DyeColor.GRAY).build()),
+        create(new BannerPatternsComponent.Builder().add(BannerPatterns.STRIPE_DOWNLEFT, DyeColor.WHITE).add(BannerPatterns.STRIPE_TOP, DyeColor.WHITE).add(BannerPatterns.BORDER, DyeColor.GRAY).build()),
+        create(new BannerPatternsComponent.Builder().add(BannerPatterns.STRIPE_DOWNLEFT, DyeColor.WHITE).add(BannerPatterns.STRIPE_TOP, DyeColor.WHITE).add(BannerPatterns.BORDER, DyeColor.GRAY).build()),
+        create(new BannerPatternsComponent.Builder().add(BannerPatterns.STRIPE_LEFT, DyeColor.WHITE).add(BannerPatterns.HALF_HORIZONTAL_BOTTOM, DyeColor.GRAY).add(BannerPatterns.STRIPE_MIDDLE, DyeColor.WHITE).add(BannerPatterns.STRIPE_TOP, DyeColor.WHITE).add(BannerPatterns.STRIPE_RIGHT, DyeColor.WHITE).add(BannerPatterns.STRIPE_BOTTOM, DyeColor.WHITE).add(BannerPatterns.BORDER, DyeColor.GRAY).build()),
+    };
 
     final Layer gameplayLayer;
     final Layer scoreLayer;
@@ -67,16 +70,16 @@ public class SnakeGui extends LayeredGui {
         this.controller = controller;
 
         controller.setSlot(1, new GuiElementBuilder(Items.MAGMA_CREAM).setName(Text.literal("^"))
-                .setCallback((x, y, z) -> changeDirection(Direction.UP)));
+            .setCallback((x, y, z) -> changeDirection(Direction.UP)));
 
         controller.setSlot(3, new GuiElementBuilder(Items.MAGMA_CREAM).setName(Text.literal("<"))
-                .setCallback((x, y, z) -> changeDirection(Direction.LEFT)));
+            .setCallback((x, y, z) -> changeDirection(Direction.LEFT)));
 
         controller.setSlot(5, new GuiElementBuilder(Items.MAGMA_CREAM).setName(Text.literal(">"))
-                .setCallback((x, y, z) -> changeDirection(Direction.RIGHT)));
+            .setCallback((x, y, z) -> changeDirection(Direction.RIGHT)));
 
         controller.setSlot(7, new GuiElementBuilder(Items.MAGMA_CREAM).setName(Text.literal("v"))
-                .setCallback((x, y, z) -> changeDirection(Direction.DOWN)));
+            .setCallback((x, y, z) -> changeDirection(Direction.DOWN)));
 
         controller.setSlot(4, new GuiElementBuilder(Items.WHITE_STAINED_GLASS_PANE).setName(Text.empty()));
 
@@ -93,14 +96,14 @@ public class SnakeGui extends LayeredGui {
 
         Pos applePos = new Pos(this.random.nextInt(9), this.random.nextInt(6));
         if (applePos.equals(this.snakeHead)) {
-            applePos = new Pos(3,6);
+            applePos = new Pos(3, 6);
         }
         this.apples.add(applePos);
 
         this.scoreLayer = new Layer(1, 5);
         this.addLayer(this.scoreLayer, 2, 9).setZIndex(1);
 
-        Layer backdrop = new Layer(4 ,9);
+        Layer backdrop = new Layer(4, 9);
 
         GuiElementBuilder builder = new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE).setName(Text.empty());
 
@@ -207,7 +210,7 @@ public class SnakeGui extends LayeredGui {
         for (int x = 0; x < 5; x++) {
             int score = (this.points / (int) Math.pow(10, x)) % 10;
             ItemStack stack1 = NUMBERS[score].copy();
-            stack1.setCustomName(scoreText);
+            stack1.set(DataComponentTypes.CUSTOM_NAME, scoreText);
             this.scoreLayer.setSlot(4 - x, stack1);
         }
 

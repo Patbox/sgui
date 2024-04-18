@@ -1,5 +1,7 @@
 package eu.pb4.sgui.api.elements;
 
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.WrittenBookContentComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -7,7 +9,12 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.registry.tag.ItemTags;
+import net.minecraft.text.RawFilteredPair;
 import net.minecraft.text.Text;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Book Element Builder
@@ -20,6 +27,8 @@ import net.minecraft.text.Text;
  */
 @SuppressWarnings({"unused"})
 public class BookElementBuilder extends GuiElementBuilder {
+
+    private static final WrittenBookContentComponent DEFAULT_WRITTEN_COMPONENT = new WrittenBookContentComponent(RawFilteredPair.of(""), "", 0, Collections.emptyList(), false);
 
     /**
      * Constructs a new BookElementBuilder with the default settings.
@@ -38,6 +47,10 @@ public class BookElementBuilder extends GuiElementBuilder {
         super(Items.WRITTEN_BOOK, count);
     }
 
+    private BookElementBuilder(ItemStack stack) {
+        super(stack);
+    }
+
     /**
      * Adds a new page to the book. <br>
      * Note that only signed books support formatting
@@ -47,11 +60,15 @@ public class BookElementBuilder extends GuiElementBuilder {
      * @see BookElementBuilder#setPage(int, Text...)
      */
     public BookElementBuilder addPage(Text... lines) {
-        var text = Text.empty();
-        for (Text line : lines) {
-            text.append(line).append("\n");
-        }
-        this.getOrCreatePages().add(NbtString.of(Text.Serialization.toJsonString(text)));
+        this.itemStack.apply(DataComponentTypes.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT, original -> {
+            List<RawFilteredPair<Text>> updatedPages = new LinkedList<>(original.pages());
+            var text = Text.empty();
+            for (Text line : lines) {
+                text.append(line).append("\n");
+            }
+            updatedPages.add(RawFilteredPair.of(text));
+            return new WrittenBookContentComponent(original.title(), original.author(), original.generation(), updatedPages, original.resolved());
+        });
         return this;
     }
 
@@ -71,11 +88,15 @@ public class BookElementBuilder extends GuiElementBuilder {
      * @see BookElementBuilder#addPage(Text...)
      */
     public BookElementBuilder setPage(int index, Text... lines) {
-        var text = Text.empty();
-        for (Text line : lines) {
-            text.append(line).append("\n");
-        }
-        this.getOrCreatePages().set(index, NbtString.of(Text.Serialization.toJsonString(text)));
+        this.itemStack.apply(DataComponentTypes.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT, original -> {
+            List<RawFilteredPair<Text>> updatedPages = new LinkedList<>(original.pages());
+            var text = Text.empty();
+            for (Text line : lines) {
+                text.append(line).append("\n");
+            }
+            updatedPages.set(index, RawFilteredPair.of(text));
+            return new WrittenBookContentComponent(original.title(), original.author(), original.generation(), updatedPages, original.resolved());
+        });
         return this;
     }
 
@@ -92,7 +113,9 @@ public class BookElementBuilder extends GuiElementBuilder {
      * @return this book builder
      */
     public BookElementBuilder setAuthor(String author) {
-        this.getOrCreateNbt().put("author", NbtString.of(author));
+        this.itemStack.apply(DataComponentTypes.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT, original -> {
+            return new WrittenBookContentComponent(original.title(), author, original.generation(), original.pages(), original.resolved());
+        });
         this.signed();
         return this;
     }
@@ -105,7 +128,9 @@ public class BookElementBuilder extends GuiElementBuilder {
      * @return this book builder
      */
     public BookElementBuilder setTitle(String title) {
-        this.getOrCreateNbt().put("title", NbtString.of(title));
+        this.itemStack.apply(DataComponentTypes.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT, original -> {
+            return new WrittenBookContentComponent(RawFilteredPair.of(title), original.author(), original.generation(), original.pages(), original.resolved());
+        });
         this.signed();
         return this;
     }
@@ -135,19 +160,8 @@ public class BookElementBuilder extends GuiElementBuilder {
         return this;
     }
 
-    protected NbtList getOrCreatePages() {
-        if (!this.getOrCreateNbt().contains("pages")) {
-            this.getOrCreateNbt().put("pages", new NbtList());
-        }
-        return this.getOrCreateNbt().getList("pages", NbtElement.STRING_TYPE);
-    }
-
     @Override
     public GuiElementBuilder setItem(Item item) {
-        /*if (!(item.getRegistryEntry().isIn(ItemTags.LECTERN_BOOKS))) {
-            throw new IllegalArgumentException("Item must be a type of book");
-        }*/
-
         return super.setItem(item);
     }
 
@@ -160,29 +174,10 @@ public class BookElementBuilder extends GuiElementBuilder {
      */
     @Override
     public ItemStack asStack() {
-        if (this.item == Items.WRITTEN_BOOK) {
-            if (!this.getOrCreateNbt().contains("author")) {
-                this.getOrCreateNbt().put("author", NbtString.of(""));
-            }
-            if (!this.getOrCreateNbt().contains("title")) {
-                this.getOrCreateNbt().put("title", NbtString.of(""));
-            }
-        } else if (this.item == Items.WRITABLE_BOOK){
-            NbtList pages = this.getOrCreatePages();
-            for (int i = 0; i < pages.size(); i++) {
-                try {
-                    pages.set(i, NbtString.of(Text.Serialization.fromLenientJson(pages.getString(i)).getString()));
-                } catch (Exception e) {
-                    pages.set(i, NbtString.of("Invalid page data!"));
-                }
-            }
-            this.getOrCreateNbt().put("pages", pages);
-
-            this.getOrCreateNbt().remove("author");
-            this.getOrCreateNbt().remove("title");
+        if (!itemStack.contains(DataComponentTypes.WRITTEN_BOOK_CONTENT)) {
+            itemStack.set(DataComponentTypes.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT);
         }
-
-        return super.asStack();
+        return this.itemStack.copy();
     }
 
     /**
@@ -203,25 +198,7 @@ public class BookElementBuilder extends GuiElementBuilder {
         if (!book.getItem().getRegistryEntry().isIn(ItemTags.LECTERN_BOOKS)) {
             throw new IllegalArgumentException("Item must be a type of book");
         }
-
-        BookElementBuilder builder = new BookElementBuilder(book.getCount());
-
-        if (book.getOrCreateNbt().contains("title")) {
-            builder.setTitle(book.getOrCreateNbt().getString("title"));
-        }
-
-        if (book.getOrCreateNbt().contains("author")) {
-            builder.setTitle(book.getOrCreateNbt().getString("author"));
-        }
-
-        if (book.getOrCreateNbt().contains("pages")) {
-            NbtList pages = book.getOrCreateNbt().getList("pages", NbtElement.STRING_TYPE);
-            for (NbtElement page : pages) {
-                builder.addPage(Text.Serialization.fromLenientJson(page.asString()));
-            }
-        }
-
-        return builder;
+        return new BookElementBuilder(book);
     }
 
     /**
@@ -232,19 +209,13 @@ public class BookElementBuilder extends GuiElementBuilder {
      * @return the contents of the page or empty if page does not exist
      * @throws IllegalArgumentException if the item is not a book
      */
+    @Deprecated
     public static Text getPageContents(ItemStack book, int index) {
-        /*if (!book.getItem().getRegistryEntry().isIn(ItemTags.LECTERN_BOOKS)) {
-            throw new IllegalArgumentException("Item must be a type of book");
-        }*/
-
-        if (book.getOrCreateNbt().contains("pages")) {
-            NbtList pages = book.getOrCreateNbt().getList("pages", NbtElement.STRING_TYPE);
-            if(index < pages.size()) {
-                return Text.Serialization.fromJson(pages.get(index).asString());
-            }
+        WrittenBookContentComponent component = book.getOrDefault(DataComponentTypes.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT);
+        if (index < component.pages().size()) {
+            return component.pages().get(index).raw();
         }
-
-        return Text.literal("");
+        return Text.empty();
     }
 
     /**
@@ -255,11 +226,7 @@ public class BookElementBuilder extends GuiElementBuilder {
      * @return the contents of the page or empty if page does not exist
      */
     public static Text getPageContents(BookElementBuilder book, int index) {
-        NbtList pages = book.getOrCreatePages();
-        if(index < pages.size()) {
-            return Text.Serialization.fromJson(pages.get(index).asString());
-        }
-        return Text.literal("");
+        return getPageContents(book.itemStack, index);
     }
 
 }

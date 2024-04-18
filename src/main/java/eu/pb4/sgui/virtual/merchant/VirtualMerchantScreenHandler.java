@@ -9,6 +9,7 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.village.MerchantInventory;
+import net.minecraft.village.TradedItem;
 
 public class VirtualMerchantScreenHandler extends VirtualScreenHandler {
 
@@ -124,9 +125,9 @@ public class VirtualMerchantScreenHandler extends VirtualScreenHandler {
             }
 
             if (this.merchantInventory.getStack(0).isEmpty() && this.merchantInventory.getStack(1).isEmpty()) {
-                ItemStack itemStack3 = this.merchant.getOffers().get(tradeIndex).getAdjustedFirstBuyItem();
+                ItemStack itemStack3 = this.merchant.getOffers().get(tradeIndex).getDisplayedFirstBuyItem();
                 this.autofill(0, itemStack3);
-                ItemStack itemStack4 = this.merchant.getOffers().get(tradeIndex).getSecondBuyItem();
+                ItemStack itemStack4 = this.merchant.getOffers().get(tradeIndex).getSecondBuyItem().map(TradedItem::itemStack).orElse(ItemStack.EMPTY);
                 this.autofill(1, itemStack4);
             }
 
@@ -137,7 +138,7 @@ public class VirtualMerchantScreenHandler extends VirtualScreenHandler {
         if (!stack.isEmpty()) {
             for(int i = 3; i < 39; ++i) {
                 ItemStack itemStack = this.slots.get(i).getStack();
-                if (!itemStack.isEmpty() && ItemStack.canCombine(stack, itemStack)) {
+                if (!itemStack.isEmpty() && ItemStack.areItemsAndComponentsEqual(stack, itemStack)) {
                     ItemStack itemStack2 = this.merchantInventory.getStack(slot);
                     int j = itemStack2.isEmpty() ? 0 : itemStack2.getCount();
                     int k = Math.min(stack.getMaxCount() - j, itemStack.getCount());
