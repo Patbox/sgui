@@ -60,7 +60,7 @@ public class SGuiTest implements ModInitializer {
 
                 @Override
                 public void onTick() {
-                    this.setSlot(0, new GuiElementBuilder(Items.ARROW).setCount((int) (player.getServerWorld().getTime() % 127)));
+                    this.setSlot(0, new GuiElementBuilder(Items.ARROW).setCount((int) (player.getServerWorld().getTime() % 99999)).setMaxCount(99999));
                     super.onTick();
                 }
 
@@ -71,7 +71,7 @@ public class SGuiTest implements ModInitializer {
             };
 
             gui.setTitle(Text.literal("Nice"));
-            gui.setSlot(0, new GuiElementBuilder(Items.ARROW).setCount(100));
+            gui.setSlot(0, new GuiElementBuilder(Items.ARROW).setCount(2000).setMaxDamage(99999));
             gui.setSlot(1, new AnimatedGuiElement(new ItemStack[]{
                     Items.NETHERITE_PICKAXE.getDefaultStack(),
                     Items.DIAMOND_PICKAXE.getDefaultStack(),
@@ -86,8 +86,8 @@ public class SGuiTest implements ModInitializer {
                     .setItem(Items.NETHERITE_AXE).setDamage(150).saveItemStack()
                     .setItem(Items.DIAMOND_AXE).setDamage(150).unbreakable().saveItemStack()
                     .setItem(Items.GOLDEN_AXE).glow().saveItemStack()
-                    .setItem(Items.IRON_AXE).enchant(Enchantments.AQUA_AFFINITY, 1).hideFlags().saveItemStack()
-                    .setItem(Items.STONE_AXE).saveItemStack()
+                    .setItem(Items.IRON_AXE).enchant(Enchantments.AQUA_AFFINITY, 1).hideDefaultTooltip().saveItemStack()
+                    .setItem(Items.STONE_AXE).noDefaults().saveItemStack()
                     .setItem(Items.WOODEN_AXE).saveItemStack()
                     .setInterval(10).setRandom(true)
             );
@@ -120,12 +120,14 @@ public class SGuiTest implements ModInitializer {
                             .setStyle(Style.EMPTY.withItalic(false).withBold(true)))
                     .addLoreLine(Text.literal("Some lore"))
                     .addLoreLine(Text.literal("More lore").formatted(Formatting.RED))
+                            .hideTooltip()
                     .setCount(3)
                     .setCallback((index, clickType, actionType) -> gui.close())
             );
 
             gui.setSlot(8, new GuiElementBuilder()
                     .setItem(Items.TNT)
+                    .hideDefaultTooltip()
                     .glow()
                     .setName(Text.literal("Test :)")
                             .setStyle(Style.EMPTY.withItalic(false).withBold(true)))
@@ -533,7 +535,7 @@ public class SGuiTest implements ModInitializer {
                     .setItem(Items.NETHERITE_AXE).setDamage(150).saveItemStack()
                     .setItem(Items.DIAMOND_AXE).setDamage(150).unbreakable().saveItemStack()
                     .setItem(Items.GOLDEN_AXE).glow().saveItemStack()
-                    .setItem(Items.IRON_AXE).enchant(Enchantments.AQUA_AFFINITY, 1).hideFlags().saveItemStack()
+                    .setItem(Items.IRON_AXE).enchant(Enchantments.AQUA_AFFINITY, 1).saveItemStack()
                     .setItem(Items.STONE_AXE).saveItemStack()
                     .setItem(Items.WOODEN_AXE).saveItemStack()
                     .setInterval(10).setRandom(true)

@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTextures;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
+import net.minecraft.component.DataComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.component.type.LoreComponent;
@@ -15,6 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
+import net.minecraft.util.Rarity;
 import net.minecraft.util.Unit;
 import org.jetbrains.annotations.Nullable;
 
@@ -98,7 +100,18 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
      * @return this element builder
      */
     public AnimatedGuiElementBuilder setName(Text name) {
-        this.itemStack.set(DataComponentTypes.CUSTOM_NAME, name.copy());
+        this.itemStack.set(DataComponentTypes.ITEM_NAME, name.copy());
+        return this;
+    }
+
+    /**
+     * Sets the rarity of the element.
+     *
+     * @param rarity to use
+     * @return this element builder
+     */
+    public AnimatedGuiElementBuilder setRarity(Rarity rarity) {
+        this.itemStack.set(DataComponentTypes.RARITY, rarity);
         return this;
     }
 
@@ -110,6 +123,17 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
      */
     public AnimatedGuiElementBuilder setCount(int count) {
         this.itemStack.setCount(count);
+        return this;
+    }
+
+    /**
+     * Sets the max number of items in the element.
+     *
+     * @param count the number of items
+     * @return this element builder
+     */
+    public AnimatedGuiElementBuilder setMaxCount(int count) {
+        this.itemStack.set(DataComponentTypes.MAX_STACK_SIZE, count);
         return this;
     }
 
@@ -148,12 +172,53 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
     }
 
     /**
-     * Hides all Tooltips added through this builder from the element display
+     * Set the max damage of the element.
+     *
+     * @param damage the amount of durability the item is missing
+     * @return this element builder
+     */
+    public AnimatedGuiElementBuilder setMaxDamage(int damage) {
+        this.itemStack.set(DataComponentTypes.MAX_DAMAGE, damage);
+        return this;
+    }
+
+    /**
+     * Disables all default components on an item.
+     * @return this element builder
+     */
+    public AnimatedGuiElementBuilder noDefaults() {
+        for (var x : this.itemStack.getItem().getComponents()) {
+            if (this.itemStack.get(x.type()) == x.value()) {
+                this.itemStack.set(x.type(), null);
+            }
+        }
+        return this;
+    }
+
+    @Nullable
+    public <T> T getComponent(DataComponentType<T> type) {
+        return this.itemStack.get(type);
+    }
+
+    public <T> AnimatedGuiElementBuilder setComponent(DataComponentType<T> type, @Nullable T value) {
+        this.itemStack.set(type, value);
+        return this;
+    }
+
+    /**
+     * Hides all component-item related tooltip added by item's or non name/lore components.
      *
      * @return this element builder
      */
-    public AnimatedGuiElementBuilder hideFlags() {
-        // TODO 1.20.5
+    public AnimatedGuiElementBuilder hideDefaultTooltip() {
+        this.itemStack.apply(DataComponentTypes.TRIM, null, comp -> comp != null ? comp.withShowInTooltip(false) : null);
+        this.itemStack.apply(DataComponentTypes.UNBREAKABLE, null, comp -> comp != null ? comp.withShowInTooltip(false) : null);
+        this.itemStack.apply(DataComponentTypes.ENCHANTMENTS, null, comp -> comp != null ? comp.withShowInTooltip(false) : null);
+        this.itemStack.apply(DataComponentTypes.STORED_ENCHANTMENTS, null, comp -> comp != null ? comp.withShowInTooltip(false) : null);
+        this.itemStack.apply(DataComponentTypes.ATTRIBUTE_MODIFIERS, null, comp -> comp != null ? comp.withShowInTooltip(false) : null);
+        this.itemStack.apply(DataComponentTypes.DYED_COLOR, null, comp -> comp != null ? comp.withShowInTooltip(false) : null);
+        this.itemStack.apply(DataComponentTypes.CAN_BREAK, null, comp -> comp != null ? comp.withShowInTooltip(false) : null);
+        this.itemStack.apply(DataComponentTypes.CAN_PLACE_ON, null, comp -> comp != null ? comp.withShowInTooltip(false) : null);
         this.itemStack.set(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
         return this;
     }
@@ -177,6 +242,16 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
      */
     public AnimatedGuiElementBuilder glow() {
         this.itemStack.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
+        return this;
+    }
+
+    /**
+     * Sets the element to have an enchantment glint.
+     *
+     * @return this element builder
+     */
+    public AnimatedGuiElementBuilder glow(boolean value) {
+        this.itemStack.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, value);
         return this;
     }
 

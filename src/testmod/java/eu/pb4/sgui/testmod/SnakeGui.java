@@ -10,6 +10,7 @@ import net.minecraft.component.type.BannerPatternsComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.StringNbtReader;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -29,19 +30,7 @@ public class SnakeGui extends LayeredGui {
         return stack;
     }
 
-
-    static final ItemStack[] NUMBERS = new ItemStack[]{
-        create(new BannerPatternsComponent.Builder().add(BannerPatterns.STRIPE_BOTTOM, DyeColor.WHITE).add(BannerPatterns.STRIPE_LEFT, DyeColor.WHITE).add(BannerPatterns.STRIPE_TOP, DyeColor.WHITE).add(BannerPatterns.STRIPE_RIGHT, DyeColor.WHITE).add(BannerPatterns.STRIPE_DOWNLEFT, DyeColor.WHITE).add(BannerPatterns.BORDER, DyeColor.GRAY).build()),
-        create(new BannerPatternsComponent.Builder().add(BannerPatterns.STRIPE_CENTER, DyeColor.WHITE).add(BannerPatterns.SQUARE_TOP_LEFT, DyeColor.WHITE).add(BannerPatterns.CURLY_BORDER, DyeColor.GRAY).add(BannerPatterns.STRIPE_BOTTOM, DyeColor.WHITE).add(BannerPatterns.BORDER, DyeColor.GRAY).build()),
-        create(new BannerPatternsComponent.Builder().add(BannerPatterns.STRIPE_TOP, DyeColor.WHITE).add(BannerPatterns.RHOMBUS, DyeColor.GRAY).add(BannerPatterns.STRIPE_BOTTOM, DyeColor.WHITE).add(BannerPatterns.STRIPE_DOWNLEFT, DyeColor.WHITE).add(BannerPatterns.BORDER, DyeColor.GRAY).build()),
-        create(new BannerPatternsComponent.Builder().add(BannerPatterns.STRIPE_BOTTOM, DyeColor.WHITE).add(BannerPatterns.STRIPE_MIDDLE, DyeColor.WHITE).add(BannerPatterns.STRIPE_TOP, DyeColor.WHITE).add(BannerPatterns.CURLY_BORDER, DyeColor.GRAY).add(BannerPatterns.STRIPE_RIGHT, DyeColor.WHITE).add(BannerPatterns.BORDER, DyeColor.GRAY).build()),
-        create(new BannerPatternsComponent.Builder().add(BannerPatterns.STRIPE_LEFT, DyeColor.WHITE).add(BannerPatterns.HALF_HORIZONTAL_BOTTOM, DyeColor.GRAY).add(BannerPatterns.STRIPE_RIGHT, DyeColor.WHITE).add(BannerPatterns.STRIPE_MIDDLE, DyeColor.WHITE).add(BannerPatterns.BORDER, DyeColor.GRAY).build()),
-        create(new BannerPatternsComponent.Builder().add(BannerPatterns.STRIPE_BOTTOM, DyeColor.WHITE).add(BannerPatterns.RHOMBUS, DyeColor.GRAY).add(BannerPatterns.STRIPE_TOP, DyeColor.WHITE).add(BannerPatterns.STRIPE_DOWNRIGHT, DyeColor.WHITE).add(BannerPatterns.BORDER, DyeColor.GRAY).build()),
-        create(new BannerPatternsComponent.Builder().add(BannerPatterns.STRIPE_BOTTOM, DyeColor.WHITE).add(BannerPatterns.STRIPE_RIGHT, DyeColor.WHITE).add(BannerPatterns.HALF_HORIZONTAL, DyeColor.GRAY).add(BannerPatterns.STRIPE_MIDDLE, DyeColor.WHITE).add(BannerPatterns.STRIPE_TOP, DyeColor.WHITE).add(BannerPatterns.STRIPE_LEFT, DyeColor.WHITE).add(BannerPatterns.BORDER, DyeColor.GRAY).build()),
-        create(new BannerPatternsComponent.Builder().add(BannerPatterns.STRIPE_DOWNLEFT, DyeColor.WHITE).add(BannerPatterns.STRIPE_TOP, DyeColor.WHITE).add(BannerPatterns.BORDER, DyeColor.GRAY).build()),
-        create(new BannerPatternsComponent.Builder().add(BannerPatterns.STRIPE_DOWNLEFT, DyeColor.WHITE).add(BannerPatterns.STRIPE_TOP, DyeColor.WHITE).add(BannerPatterns.BORDER, DyeColor.GRAY).build()),
-        create(new BannerPatternsComponent.Builder().add(BannerPatterns.STRIPE_LEFT, DyeColor.WHITE).add(BannerPatterns.HALF_HORIZONTAL_BOTTOM, DyeColor.GRAY).add(BannerPatterns.STRIPE_MIDDLE, DyeColor.WHITE).add(BannerPatterns.STRIPE_TOP, DyeColor.WHITE).add(BannerPatterns.STRIPE_RIGHT, DyeColor.WHITE).add(BannerPatterns.STRIPE_BOTTOM, DyeColor.WHITE).add(BannerPatterns.BORDER, DyeColor.GRAY).build()),
-    };
+    final ItemStack[] NUMBERS;
 
     final Layer gameplayLayer;
     final Layer scoreLayer;
@@ -65,6 +54,21 @@ public class SnakeGui extends LayeredGui {
     public SnakeGui(ServerPlayerEntity player) {
         super(ScreenHandlerType.GENERIC_9X6, player, true);
         this.setTitle(Text.literal("SGui Snake"));
+        
+        var reg = player.getRegistryManager().get(RegistryKeys.BANNER_PATTERN);
+        
+        NUMBERS = new ItemStack[]{
+                create(new BannerPatternsComponent.Builder().add(reg.getEntry(BannerPatterns.STRIPE_BOTTOM).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.STRIPE_LEFT).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.STRIPE_RIGHT).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.STRIPE_DOWNLEFT).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
+                create(new BannerPatternsComponent.Builder().add(reg.getEntry(BannerPatterns.STRIPE_CENTER).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.SQUARE_TOP_LEFT).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.CURLY_BORDER).orElseThrow(), DyeColor.GRAY).add(reg.getEntry(BannerPatterns.STRIPE_BOTTOM).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
+                create(new BannerPatternsComponent.Builder().add(reg.getEntry(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.RHOMBUS).orElseThrow(), DyeColor.GRAY).add(reg.getEntry(BannerPatterns.STRIPE_BOTTOM).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.STRIPE_DOWNLEFT).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
+                create(new BannerPatternsComponent.Builder().add(reg.getEntry(BannerPatterns.STRIPE_BOTTOM).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.STRIPE_MIDDLE).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.CURLY_BORDER).orElseThrow(), DyeColor.GRAY).add(reg.getEntry(BannerPatterns.STRIPE_RIGHT).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
+                create(new BannerPatternsComponent.Builder().add(reg.getEntry(BannerPatterns.STRIPE_LEFT).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.HALF_HORIZONTAL_BOTTOM).orElseThrow(), DyeColor.GRAY).add(reg.getEntry(BannerPatterns.STRIPE_RIGHT).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.STRIPE_MIDDLE).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
+                create(new BannerPatternsComponent.Builder().add(reg.getEntry(BannerPatterns.STRIPE_BOTTOM).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.RHOMBUS).orElseThrow(), DyeColor.GRAY).add(reg.getEntry(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.STRIPE_DOWNRIGHT).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
+                create(new BannerPatternsComponent.Builder().add(reg.getEntry(BannerPatterns.STRIPE_BOTTOM).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.STRIPE_RIGHT).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.HALF_HORIZONTAL).orElseThrow(), DyeColor.GRAY).add(reg.getEntry(BannerPatterns.STRIPE_MIDDLE).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.STRIPE_LEFT).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
+                create(new BannerPatternsComponent.Builder().add(reg.getEntry(BannerPatterns.STRIPE_DOWNLEFT).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
+                create(new BannerPatternsComponent.Builder().add(reg.getEntry(BannerPatterns.STRIPE_DOWNLEFT).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
+                create(new BannerPatternsComponent.Builder().add(reg.getEntry(BannerPatterns.STRIPE_LEFT).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.HALF_HORIZONTAL_BOTTOM).orElseThrow(), DyeColor.GRAY).add(reg.getEntry(BannerPatterns.STRIPE_MIDDLE).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.STRIPE_RIGHT).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.STRIPE_BOTTOM).orElseThrow(), DyeColor.WHITE).add(reg.getEntry(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
+        };
 
         Layer controller = new Layer(3, 3);
         this.controller = controller;

@@ -73,7 +73,11 @@ public class BookElementBuilder extends GuiElementBuilder {
     }
 
     public BookElementBuilder addPage(Text text) {
-        this.getOrCreatePages().add(NbtString.of(Text.Serialization.toJsonString(text)));
+        this.itemStack.apply(DataComponentTypes.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT, original -> {
+            List<RawFilteredPair<Text>> updatedPages = new LinkedList<>(original.pages());
+            updatedPages.add(RawFilteredPair.of(text));
+            return new WrittenBookContentComponent(original.title(), original.author(), original.generation(), updatedPages, original.resolved());
+        });
         return this;
     }
 
@@ -101,7 +105,11 @@ public class BookElementBuilder extends GuiElementBuilder {
     }
 
     public BookElementBuilder setPage(int index, Text text) {
-        this.getOrCreatePages().set(index, NbtString.of(Text.Serialization.toJsonString(text)));
+        this.itemStack.apply(DataComponentTypes.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT, original -> {
+            List<RawFilteredPair<Text>> updatedPages = new LinkedList<>(original.pages());
+            updatedPages.set(index, RawFilteredPair.of(text));
+            return new WrittenBookContentComponent(original.title(), original.author(), original.generation(), updatedPages, original.resolved());
+        });
         return this;
     }
 

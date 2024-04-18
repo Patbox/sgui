@@ -123,7 +123,7 @@ public interface SlotGuiInterface extends SlotHolder, GuiInterface {
                 slot = this.getSlotRedirectOrPlayer(i);
                 if (slot != null && slot.canInsert(stack)) {
                     itemStack = slot.getStack();
-                    if (!itemStack.isEmpty() && ItemStack.canCombine(stack, itemStack)) {
+                    if (!itemStack.isEmpty() && ItemStack.areItemsAndComponentsEqual(stack, itemStack)) {
                         int j = itemStack.getCount() + stack.getCount();
                         if (j <= stack.getMaxCount()) {
                             stack.setCount(0);
