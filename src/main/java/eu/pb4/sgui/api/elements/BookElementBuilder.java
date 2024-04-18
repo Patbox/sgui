@@ -72,6 +72,11 @@ public class BookElementBuilder extends GuiElementBuilder {
         return this;
     }
 
+    public BookElementBuilder addPage(Text text) {
+        this.getOrCreatePages().add(NbtString.of(Text.Serialization.toJsonString(text)));
+        return this;
+    }
+
     /**
      * Sets a page of the book. <br>
      * Note that only signed books support formatting
@@ -92,7 +97,11 @@ public class BookElementBuilder extends GuiElementBuilder {
             updatedPages.set(index, RawFilteredPair.of(text));
             return new WrittenBookContentComponent(original.title(), original.author(), original.generation(), updatedPages, original.resolved());
         });
+        return this;
+    }
 
+    public BookElementBuilder setPage(int index, Text text) {
+        this.getOrCreatePages().set(index, NbtString.of(Text.Serialization.toJsonString(text)));
         return this;
     }
 
@@ -153,9 +162,6 @@ public class BookElementBuilder extends GuiElementBuilder {
 
     @Override
     public GuiElementBuilder setItem(Item item) {
-        if (!(item.getRegistryEntry().isIn(ItemTags.LECTERN_BOOKS))) {
-            throw new IllegalArgumentException("Item must be a type of book");
-        }
         return super.setItem(item);
     }
 
@@ -205,9 +211,6 @@ public class BookElementBuilder extends GuiElementBuilder {
      */
     @Deprecated
     public static Text getPageContents(ItemStack book, int index) {
-        if (!book.getItem().getRegistryEntry().isIn(ItemTags.LECTERN_BOOKS)) {
-            throw new IllegalArgumentException("Item must be a type of book");
-        }
         WrittenBookContentComponent component = book.getOrDefault(DataComponentTypes.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT);
         if (index < component.pages().size()) {
             return component.pages().get(index).raw();

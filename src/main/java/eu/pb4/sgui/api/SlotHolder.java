@@ -5,6 +5,7 @@ import eu.pb4.sgui.api.elements.GuiElementBuilderInterface;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings({"unused"})
 public interface SlotHolder {
@@ -199,6 +200,7 @@ public interface SlotHolder {
      * @return the element or <code>null</code> if empty
      * @see SlotHolder#getSlotRedirect(int)
      */
+    @Nullable
     GuiElementInterface getSlot(int index);
 
     /**
@@ -208,6 +210,7 @@ public interface SlotHolder {
      * @return the element or <code>null</code> if no redirect
      * @see SlotHolder#getSlot(int)
      */
+    @Nullable
     Slot getSlotRedirect(int index);
 
     /**

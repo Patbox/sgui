@@ -33,7 +33,7 @@ public class HotbarScreenHandler extends VirtualScreenHandler {
             if (slot != null) {
                 this.addSlot(slot);
             } else {
-                this.addSlot(new VirtualSlot(inventory, nR, 0, 0));
+                this.addSlot(new VirtualSlot(this.getGui(), nR, 0, 0));
             }
         }
     }
@@ -73,7 +73,7 @@ public class HotbarScreenHandler extends VirtualScreenHandler {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            this.getGui().handleException(e);
         }
     }
 }
