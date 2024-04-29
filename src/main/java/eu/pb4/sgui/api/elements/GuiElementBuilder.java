@@ -30,8 +30,8 @@ import java.util.*;
  *
  * @see GuiElementBuilderInterface
  */
-@SuppressWarnings({"unused", "rawtypes"})
-public class GuiElementBuilder implements GuiElementBuilderInterface {
+@SuppressWarnings({"unused"})
+public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementBuilder> {
     protected ItemStack itemStack = new ItemStack(Items.STONE);
     protected GuiElement.ClickCallback callback = GuiElementInterface.EMPTY_CALLBACK;
 
@@ -345,13 +345,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface {
     }
 
     @Override
-    public GuiElementBuilder setCallback(GuiElement.ClickCallback callback) {
-        this.callback = callback;
-        return this;
-    }
-
-    @Override
-    public GuiElementBuilder setCallback(GuiElementInterface.ItemClickCallback callback) {
+    public GuiElementBuilder setCallback(GuiElementInterface.ClickCallback callback) {
         this.callback = callback;
         return this;
     }
