@@ -343,9 +343,15 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
         this.itemStack.set(DataComponentTypes.PROFILE, new ProfileComponent(Optional.empty(), Optional.ofNullable(uuid), map));
         return this;
     }
+    
+    @Override
+    public GuiElementBuilder setCallback(GuiElement.ClickCallback callback) {
+        this.callback = callback;
+        return this;
+    }
 
     @Override
-    public GuiElementBuilder setCallback(GuiElementInterface.ClickCallback callback) {
+    public GuiElementBuilder setCallback(GuiElementInterface.ItemClickCallback callback) {
         this.callback = callback;
         return this;
     }
