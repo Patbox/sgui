@@ -181,7 +181,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
     private void sgui$catchRecipeRequests(CraftRequestC2SPacket packet, CallbackInfo ci) {
         if (this.player.currentScreenHandler instanceof VirtualScreenHandler handler && handler.getGui() instanceof SimpleGui gui) {
             try {
-                gui.onCraftRequest(packet.getRecipe(), packet.shouldCraftAll());
+                gui.onCraftRequest(packet.getRecipeId(), packet.shouldCraftAll());
             } catch (Throwable e) {
                 handler.getGui().handleException(e);
             }

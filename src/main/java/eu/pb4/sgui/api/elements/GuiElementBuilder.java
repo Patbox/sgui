@@ -4,7 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTextures;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
-import net.minecraft.component.DataComponentType;
+import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.component.type.LoreComponent;
@@ -14,6 +14,10 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Rarity;
@@ -200,11 +204,11 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
     }
 
     @Nullable
-    public <T> T getComponent(DataComponentType<T> type) {
+    public <T> T getComponent(ComponentType<T> type) {
         return this.itemStack.get(type);
     }
 
-    public <T> GuiElementBuilder setComponent(DataComponentType<T> type, @Nullable T value) {
+    public <T> GuiElementBuilder setComponent(ComponentType<T> type, @Nullable T value) {
         this.itemStack.set(type, value);
         return this;
     }
@@ -243,9 +247,33 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      * @param level       the level of the specified enchantment
      * @return this element builder
      */
-    public GuiElementBuilder enchant(Enchantment enchantment, int level) {
+    public GuiElementBuilder enchant(RegistryEntry<Enchantment> enchantment, int level) {
         this.itemStack.addEnchantment(enchantment, level);
         return this;
+    }
+
+    /**
+     * Give the element the specified enchantment.
+     *
+     * @param server MinecraftServer
+     * @param enchantment the enchantment to apply
+     * @param level       the level of the specified enchantment
+     * @return this element builder
+     */
+    public GuiElementBuilder enchant(MinecraftServer server, RegistryKey<Enchantment> enchantment, int level) {
+        return enchant(server.getRegistryManager(), enchantment, level);
+    }
+
+    /**
+     * Give the element the specified enchantment.
+     *
+     * @param lookup WrapperLookup
+     * @param enchantment the enchantment to apply
+     * @param level       the level of the specified enchantment
+     * @return this element builder
+     */
+    public GuiElementBuilder enchant(RegistryWrapper.WrapperLookup lookup, RegistryKey<Enchantment> enchantment, int level) {
+        return enchant(lookup.getWrapperOrThrow(RegistryKeys.ENCHANTMENT).getOrThrow(enchantment), level);
     }
 
     /**
