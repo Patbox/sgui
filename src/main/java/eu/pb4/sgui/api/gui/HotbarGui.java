@@ -136,11 +136,11 @@ public class HotbarGui extends BaseSlotGui {
     /**
      * It's run after player changes selected slot. It can also block switching by returning false
      *
-     * @param slot new selected slot
+     * @param slot the newly selected slot
      * @return true to allow or false for canceling switching
      */
     public boolean onSelectedSlotChange(int slot) {
-        this.setSelectedSlot(slot);
+        this.selectedSlot = MathHelper.clamp(slot, 0, 8);
         return true;
     }
 
