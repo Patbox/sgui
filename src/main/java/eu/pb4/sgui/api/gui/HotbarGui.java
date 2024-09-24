@@ -101,7 +101,10 @@ public class HotbarGui extends BaseSlotGui {
 
     @Override
     public boolean click(int index, ClickType type, SlotActionType action) {
-        return super.click(VANILLA_TO_GUI_IDS[index], type, action);
+        if (index >= 0 && index < SIZE) {
+            return super.click(VANILLA_TO_GUI_IDS[index], type, action);
+        }
+        return super.click(index, type, action);
     }
 
     @Override
