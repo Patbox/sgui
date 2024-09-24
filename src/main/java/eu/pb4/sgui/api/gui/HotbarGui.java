@@ -108,9 +108,9 @@ public class HotbarGui extends BaseSlotGui {
     }
 
     @Override
-    public int getHotbarSlotIndex(int index) {
+    public int getHotbarSlotIndex(int slots, int index) {
         // We add the offhand before the inventory, so we need to shift by -1
-        return super.getHotbarSlotIndex(index) - 1;
+        return super.getHotbarSlotIndex(slots, index) - 1;
     }
 
     @Override

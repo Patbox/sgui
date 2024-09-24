@@ -81,14 +81,18 @@ public class HotbarScreenHandler extends VirtualScreenHandler {
     @ApiStatus.Internal
     public void syncSelectedSlot() {
         var gui = this.getGui();
-        int index = gui.getHotbarSlotIndex(gui.getSelectedSlot());
-        GuiHelpers.sendSlotUpdate(gui.getPlayer(), this.syncId, index, this.getSlot(index).getStack(), this.nextRevision());
+        if (gui.isOpen()) {
+            int index = gui.getHotbarSlotIndex(this.slots.size(), gui.getSelectedSlot());
+            GuiHelpers.sendSlotUpdate(gui.getPlayer(), this.syncId, index, this.getSlot(index).getStack(), this.nextRevision());
+        }
     }
 
     @ApiStatus.Internal
     public void syncOffhandSlot() {
         var gui = this.getGui();
-        int index = gui.getOffhandSlotIndex();
-        GuiHelpers.sendSlotUpdate(gui.getPlayer(), this.syncId, index, this.getSlot(index).getStack(), this.nextRevision());
+        if (gui.isOpen()) {
+            int index = gui.getOffhandSlotIndex();
+            GuiHelpers.sendSlotUpdate(gui.getPlayer(), this.syncId, index, this.getSlot(index).getStack(), this.nextRevision());
+        }
     }
 }

@@ -68,6 +68,10 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
                 if (ignore && !handler.getGui().getLockPlayerInventory() && (slot >= handler.getGui().getSize() || slot < 0 || handler.getGui().getSlotRedirect(slot) != null)) {
                     if (type == ClickType.MOUSE_DOUBLE_CLICK || (type.isDragging && type.value == 2)) {
                         GuiHelpers.sendPlayerScreenHandler(this.player);
+                    } else if (type == ClickType.OFFHAND_SWAP) {
+                        int index = handler.getGui().getOffhandSlotIndex();
+                        ItemStack updated = index >= 0 ? handler.getSlot(index).getStack() : ItemStack.EMPTY;
+                        GuiHelpers.sendSlotUpdate(this.player, -2, PlayerInventory.OFF_HAND_SLOT, updated, handler.getRevision());
                     }
 
                     return;
@@ -82,7 +86,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
                         GuiHelpers.sendSlotUpdate(this.player, -1, -1, this.player.currentScreenHandler.getCursorStack(), handler.getRevision());
 
                         if (type.numKey) {
-                            int index = handler.getGui().getHotbarSlotIndex(type.value - 1);
+                            int index = handler.getGui().getHotbarSlotIndex(handler.slots.size(), type.value - 1);
                             GuiHelpers.sendSlotUpdate(this.player, handler.syncId, index, handler.getSlot(index).getStack(), handler.nextRevision());
                         } else if (type == ClickType.OFFHAND_SWAP) {
                             int index = handler.getGui().getOffhandSlotIndex();

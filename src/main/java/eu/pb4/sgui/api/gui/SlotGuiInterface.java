@@ -69,11 +69,12 @@ public interface SlotGuiInterface extends SlotHolder, GuiInterface {
     /**
      * Maps a hotbar index into a slot index.
      *
+     * @param slots The number of slots in the screen handler.
      * @param index The hotbar index, this should be [0-8]
      * @return The mapped slot index
      */
-    default int getHotbarSlotIndex(int index) {
-        return this.getSize() + index - 9;
+    default int getHotbarSlotIndex(int slots, int index) {
+        return slots + index - 9;
     }
 
     /**
