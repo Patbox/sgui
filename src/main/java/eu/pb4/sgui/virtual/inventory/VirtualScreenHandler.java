@@ -1,5 +1,6 @@
 package eu.pb4.sgui.virtual.inventory;
 
+import eu.pb4.sgui.api.GuiHelpers;
 import eu.pb4.sgui.api.gui.SlotGuiInterface;
 import eu.pb4.sgui.virtual.VirtualScreenHandlerInterface;
 import net.minecraft.entity.player.PlayerEntity;
@@ -59,6 +60,15 @@ public class VirtualScreenHandler extends ScreenHandler implements VirtualScreen
     public void addListener(ScreenHandlerListener listener) {
         super.addListener(listener);
         this.gui.afterOpen();
+    }
+
+    @Override
+    public void syncState() {
+        super.syncState();
+        // We have to manually sync offhand state
+        int index = this.getGui().getOffhandSlotIndex();
+        ItemStack updated = index >= 0 ? this.getSlot(index).getStack() : ItemStack.EMPTY;
+        GuiHelpers.sendSlotUpdate(this.gui.getPlayer(), -2, PlayerInventory.OFF_HAND_SLOT, updated, this.getRevision());
     }
 
     @Override

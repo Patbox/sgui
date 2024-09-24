@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.util.collection.DefaultedList;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 public class HotbarScreenHandler extends VirtualScreenHandler {
@@ -75,5 +76,19 @@ public class HotbarScreenHandler extends VirtualScreenHandler {
         } catch (Exception e) {
             this.getGui().handleException(e);
         }
+    }
+
+    @ApiStatus.Internal
+    public void syncSelectedSlot() {
+        var gui = this.getGui();
+        int index = gui.getHotbarSlotIndex(gui.getSelectedSlot());
+        GuiHelpers.sendSlotUpdate(gui.getPlayer(), this.syncId, index, this.getSlot(index).getStack(), this.nextRevision());
+    }
+
+    @ApiStatus.Internal
+    public void syncOffhandSlot() {
+        var gui = this.getGui();
+        int index = gui.getOffhandSlotIndex();
+        GuiHelpers.sendSlotUpdate(gui.getPlayer(), this.syncId, index, this.getSlot(index).getStack(), this.nextRevision());
     }
 }

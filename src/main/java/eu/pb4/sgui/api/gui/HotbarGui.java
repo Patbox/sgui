@@ -108,6 +108,17 @@ public class HotbarGui extends BaseSlotGui {
     }
 
     @Override
+    public int getHotbarSlotIndex(int index) {
+        // We add the offhand before the inventory, so we need to shift by -1
+        return super.getHotbarSlotIndex(index) - 1;
+    }
+
+    @Override
+    public int getOffhandSlotIndex() {
+        return 9;
+    }
+
+    @Override
     public boolean open() {
         if (this.player.isDisconnected() || this.isOpen()) {
             return false;
