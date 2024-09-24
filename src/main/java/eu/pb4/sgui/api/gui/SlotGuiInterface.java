@@ -22,6 +22,7 @@ public interface SlotGuiInterface extends SlotHolder, GuiInterface {
     int getSize();
 
     boolean getLockPlayerInventory();
+
     void setLockPlayerInventory(boolean value);
 
     /**
@@ -62,6 +63,27 @@ public interface SlotGuiInterface extends SlotHolder, GuiInterface {
      */
     default boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element) {
         return false;
+    }
+
+
+    /**
+     * Maps a hotbar index into a slot index.
+     *
+     * @param slots The number of slots in the screen handler.
+     * @param index The hotbar index, this should be [0-8]
+     * @return The mapped slot index
+     */
+    default int getHotbarSlotIndex(int slots, int index) {
+        return slots + index - 9;
+    }
+
+    /**
+     * Gets the offhand slot index
+     *
+     * @return The offhand slot index
+     */
+    default int getOffhandSlotIndex() {
+        return -1;
     }
 
     @Nullable

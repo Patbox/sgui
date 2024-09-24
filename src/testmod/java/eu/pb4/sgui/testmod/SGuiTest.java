@@ -14,6 +14,7 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.block.Blocks;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.enchantment.Enchantments;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.WrittenBookItem;
@@ -648,6 +649,57 @@ public class SGuiTest implements ModInitializer {
         return 0;
     }
 
+    private static int test12(CommandContext<ServerCommandSource> objectCommandContext) {
+        try {
+            var player = objectCommandContext.getSource().getPlayerOrThrow();
+            player.sendMessage(
+                Text.literal("Pickaxe should *only* be able to be swapped only to offhand, both in and out of inventory gui")
+            );
+
+            var hotbar = new HotbarGui(player);
+            var elements = new GuiElement[1];
+            elements[0] = new GuiElement(new ItemStack(Items.GOLDEN_PICKAXE), (a, type, c, gui) -> {
+                if (type != ClickType.OFFHAND_SWAP) {
+                    return;
+                }
+                var offhand = gui.getSlot(9);
+                if (offhand == null || offhand.getItemStack().isEmpty()) {
+                    gui.setSlot(9, elements[0].getItemStack());
+                    elements[0].setItemStack(ItemStack.EMPTY);
+                } else if (elements[0].getItemStack().isEmpty()) {
+                    elements[0].setItemStack(offhand.getItemStack());
+                    gui.setSlot(9, ItemStack.EMPTY);
+                }
+            });
+            hotbar.setSlot(0, elements[0]);
+            hotbar.open();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    private static int test13(CommandContext<ServerCommandSource> objectCommandContext) {
+        try {
+            var player = objectCommandContext.getSource().getPlayerOrThrow();
+            player.getInventory().setStack(PlayerInventory.OFF_HAND_SLOT, new ItemStack(Items.DIAMOND));
+
+            var stack = new ItemStack(Items.GOLDEN_PICKAXE);
+            stack.set(
+                DataComponentTypes.CUSTOM_NAME,
+                Text.literal("Can't swap to offhand")
+            );
+
+            var gui = new SimpleGui(ScreenHandlerType.GENERIC_9X3, player, true);
+            gui.setTitle(Text.literal("Offhand item should be invisible in gui"));
+            gui.setSlot(0, stack);
+            gui.open();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     private static int snake(CommandContext<ServerCommandSource> objectCommandContext) {
         try {
             ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
@@ -660,7 +712,7 @@ public class SGuiTest implements ModInitializer {
     }
 
 
-        public void onInitialize() {
+    public void onInitialize() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(
                     literal("test").executes(SGuiTest::test)
@@ -694,6 +746,12 @@ public class SGuiTest implements ModInitializer {
             );
             dispatcher.register(
                     literal("test11").executes(SGuiTest::test11)
+            );
+            dispatcher.register(
+                    literal("test12").executes(SGuiTest::test12)
+            );
+            dispatcher.register(
+                    literal("test13").executes(SGuiTest::test13)
             );
             dispatcher.register(
                     literal("snake").executes(SGuiTest::snake)
