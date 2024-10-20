@@ -20,6 +20,7 @@ import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
 import net.minecraft.util.Unit;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +37,7 @@ import java.util.*;
  */
 @SuppressWarnings({"unused"})
 public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementBuilder> {
-    protected ItemStack itemStack = new ItemStack(Items.STONE);
+    protected ItemStack itemStack = new ItemStack(Items.WHITE_DYE);
     protected GuiElement.ClickCallback callback = GuiElementInterface.EMPTY_CALLBACK;
 
     /**
@@ -52,6 +53,15 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      */
     public GuiElementBuilder(Item item) {
         this.itemStack = new ItemStack(item);
+    }
+
+    /**
+     * Constructs a GuiElementBuilder with the specified item model.
+     *
+     * @param model Item model to use. Same as calling model(...).
+     */
+    public GuiElementBuilder(Identifier model) {
+        this.model(model);
     }
 
     /**
@@ -273,7 +283,7 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      * @return this element builder
      */
     public GuiElementBuilder enchant(RegistryWrapper.WrapperLookup lookup, RegistryKey<Enchantment> enchantment, int level) {
-        return enchant(lookup.getWrapperOrThrow(RegistryKeys.ENCHANTMENT).getOrThrow(enchantment), level);
+        return enchant(lookup.getOrThrow(RegistryKeys.ENCHANTMENT).getOrThrow(enchantment), level);
     }
 
     /**
@@ -304,6 +314,22 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      */
     public GuiElementBuilder setCustomModelData(int value) {
         this.itemStack.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(value));
+        return this;
+    }
+
+    /**
+     * Sets the model of the element.
+     *
+     * @param model model to display item as
+     * @return this element builder
+     */
+    public GuiElementBuilder model(Identifier model) {
+        this.itemStack.set(DataComponentTypes.ITEM_MODEL, model);
+        return this;
+    }
+
+    public GuiElementBuilder model(Item model) {
+        this.itemStack.set(DataComponentTypes.ITEM_MODEL, model.getComponents().get(DataComponentTypes.ITEM_MODEL));
         return this;
     }
 

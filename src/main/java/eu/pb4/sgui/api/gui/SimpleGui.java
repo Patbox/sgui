@@ -11,12 +11,12 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.OpenScreenS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerPropertyUpdateS2CPacket;
+import net.minecraft.recipe.NetworkRecipeId;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 
 import java.util.OptionalInt;
 
@@ -187,7 +187,7 @@ public class SimpleGui extends BaseSlotGui {
      * @param recipe the selected recipe identifier
      * @param shift  is shift was held
      */
-    public void onCraftRequest(Identifier recipe, boolean shift) {
+    public void onCraftRequest(NetworkRecipeId recipe, boolean shift) {
     }
 
     @Override

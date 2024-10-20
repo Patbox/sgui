@@ -13,13 +13,17 @@ import eu.pb4.sgui.virtual.hotbar.HotbarScreenHandler;
 import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
 import eu.pb4.sgui.virtual.merchant.VirtualMerchantScreenHandler;
 import io.netty.buffer.Unpooled;
-import net.minecraft.entity.player.PlayerInventory;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.message.LastSeenMessageList;
 import net.minecraft.network.packet.c2s.play.*;
-import net.minecraft.network.packet.s2c.play.*;
+import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.OpenScreenS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlayerActionResponseS2CPacket;
+import net.minecraft.network.packet.s2c.play.UpdateSelectedSlotS2CPacket;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.filter.FilteredMessage;
@@ -42,14 +46,12 @@ import java.util.Optional;
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkHandler {
 
-    @Unique
-    private boolean sgui$bookIgnoreClose = false;
-
-    @Unique
-    private ScreenHandler sgui$previousScreen = null;
-
     @Shadow
     public ServerPlayerEntity player;
+    @Unique
+    private boolean sgui$bookIgnoreClose = false;
+    @Unique
+    private ScreenHandler sgui$previousScreen = null;
 
     public ServerPlayNetworkHandlerMixin(MinecraftServer server, ClientConnection connection, ConnectedClientData clientData) {
         super(server, connection, clientData);
@@ -60,47 +62,36 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
         if (this.player.currentScreenHandler instanceof VirtualScreenHandler handler) {
             try {
                 var gui = handler.getGui();
-
                 int slot = packet.getSlot();
                 int button = packet.getButton();
+
                 ClickType type = ClickType.toClickType(packet.getActionType(), button, slot);
                 boolean ignore = gui.onAnyClick(slot, type, packet.getActionType());
                 if (ignore && !handler.getGui().getLockPlayerInventory() && (slot >= handler.getGui().getSize() || slot < 0 || handler.getGui().getSlotRedirect(slot) != null)) {
-                    if (type == ClickType.MOUSE_DOUBLE_CLICK || (type.isDragging && type.value == 2)) {
-                        GuiHelpers.sendPlayerScreenHandler(this.player);
-                    } else if (type == ClickType.OFFHAND_SWAP) {
-                        int index = handler.getGui().getOffhandSlotIndex();
-                        ItemStack updated = index >= 0 ? handler.getSlot(index).getStack() : ItemStack.EMPTY;
-                        GuiHelpers.sendSlotUpdate(this.player, -2, PlayerInventory.OFF_HAND_SLOT, updated, handler.getRevision());
-                    }
-
                     return;
                 }
 
-                boolean allow = gui.click(slot, type, packet.getActionType());
-                if (handler.getGui().isOpen()) {
-                    if (!allow) {
-                        if (slot >= 0 && slot < handler.getGui().getSize()) {
-                            this.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(handler.syncId, handler.nextRevision(), slot, handler.getSlot(slot).getStack()));
-                        }
-                        GuiHelpers.sendSlotUpdate(this.player, -1, -1, this.player.currentScreenHandler.getCursorStack(), handler.getRevision());
+                this.player.currentScreenHandler.disableSyncing();
+                boolean bl = packet.getRevision() != this.player.currentScreenHandler.getRevision();
 
-                        if (type.numKey) {
-                            int index = handler.getGui().getHotbarSlotIndex(handler.slots.size(), type.value - 1);
-                            GuiHelpers.sendSlotUpdate(this.player, handler.syncId, index, handler.getSlot(index).getStack(), handler.nextRevision());
-                        } else if (type == ClickType.OFFHAND_SWAP) {
-                            int index = handler.getGui().getOffhandSlotIndex();
-                            ItemStack updated = index >= 0 ? handler.getSlot(index).getStack() : ItemStack.EMPTY;
-                            GuiHelpers.sendSlotUpdate(this.player, -2, PlayerInventory.OFF_HAND_SLOT, updated, handler.getRevision());
-                        } else if (type == ClickType.MOUSE_DOUBLE_CLICK || type == ClickType.MOUSE_LEFT_SHIFT || type == ClickType.MOUSE_RIGHT_SHIFT || (type.isDragging && type.value == 2)) {
-                            GuiHelpers.sendPlayerScreenHandler(this.player);
-                        }
-                    }
+                for (Int2ObjectMap.Entry<ItemStack> entry : Int2ObjectMaps.fastIterable(packet.getModifiedStacks())) {
+                    this.player.currentScreenHandler.setPreviousTrackedSlotMutable(entry.getIntKey(), entry.getValue());
                 }
 
+                this.player.currentScreenHandler.setPreviousCursorStack(packet.getStack());
+
+                boolean allow = gui.click(slot, type, packet.getActionType());
+
+                this.player.currentScreenHandler.enableSyncing();
+                if (allow) {
+                    if (bl) {
+                        this.player.currentScreenHandler.updateToClient();
+                    } else {
+                        this.player.currentScreenHandler.sendContentUpdates();
+                    }
+                }
             } catch (Throwable e) {
                 handler.getGui().handleException(e);
-                ci.cancel();
             }
 
             ci.cancel();
@@ -190,7 +181,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
     private void sgui$catchRecipeRequests(CraftRequestC2SPacket packet, CallbackInfo ci) {
         if (this.player.currentScreenHandler instanceof VirtualScreenHandler handler && handler.getGui() instanceof SimpleGui gui) {
             try {
-                gui.onCraftRequest(packet.getRecipeId(), packet.shouldCraftAll());
+                gui.onCraftRequest(packet.recipeId(), packet.craftAll());
             } catch (Throwable e) {
                 handler.getGui().handleException(e);
             }
@@ -271,7 +262,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
                 var pos = packet.getBlockHitResult().getBlockPos();
                 handler.syncSelectedSlot();
 
-                this.sendPacket(new BlockUpdateS2CPacket(pos, this.player. getServerWorld().getBlockState(pos)));
+                this.sendPacket(new BlockUpdateS2CPacket(pos, this.player.getServerWorld().getBlockState(pos)));
                 pos = pos.offset(packet.getBlockHitResult().getSide());
                 this.sendPacket(new BlockUpdateS2CPacket(pos, this.player.getServerWorld().getBlockState(pos)));
                 this.sendPacket(new PlayerActionResponseS2CPacket(packet.getSequence()));
@@ -307,7 +298,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkH
         if (this.player.currentScreenHandler instanceof HotbarScreenHandler handler) {
             var gui = handler.getGui();
             var buf = new PacketByteBuf(Unpooled.buffer());
-            ((PlayerInteractEntityC2SPacketAccessor)packet).invokeWrite(buf);
+            ((PlayerInteractEntityC2SPacketAccessor) packet).invokeWrite(buf);
 
             int entityId = buf.readVarInt();
             var type = buf.readEnumConstant(HotbarGui.EntityInteraction.class);

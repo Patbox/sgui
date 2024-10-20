@@ -17,9 +17,7 @@ import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.item.WrittenBookItem;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.recipe.NetworkRecipeId;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.screen.slot.Slot;
@@ -29,7 +27,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.*;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.village.TradeOffer;
@@ -293,7 +290,7 @@ public class SGuiTest implements ModInitializer {
             ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
             SimpleGui gui = new SimpleGui(ScreenHandlerType.CRAFTING, player, false) {
                 @Override
-                public void onCraftRequest(Identifier recipeId, boolean shift) {
+                public void onCraftRequest(NetworkRecipeId recipeId, boolean shift) {
                     super.onCraftRequest(recipeId, shift);
                     this.player.sendMessage(Text.literal(recipeId.toString() + " - " + shift), false);
                 }
