@@ -118,6 +118,17 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      * @return this element builder
      */
     public GuiElementBuilder setName(Text name) {
+        this.itemStack.set(DataComponentTypes.CUSTOM_NAME, name.copy().styled(GuiHelpers.STYLE_CLEARER));
+        return this;
+    }
+
+    /**
+     * Sets the item name of the element.
+     *
+     * @param name the name to use
+     * @return this element builder
+     */
+    public GuiElementBuilder setItemName(Text name) {
         this.itemStack.set(DataComponentTypes.ITEM_NAME, name.copy());
         return this;
     }
@@ -234,6 +245,9 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      */
     public GuiElementBuilder noDefaults() {
         for (var x : this.itemStack.getItem().getComponents()) {
+            if (x.type() == DataComponentTypes.ITEM_MODEL) {
+                continue;
+            }
             if (this.itemStack.get(x.type()) == x.value()) {
                 this.itemStack.set(x.type(), null);
             }

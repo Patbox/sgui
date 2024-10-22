@@ -7,6 +7,7 @@ import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
 import eu.pb4.sgui.virtual.inventory.VirtualSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.s2c.play.SetPlayerInventoryS2CPacket;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.util.collection.DefaultedList;
@@ -41,9 +42,9 @@ public class HotbarScreenHandler extends VirtualScreenHandler {
 
     @Override
     public void sendContentUpdates() {
-        try {
+        super.sendContentUpdates();
+        /*try {
             this.getGui().onTick();
-
             if (this.getGui().isOpen()) {
                 if (this.slotsOld == null) {
                     this.slotsOld = DefaultedList.ofSize(this.slots.size(), ItemStack.EMPTY);
@@ -55,9 +56,11 @@ public class HotbarScreenHandler extends VirtualScreenHandler {
                         ItemStack itemStack = this.slots.get(i).getStack();
 
                         if (!ItemStack.areEqual(itemStack, this.slotsOld.get(i))) {
-                            this.slotsOld.set(i, itemStack.copy());
+                            itemStack = itemStack.copy();
+                            this.slotsOld.set(i, itemStack);
+                            this.getGui().getPlayer().networkHandler.sendPacket(new SetPlayerInventoryS2CPacket(i, itemStack));
 
-                            if ((i > -1 && i < 5) || i == 45) {
+                            /*if ((i > -1 && i < 5) || i == 45) {
                                 GuiHelpers.sendSlotUpdate(this.getGui().getPlayer(), 0, i, itemStack);
                             } else {
                                 int n = i;
@@ -68,14 +71,14 @@ public class HotbarScreenHandler extends VirtualScreenHandler {
                                     n = i - 5;
                                 }
                                 GuiHelpers.sendSlotUpdate(this.getGui().getPlayer(), -2, n, itemStack);
-                            }
+                            }* /
                         }
                     }
                 }
             }
         } catch (Exception e) {
             this.getGui().handleException(e);
-        }
+        }*/
     }
 
     @ApiStatus.Internal

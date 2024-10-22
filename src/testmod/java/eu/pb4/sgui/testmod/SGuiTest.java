@@ -107,7 +107,7 @@ public class SGuiTest implements ModInitializer {
 
             gui.setSlot(6, new GuiElementBuilder(Items.PLAYER_HEAD)
                     .setSkullOwner(new GameProfile(UUID.fromString("f5a216d9-d660-4996-8d0f-d49053677676"), "patbox"), player.server)
-                    .setName(Text.literal("Patbox's Head"))
+                    .setName(Text.literal("# Patbox's Head #"))
                     .glow()
             );
 

@@ -106,6 +106,17 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
      * @return this element builder
      */
     public AnimatedGuiElementBuilder setName(Text name) {
+        this.itemStack.set(DataComponentTypes.CUSTOM_NAME, name.copy().styled(GuiHelpers.STYLE_CLEARER));
+        return this;
+    }
+
+    /**
+     * Sets the item name of the element.
+     *
+     * @param name the name to use
+     * @return this element builder
+     */
+    public AnimatedGuiElementBuilder setItemName(Text name) {
         this.itemStack.set(DataComponentTypes.ITEM_NAME, name.copy());
         return this;
     }

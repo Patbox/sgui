@@ -6,6 +6,7 @@
   "mixins": [
     "PlayerInteractEntityC2SPacketAccessor",
     "ScreenHandlerMixin",
+    "ServerPlayerEntityAccessor",
     "ServerPlayerEntityMixin",
     "ServerPlayNetworkHandlerMixin",
     "SignBlockEntityAccessor"
