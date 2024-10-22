@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTextures;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
+import eu.pb4.sgui.api.GuiHelpers;
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.CustomModelDataComponent;
@@ -162,6 +163,22 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      * @return this element builder
      */
     public GuiElementBuilder setLore(List<Text> lore) {
+        var l = new ArrayList<Text>(lore.size());
+        for (var t : lore) {
+            l.add(t.copy().styled(GuiHelpers.STYLE_CLEARER));
+        }
+
+        this.itemStack.set(DataComponentTypes.LORE, new LoreComponent(l));
+        return this;
+    }
+
+    /**
+     * Sets the lore lines of the element, without clearing out formatting.
+     *
+     * @param lore a list of all the lore lines
+     * @return this element builder
+     */
+    public GuiElementBuilder setLoreRaw(List<Text> lore) {
         this.itemStack.set(DataComponentTypes.LORE, new LoreComponent(lore));
         return this;
     }
@@ -173,6 +190,17 @@ public class GuiElementBuilder implements GuiElementBuilderInterface<GuiElementB
      * @return this element builder
      */
     public GuiElementBuilder addLoreLine(Text lore) {
+        this.itemStack.apply(DataComponentTypes.LORE, LoreComponent.DEFAULT, lore.copy().styled(GuiHelpers.STYLE_CLEARER), LoreComponent::with);
+        return this;
+    }
+
+    /**
+     * Adds a line of lore to the element, without clearing out formatting.
+     *
+     * @param lore the line to add
+     * @return this element builder
+     */
+    public GuiElementBuilder addLoreLineRaw(Text lore) {
         this.itemStack.apply(DataComponentTypes.LORE, LoreComponent.DEFAULT, lore, LoreComponent::with);
         return this;
     }

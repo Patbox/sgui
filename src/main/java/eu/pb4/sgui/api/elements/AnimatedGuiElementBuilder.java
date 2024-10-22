@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTextures;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
+import eu.pb4.sgui.api.GuiHelpers;
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.CustomModelDataComponent;
@@ -20,6 +21,7 @@ import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
 import net.minecraft.util.Unit;
 import org.jetbrains.annotations.Nullable;
@@ -148,6 +150,22 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
      * @return this element builder
      */
     public AnimatedGuiElementBuilder setLore(List<Text> lore) {
+        var l = new ArrayList<Text>(lore.size());
+        for (var t : lore) {
+            l.add(t.copy().styled(GuiHelpers.STYLE_CLEARER));
+        }
+
+        this.itemStack.set(DataComponentTypes.LORE, new LoreComponent(l));
+        return this;
+    }
+
+    /**
+     * Sets the lore lines of the element, without clearing out formatting.
+     *
+     * @param lore a list of all the lore lines
+     * @return this element builder
+     */
+    public AnimatedGuiElementBuilder setLoreRaw(List<Text> lore) {
         this.itemStack.set(DataComponentTypes.LORE, new LoreComponent(lore));
         return this;
     }
@@ -159,6 +177,17 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
      * @return this element builder
      */
     public AnimatedGuiElementBuilder addLoreLine(Text lore) {
+        this.itemStack.apply(DataComponentTypes.LORE, LoreComponent.DEFAULT, lore.copy().styled(GuiHelpers.STYLE_CLEARER), LoreComponent::with);
+        return this;
+    }
+
+    /**
+     * Adds a line of lore to the element, without clearing out formatting.
+     *
+     * @param lore the line to add
+     * @return this element builder
+     */
+    public AnimatedGuiElementBuilder addLoreLineRaw(Text lore) {
         this.itemStack.apply(DataComponentTypes.LORE, LoreComponent.DEFAULT, lore, LoreComponent::with);
         return this;
     }
@@ -358,6 +387,23 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
         this.itemStack.set(DataComponentTypes.PROFILE, new ProfileComponent(Optional.empty(), Optional.ofNullable(uuid), map));
         return this;
     }
+
+    /**
+     * Sets the model of the element.
+     *
+     * @param model model to display item as
+     * @return this element builder
+     */
+    public AnimatedGuiElementBuilder model(Identifier model) {
+        this.itemStack.set(DataComponentTypes.ITEM_MODEL, model);
+        return this;
+    }
+
+    public AnimatedGuiElementBuilder model(Item model) {
+        this.itemStack.set(DataComponentTypes.ITEM_MODEL, model.getComponents().get(DataComponentTypes.ITEM_MODEL));
+        return this;
+    }
+
 
     @Override
     public AnimatedGuiElementBuilder setCallback(GuiElement.ClickCallback callback) {
