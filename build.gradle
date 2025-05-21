@@ -63,7 +63,7 @@ dependencies {
 processResources {
 	inputs.property "version", project.version
 
-	filesMatching("fabric.mod.json") {
+	filesMatching(["fabric.mod.json", "META-INF/neoforge.mods.toml"]) {
 		expand "version": project.version
 	}
 }
@@ -74,10 +74,7 @@ tasks.withType(JavaCompile).configureEach {
 	// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
 	// If Javadoc is generated, this must be specified in that task too.
 	it.options.encoding = "UTF-8"
-
-
 	it.options.release = 21
-
 }
 
 java {
