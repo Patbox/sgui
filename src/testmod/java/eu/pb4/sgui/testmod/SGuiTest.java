@@ -11,26 +11,23 @@ import eu.pb4.sgui.api.gui.layered.LayerView;
 import eu.pb4.sgui.api.gui.layered.LayeredGui;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.minecraft.block.Blocks;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.NetworkRecipeId;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.*;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.village.TradeOffer;
-import net.minecraft.village.TradedItem;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.*;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.display.RecipeDisplayId;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.trading.ItemCost;
+import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.world.level.block.Blocks;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.Nullable;
@@ -39,26 +36,27 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import static net.minecraft.server.command.CommandManager.literal;
+import static net.minecraft.commands.Commands.literal;
+
 
 public class SGuiTest implements ModInitializer {
 
-    private static final Random RANDOM = Random.create();
+//    private static final RandomSource RANDOM = RandomSource.create();
 
-    private static int test(CommandContext<ServerCommandSource> objectCommandContext) {
+    private static int test(CommandContext<CommandSourceStack> objectCommandContext) {
         try {
-            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
-            SimpleGui gui = new SimpleGui(ScreenHandlerType.GENERIC_3X3, player, false) {
+            ServerPlayer player = objectCommandContext.getSource().getPlayer();
+            SimpleGui gui = new SimpleGui(MenuType.GENERIC_3x3, player, false) {
                 @Override
-                public boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element) {
-                    this.player.sendMessage(Text.literal(type.toString()), false);
+                public boolean onClick(int index, ClickType type, net.minecraft.world.inventory.ClickType action, GuiElementInterface element) {
+                    this.player.displayClientMessage(Component.literal(type.toString()), false);
 
                     return super.onClick(index, type, action, element);
                 }
 
                 @Override
                 public void onTick() {
-                    this.setSlot(0, new GuiElementBuilder(Items.ARROW).setCount((int) (player.getServerWorld().getTime() % 99999)).setMaxCount(99999));
+                    this.setSlot(0, new GuiElementBuilder(Items.ARROW).setCount((int) (player.serverLevel().getGameTime() % 99999)).setMaxCount(99999));
                     super.onTick();
                 }
 
@@ -68,15 +66,15 @@ public class SGuiTest implements ModInitializer {
                 }
             };
 
-            gui.setTitle(Text.literal("Nice"));
+            gui.setTitle(Component.literal("Nice"));
             gui.setSlot(0, new GuiElementBuilder(Items.ARROW).setCount(2000).setMaxDamage(99999));
             gui.setSlot(1, new AnimatedGuiElement(new ItemStack[]{
-                    Items.NETHERITE_PICKAXE.getDefaultStack(),
-                    Items.DIAMOND_PICKAXE.getDefaultStack(),
-                    Items.GOLDEN_PICKAXE.getDefaultStack(),
-                    Items.IRON_PICKAXE.getDefaultStack(),
-                    Items.STONE_PICKAXE.getDefaultStack(),
-                    Items.WOODEN_PICKAXE.getDefaultStack()
+                    Items.NETHERITE_PICKAXE.getDefaultInstance(),
+                    Items.DIAMOND_PICKAXE.getDefaultInstance(),
+                    Items.GOLDEN_PICKAXE.getDefaultInstance(),
+                    Items.IRON_PICKAXE.getDefaultInstance(),
+                    Items.STONE_PICKAXE.getDefaultInstance(),
+                    Items.WOODEN_PICKAXE.getDefaultInstance()
             }, 10, false, (x, y, z) -> {
             }));
 
@@ -84,14 +82,14 @@ public class SGuiTest implements ModInitializer {
                     .setItem(Items.NETHERITE_AXE).setDamage(150).saveItemStack()
                     .setItem(Items.DIAMOND_AXE).setDamage(150).unbreakable().saveItemStack()
                     .setItem(Items.GOLDEN_AXE).glow().saveItemStack()
-                    .setItem(Items.IRON_AXE).enchant(objectCommandContext.getSource().getRegistryManager(), Enchantments.AQUA_AFFINITY, 1).hideDefaultTooltip().saveItemStack()
+                    .setItem(Items.IRON_AXE).enchant(objectCommandContext.getSource().registryAccess(), Enchantments.AQUA_AFFINITY, 1).hideDefaultTooltip().saveItemStack()
                     .setItem(Items.STONE_AXE).noDefaults().saveItemStack()
                     .setItem(Items.WOODEN_AXE).saveItemStack()
                     .setInterval(10).setRandom(true)
             );
 
             for (int x = 3; x < gui.getSize(); x++) {
-                ItemStack itemStack = Items.STONE.getDefaultStack();
+                ItemStack itemStack = Items.STONE.getDefaultInstance();
                 itemStack.setCount(x);
                 gui.setSlot(x, new GuiElement(itemStack, (index, clickType, actionType) -> {
                 }));
@@ -101,24 +99,24 @@ public class SGuiTest implements ModInitializer {
                     .setSkullOwner(
                             "ewogICJ0aW1lc3RhbXAiIDogMTYxOTk3MDIyMjQzOCwKICAicHJvZmlsZUlkIiA6ICI2OTBkMDM2OGM2NTE0OGM5ODZjMzEwN2FjMmRjNjFlYyIsCiAgInByb2ZpbGVOYW1lIiA6ICJ5emZyXzciLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDI0OGVhYTQxNGNjZjA1NmJhOTY5ZTdkODAxZmI2YTkyNzhkMGZlYWUxOGUyMTczNTZjYzhhOTQ2NTY0MzU1ZiIsCiAgICAgICJtZXRhZGF0YSIgOiB7CiAgICAgICAgIm1vZGVsIiA6ICJzbGltIgogICAgICB9CiAgICB9CiAgfQp9",
                             null, null)
-                    .setName(Text.literal("Battery"))
+                    .setName(Component.literal("Battery"))
                     .glow()
             );
 
             gui.setSlot(6, new GuiElementBuilder(Items.PLAYER_HEAD)
                     .setSkullOwner(new GameProfile(UUID.fromString("f5a216d9-d660-4996-8d0f-d49053677676"), "patbox"), player.server)
-                    .setName(Text.literal("# Patbox's Head #"))
+                    .setName(Component.literal("# Patbox's Head #"))
                     .glow()
             );
 
             gui.setSlot(7, new GuiElementBuilder()
                     .setItem(Items.BARRIER)
                     .glow()
-                    .setName(Text.literal("Bye")
+                    .setName(Component.literal("Bye")
                             .setStyle(Style.EMPTY.withItalic(false).withBold(true)))
-                    .addLoreLine(Text.literal("Some lore"))
-                    .addLoreLine(Text.literal("More lore").formatted(Formatting.RED))
-                            .hideTooltip()
+                    .addLoreLine(Component.literal("Some lore"))
+                    .addLoreLine(Component.literal("More lore").withStyle(ChatFormatting.RED))
+                    .hideTooltip()
                     .setCount(3)
                     .setCallback((index, clickType, actionType) -> gui.close())
             );
@@ -127,13 +125,13 @@ public class SGuiTest implements ModInitializer {
                     .setItem(Items.TNT)
                     .hideDefaultTooltip()
                     .glow()
-                    .setName(Text.literal("Test :)")
+                    .setName(Component.literal("Test :)")
                             .setStyle(Style.EMPTY.withItalic(false).withBold(true)))
-                    .addLoreLine(Text.literal("Some lore"))
-                    .addLoreLine(Text.literal("More lore").formatted(Formatting.RED))
+                    .addLoreLine(Component.literal("Some lore"))
+                    .addLoreLine(Component.literal("More lore").withStyle(ChatFormatting.RED))
                     .setCount(1)
                     .setCallback((index, clickType, actionType) -> {
-                        player.sendMessage(Text.literal("derg "), false);
+                        player.displayClientMessage(Component.literal("derg "), false);
                         ItemStack item = gui.getSlot(index).getItemStack();
                         if (clickType == ClickType.MOUSE_LEFT) {
                             item.setCount(item.getCount() == 1 ? item.getCount() : item.getCount() - 1);
@@ -142,7 +140,7 @@ public class SGuiTest implements ModInitializer {
                         }
                         ((GuiElement) gui.getSlot(index)).setItemStack(item);
 
-                        if (item.getCount() <= player.getEnderChestInventory().size()) {
+                        if (item.getCount() <= player.getEnderChestInventory().getContainerSize()) {
                             gui.setSlotRedirect(4, new Slot(player.getEnderChestInventory(), item.getCount() - 1, 0, 0));
                         }
                     })
@@ -156,18 +154,18 @@ public class SGuiTest implements ModInitializer {
         return 0;
     }
 
-    private static int test2(CommandContext<ServerCommandSource> objectCommandContext) {
+    private static int test2(CommandContext<CommandSourceStack> objectCommandContext) {
         try {
-            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
+            ServerPlayer player = objectCommandContext.getSource().getPlayer();
             AnvilInputGui gui = new AnvilInputGui(player, true) {
                 @Override
                 public void onClose() {
-                    player.sendMessage(Text.literal(this.getInput()), false);
+                    player.displayClientMessage(Component.literal(this.getInput()), false);
                 }
             };
 
-            gui.setTitle(Text.literal("Nice"));
-            gui.setSlot(1, new GuiElement(Items.DIAMOND_AXE.getDefaultStack(), (index, clickType, actionType) -> {
+            gui.setTitle(Component.literal("Nice"));
+            gui.setSlot(1, new GuiElement(Items.DIAMOND_AXE.getDefaultInstance(), (index, clickType, actionType) -> {
                 ItemStack item = gui.getSlot(index).getItemStack();
                 if (clickType == ClickType.MOUSE_LEFT) {
                     item.setCount(item.getCount() == 1 ? item.getCount() : item.getCount() - 1);
@@ -177,11 +175,11 @@ public class SGuiTest implements ModInitializer {
                 ((GuiElement) gui.getSlot(index)).setItemStack(item);
             }));
 
-            gui.setSlot(2, new GuiElement(Items.SLIME_BALL.getDefaultStack(), (index, clickType, actionType) -> {
-                player.sendMessage(Text.literal(gui.getInput()), false);
+            gui.setSlot(2, new GuiElement(Items.SLIME_BALL.getDefaultInstance(), (index, clickType, actionType) -> {
+                player.displayClientMessage(Component.literal(gui.getInput()), false);
             }));
 
-            gui.setSlot(30, Items.TNT.getDefaultStack());
+            gui.setSlot(30, Items.TNT.getDefaultInstance());
 
             gui.open();
 
@@ -191,20 +189,20 @@ public class SGuiTest implements ModInitializer {
         return 0;
     }
 
-    private static int test3(CommandContext<ServerCommandSource> objectCommandContext) {
+    private static int test3(CommandContext<CommandSourceStack> objectCommandContext) {
         try {
-            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
+            ServerPlayer player = objectCommandContext.getSource().getPlayer();
 
-            BookElementBuilder bookBuilder = BookElementBuilder.from(player.getMainHandStack())
-                    .addPage(Text.literal("Test line one!"), Text.literal("Test line two!"))
+            BookElementBuilder bookBuilder = BookElementBuilder.from(player.getMainHandItem())
+                    .addPage(Component.literal("Test line one!"), Component.literal("Test line two!"))
                     .addPage(
-                            Text.literal("Click to navigate to page: "),
-                            Text.literal("1").styled(style -> style.withClickEvent(new ClickEvent.ChangePage(1))),
-                            Text.literal("2").styled(style -> style.withClickEvent(new ClickEvent.ChangePage(2))),
-                            Text.literal("3").styled(style -> style.withClickEvent(new ClickEvent.ChangePage(3))),
-                            Text.literal("Command").styled(style -> style.withClickEvent(new ClickEvent.RunCommand("Hello World!")))
+                            Component.literal("Click to navigate to page: "),
+                            Component.literal("1").withStyle(style -> style.withClickEvent(new ClickEvent.ChangePage(1))),
+                            Component.literal("2").withStyle(style -> style.withClickEvent(new ClickEvent.ChangePage(2))),
+                            Component.literal("3").withStyle(style -> style.withClickEvent(new ClickEvent.ChangePage(3))),
+                            Component.literal("Command").withStyle(style -> style.withClickEvent(new ClickEvent.RunCommand("Hello World!")))
                     )
-                    .addPage(Text.literal("This is page three!"))
+                    .addPage(Component.literal("This is page three!"))
                     .setTitle("The Test Book")
                     .setAuthor("aws404");
 
@@ -215,7 +213,7 @@ public class SGuiTest implements ModInitializer {
                 @Override
                 public void onTick() {
                     this.tick++;
-                    int pages = getBook().get(DataComponentTypes.WRITTEN_BOOK_CONTENT).pages().size();
+                    int pages = getBook().get(DataComponents.WRITTEN_BOOK_CONTENT).pages().size();
                     if (this.tick % 20 == 0) {
                         if (this.page >= pages - 1) {
                             this.setPage(0);
@@ -229,7 +227,7 @@ public class SGuiTest implements ModInitializer {
                 @Override
                 public boolean onCommand(String command) {
                     System.out.println(command);
-                    bookBuilder.addPage(Text.of(command));
+                    bookBuilder.addPage(Component.nullToEmpty(command));
                     this.book = bookBuilder.asStack();
 
                     this.forceReopen = true;
@@ -247,7 +245,7 @@ public class SGuiTest implements ModInitializer {
 
                 @Override
                 public void onTakeBookButton() {
-                    this.getPlayer().giveItemStack(this.getBook().copy());
+                    this.getPlayer().addItem(this.getBook().copy());
                 }
             };
             gui.open();
@@ -258,16 +256,16 @@ public class SGuiTest implements ModInitializer {
         return 0;
     }
 
-    private static int test4(CommandContext<ServerCommandSource> objectCommandContext) {
+    private static int test4(CommandContext<CommandSourceStack> objectCommandContext) {
         try {
-            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
-            SimpleGui gui = new SimpleGui(ScreenHandlerType.GENERIC_3X3, player, true) {
+            ServerPlayer player = objectCommandContext.getSource().getPlayer();
+            SimpleGui gui = new SimpleGui(MenuType.GENERIC_3x3, player, true) {
                 @Override
                 public void onClose() {
                     super.onClose();
 
-                    SimpleGui gui = new SimpleGui(ScreenHandlerType.GENERIC_9X1, player, true);
-                    gui.setTitle(Text.literal("If you can take it, it's broken"));
+                    SimpleGui gui = new SimpleGui(MenuType.GENERIC_9x1, player, true);
+                    gui.setTitle(Component.literal("If you can take it, it's broken"));
                     gui.setSlot(0, new GuiElementBuilder(Items.DIAMOND, 5));
                     gui.open();
                 }
@@ -276,7 +274,7 @@ public class SGuiTest implements ModInitializer {
             gui.setSlot(0, new GuiElementBuilder(Items.BARRIER, 8).setCallback((x, y, z) -> gui.close()));
             gui.setSlot(6, new GuiElementBuilder(Items.BARRIER, 9).setCallback((x, y, z) -> gui.onClose()));
 
-            gui.setTitle(Text.literal("Close gui to test switching"));
+            gui.setTitle(Component.literal("Close gui to test switching"));
             gui.open();
 
         } catch (Exception e) {
@@ -285,18 +283,18 @@ public class SGuiTest implements ModInitializer {
         return 0;
     }
 
-    private static int test5(CommandContext<ServerCommandSource> objectCommandContext) {
+    private static int test5(CommandContext<CommandSourceStack> objectCommandContext) {
         try {
-            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
-            SimpleGui gui = new SimpleGui(ScreenHandlerType.CRAFTING, player, false) {
+            ServerPlayer player = objectCommandContext.getSource().getPlayer();
+            SimpleGui gui = new SimpleGui(MenuType.CRAFTING, player, false) {
                 @Override
-                public void onCraftRequest(NetworkRecipeId recipeId, boolean shift) {
+                public void onCraftRequest(RecipeDisplayId recipeId, boolean shift) {
                     super.onCraftRequest(recipeId, shift);
-                    this.player.sendMessage(Text.literal(recipeId.toString() + " - " + shift), false);
+                    this.player.displayClientMessage(Component.literal(recipeId.toString() + " - " + shift), false);
                 }
             };
 
-            gui.setTitle(Text.literal("Click recipes!"));
+            gui.setTitle(Component.literal("Click recipes!"));
             gui.open();
 
         } catch (Exception e) {
@@ -305,37 +303,37 @@ public class SGuiTest implements ModInitializer {
         return 0;
     }
 
-    private static int test6(CommandContext<ServerCommandSource> objectCommandContext) {
+    private static int test6(CommandContext<CommandSourceStack> objectCommandContext) {
         try {
-            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
+            ServerPlayer player = objectCommandContext.getSource().getPlayer();
             SignGui gui = new SignGui(player) {
-                private int tick = 0;
+                private final int tick = 0;
 
                 {
                     this.setSignType(Blocks.ACACIA_WALL_SIGN);
                     this.setColor(DyeColor.WHITE);
-                    this.setLine(0, ScreenTexts.OK);
-                    this.setLine(1, Text.literal("^"));
-                    this.setLine(2, Text.literal("Input your"));
-                    this.setLine(3, Text.literal("value here"));
+                    this.setLine(0, CommonComponents.GUI_OK);
+                    this.setLine(1, Component.literal("^"));
+                    this.setLine(2, Component.literal("Input your"));
+                    this.setLine(3, Component.literal("value here"));
                     this.setAutoUpdate(false);
                 }
 
                 @Override
                 public void onClose() {
-                    this.player.sendMessage(Text.literal("Input was: " + this.getLine(0).toString()), false);
+                    this.player.displayClientMessage(Component.literal("Input was: " + this.getLine(0).toString()), false);
                 }
 
                 @Override
                 public void onTick() {
                     //tick++;
                     //if (tick % 30 == 0) {
-                    //    this.setLine(1, Text.literal(this.getLine(1).getString() + "^"));
-                     //   this.setSignType(Registries.BLOCK.getEntryList(BlockTags.WALL_SIGNS).get().getRandom(RANDOM).get().value());
-                   //     this.setColor(DyeColor.byId(RANDOM.nextInt(15)));
-                   //     this.updateSign();
+                    //    this.setLine(1, Component.literal(this.getLine(1).getString() + "^"));
+                    //   this.setSignType(Registries.BLOCK.getEntryList(BlockTags.WALL_SIGNS).get().getRandom(RANDOM).get().value());
+                    //     this.setColor(DyeColor.byId(RANDOM.nextInt(15)));
+                    //     this.updateSign();
                     //    this.tick = 0;
-                  //  }
+                    //  }
                 }
             };
             gui.open();
@@ -346,39 +344,39 @@ public class SGuiTest implements ModInitializer {
         return 0;
     }
 
-    private static int test7(CommandContext<ServerCommandSource> objectCommandContext) {
+    private static int test7(CommandContext<CommandSourceStack> objectCommandContext) {
         try {
-            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
+            ServerPlayer player = objectCommandContext.getSource().getPlayer();
             MerchantGui gui = new MerchantGui(player, false) {
 
                 @Override
-                public void onSelectTrade(TradeOffer offer) {
-                    this.player.sendMessage(Text.literal("Selected Trade: " + this.getOfferIndex(offer)), false);
+                public void onSelectTrade(MerchantOffer offer) {
+                    this.player.displayClientMessage(Component.literal("Selected Trade: " + this.getOfferIndex(offer)), false);
                 }
 
                 @Override
-                public boolean onTrade(TradeOffer offer) {
+                public boolean onTrade(MerchantOffer offer) {
                     return player.isCreative();
                 }
 
                 @Override
-                public void onSuggestSell(TradeOffer offer) {
-                    if (offer != null && offer.getSellItem() != null) {
+                public void onSuggestSell(MerchantOffer offer) {
+                    if (offer != null && offer.getResult() != null) {
 
-                        offer.getSellItem().set(DataComponentTypes.CUSTOM_NAME, ((MutableText) player.getName()).append(Text.literal("'s ")).append(offer.getSellItem().getName()));
+                        offer.getResult().set(DataComponents.CUSTOM_NAME, ((MutableComponent) player.getName()).append(Component.literal("'s ")).append(offer.getResult().getHoverName()));
                         this.sendUpdate();
                     }
                 }
             };
 
-            gui.setTitle(Text.literal("Trades wow!"));
+            gui.setTitle(Component.literal("Trades wow!"));
             gui.setIsLeveled(true);
-            gui.addTrade(new TradeOffer(
-                    new TradedItem(Items.STONE),
+            gui.addTrade(new MerchantOffer(
+                    new ItemCost(Items.STONE),
                     new GuiElementBuilder(Items.DIAMOND_AXE)
                             .glow()
                             .setCount(1)
-                            .setName(Text.literal("Glowing Axe"))
+                            .setName(Component.literal("Glowing Axe"))
                             .asStack(),
                     1,
                     0,
@@ -386,8 +384,8 @@ public class SGuiTest implements ModInitializer {
             ));
             gui.open();
 
-            gui.addTrade(new TradeOffer(
-                    new TradedItem(Items.EMERALD),
+            gui.addTrade(new MerchantOffer(
+                    new ItemCost(Items.EMERALD),
                     new GuiElementBuilder(Items.STONE)
                             .setCount(16)
                             .asStack(),
@@ -401,15 +399,15 @@ public class SGuiTest implements ModInitializer {
         return 0;
     }
 
-    private static int test8(CommandContext<ServerCommandSource> objectCommandContext) {
+    private static int test8(CommandContext<CommandSourceStack> objectCommandContext) {
         try {
-            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
+            ServerPlayer player = objectCommandContext.getSource().getPlayer();
             BookInputGui gui = new BookInputGui(player) {
                 @Override
                 public void onBookWritten(@Nullable String title, List<String> pages, boolean signed) {
-                    this.player.sendMessage(Text.literal("Title was: " + title), false);
-                    this.player.sendMessage(Text.literal("Page 0 was: " + pages.get(0)), false);
-                    this.player.sendMessage(Text.literal("Is signed: " + signed), false);
+                    this.player.displayClientMessage(Component.literal("Title was: " + title), false);
+                    this.player.displayClientMessage(Component.literal("Page 0 was: " + pages.get(0)), false);
+                    this.player.displayClientMessage(Component.literal("Is signed: " + signed), false);
                     super.onBookWritten(title, pages, signed);
                 }
             };
@@ -423,18 +421,18 @@ public class SGuiTest implements ModInitializer {
         return 0;
     }
 
-    private static int test9(CommandContext<ServerCommandSource> objectCommandContext) {
+    private static int test9(CommandContext<CommandSourceStack> objectCommandContext) {
         try {
-            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
-            LayeredGui gui = new LayeredGui(ScreenHandlerType.GENERIC_9X6, player, true);
-            GuiElementBuilder elementBuilder = new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE).setName(Text.empty());
+            ServerPlayer player = objectCommandContext.getSource().getPlayer();
+            LayeredGui gui = new LayeredGui(MenuType.GENERIC_9x6, player, true);
+            GuiElementBuilder elementBuilder = new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE).setName(Component.empty());
             for (int a = 0; a < 9; a++) {
                 for (int b = 0; b < 5; b++) {
                     gui.setSlot(a + (b * 2) * 9, elementBuilder);
                 }
             }
 
-            elementBuilder = new GuiElementBuilder(Items.PLAYER_HEAD).setName(Text.empty());
+            elementBuilder = new GuiElementBuilder(Items.PLAYER_HEAD).setName(Component.empty());
             int i = 1;
             Layer movingLayer = new Layer(2, 3);
             while (movingLayer.getFirstEmptySlot() != -1) {
@@ -446,16 +444,16 @@ public class SGuiTest implements ModInitializer {
 
             Layer controller = new Layer(3, 3);
 
-            controller.setSlot(1, new GuiElementBuilder(Items.SLIME_BALL).setName(Text.literal("^"))
+            controller.setSlot(1, new GuiElementBuilder(Items.SLIME_BALL).setName(Component.literal("^"))
                     .setCallback((x, y, z) -> movingView.setY(movingView.getY() - 1)));
-            controller.setSlot(3, new GuiElementBuilder(Items.SLIME_BALL).setName(Text.literal("<"))
+            controller.setSlot(3, new GuiElementBuilder(Items.SLIME_BALL).setName(Component.literal("<"))
                     .setCallback((x, y, z) -> movingView.setX(movingView.getX() - 1)));
-            controller.setSlot(5, new GuiElementBuilder(Items.SLIME_BALL).setName(Text.literal(">"))
+            controller.setSlot(5, new GuiElementBuilder(Items.SLIME_BALL).setName(Component.literal(">"))
                     .setCallback((x, y, z) -> movingView.setX(movingView.getX() + 1)));
-            controller.setSlot(7, new GuiElementBuilder(Items.SLIME_BALL).setName(Text.literal("v"))
+            controller.setSlot(7, new GuiElementBuilder(Items.SLIME_BALL).setName(Component.literal("v"))
                     .setCallback((x, y, z) -> movingView.setY(movingView.getY() + 1)));
 
-            controller.setSlot(4, new GuiElementBuilder(Items.WHITE_STAINED_GLASS_PANE).setName(Text.empty().copy()));
+            controller.setSlot(4, new GuiElementBuilder(Items.WHITE_STAINED_GLASS_PANE).setName(Component.empty().copy()));
 
             gui.addLayer(controller, 5, 6).setZIndex(5);
 
@@ -466,21 +464,21 @@ public class SGuiTest implements ModInitializer {
         return 0;
     }
 
-    private static int test10(CommandContext<ServerCommandSource> objectCommandContext) {
+    private static int test10(CommandContext<CommandSourceStack> objectCommandContext) {
         try {
-            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
+            ServerPlayer player = objectCommandContext.getSource().getPlayer();
             HotbarGui gui = new HotbarGui(player) {
                 int value = 0;
 
                 @Override
                 public void onOpen() {
-                    player.sendMessage(Text.literal("OPEN!"), false);
+                    player.displayClientMessage(Component.literal("OPEN!"), false);
                     super.onOpen();
                 }
 
                 @Override
                 public void onClose() {
-                    player.sendMessage(Text.literal("CLOSE!"), false);
+                    player.displayClientMessage(Component.literal("CLOSE!"), false);
                 }
 
                 @Override
@@ -489,15 +487,15 @@ public class SGuiTest implements ModInitializer {
                 }
 
                 @Override
-                public boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element) {
-                    player.sendMessage(Text.literal("CLICK!"), false);
-                    player.sendMessage(Text.literal(type + " " + index), false);
+                public boolean onClick(int index, ClickType type, net.minecraft.world.inventory.ClickType action, GuiElementInterface element) {
+                    player.displayClientMessage(Component.literal("CLICK!"), false);
+                    player.displayClientMessage(Component.literal(type + " " + index), false);
                     return super.onClick(index, type, action, element);
                 }
 
                 @Override
                 public void onTick() {
-                    this.setSlot(1, new GuiElementBuilder(Items.ARROW).setCount((int) (player.getWorld().getTime() % 127)));
+                    this.setSlot(1, new GuiElementBuilder(Items.ARROW).setCount((int) (player.level().getGameTime() % 127)));
                     super.onTick();
                 }
 
@@ -507,8 +505,8 @@ public class SGuiTest implements ModInitializer {
                         return true;
                     }
 
-                    this.value = MathHelper.clamp(this.value + slot - this.getSelectedSlot(), 0, 127);
-                    this.setSlot(4, new GuiElementBuilder(Items.POTATO, this.value).setName(Text.literal("VALUE")));
+                    this.value = Mth.clamp(this.value + slot - this.getSelectedSlot(), 0, 127);
+                    this.setSlot(4, new GuiElementBuilder(Items.POTATO, this.value).setName(Component.literal("VALUE")));
 
                     super.onSelectedSlotChange(slot);
                     return true;
@@ -518,29 +516,29 @@ public class SGuiTest implements ModInitializer {
             gui.setSelectedSlot(4);
 
             gui.setSlot(0, new AnimatedGuiElement(new ItemStack[]{
-                    Items.NETHERITE_PICKAXE.getDefaultStack(),
-                    Items.DIAMOND_PICKAXE.getDefaultStack(),
-                    Items.GOLDEN_PICKAXE.getDefaultStack(),
-                    Items.IRON_PICKAXE.getDefaultStack(),
-                    Items.STONE_PICKAXE.getDefaultStack(),
-                    Items.WOODEN_PICKAXE.getDefaultStack()
+                    Items.NETHERITE_PICKAXE.getDefaultInstance(),
+                    Items.DIAMOND_PICKAXE.getDefaultInstance(),
+                    Items.GOLDEN_PICKAXE.getDefaultInstance(),
+                    Items.IRON_PICKAXE.getDefaultInstance(),
+                    Items.STONE_PICKAXE.getDefaultInstance(),
+                    Items.WOODEN_PICKAXE.getDefaultInstance()
             }, 10, false, (x, y, z) -> {
             }));
 
-            gui.setSlot(1, new GuiElementBuilder(Items.SPECTRAL_ARROW).setCount((int) (player.getWorld().getTime() % 128)));
+            gui.setSlot(1, new GuiElementBuilder(Items.SPECTRAL_ARROW).setCount((int) (player.level().getGameTime() % 128)));
 
             gui.setSlot(2, new AnimatedGuiElementBuilder()
                     .setItem(Items.NETHERITE_AXE).setDamage(150).saveItemStack()
                     .setItem(Items.DIAMOND_AXE).setDamage(150).unbreakable().saveItemStack()
                     .setItem(Items.GOLDEN_AXE).glow().saveItemStack()
-                    .setItem(Items.IRON_AXE).enchant(objectCommandContext.getSource().getRegistryManager(), Enchantments.AQUA_AFFINITY, 1).saveItemStack()
+                    .setItem(Items.IRON_AXE).enchant(objectCommandContext.getSource().registryAccess(), Enchantments.AQUA_AFFINITY, 1).saveItemStack()
                     .setItem(Items.STONE_AXE).saveItemStack()
                     .setItem(Items.WOODEN_AXE).saveItemStack()
                     .setInterval(10).setRandom(true)
             );
 
             for (int x = 3; x < gui.getSize(); x++) {
-                ItemStack itemStack = Items.STONE.getDefaultStack();
+                ItemStack itemStack = Items.STONE.getDefaultInstance();
                 itemStack.setCount(x);
                 gui.setSlot(x, new GuiElement(itemStack, (index, clickType, actionType) -> {
                 }));
@@ -550,23 +548,23 @@ public class SGuiTest implements ModInitializer {
                     .setSkullOwner(
                             "ewogICJ0aW1lc3RhbXAiIDogMTYxOTk3MDIyMjQzOCwKICAicHJvZmlsZUlkIiA6ICI2OTBkMDM2OGM2NTE0OGM5ODZjMzEwN2FjMmRjNjFlYyIsCiAgInByb2ZpbGVOYW1lIiA6ICJ5emZyXzciLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDI0OGVhYTQxNGNjZjA1NmJhOTY5ZTdkODAxZmI2YTkyNzhkMGZlYWUxOGUyMTczNTZjYzhhOTQ2NTY0MzU1ZiIsCiAgICAgICJtZXRhZGF0YSIgOiB7CiAgICAgICAgIm1vZGVsIiA6ICJzbGltIgogICAgICB9CiAgICB9CiAgfQp9",
                             null, null)
-                    .setName(Text.literal("Battery"))
+                    .setName(Component.literal("Battery"))
                     .glow()
             );
 
             gui.setSlot(6, new GuiElementBuilder(Items.PLAYER_HEAD)
                     .setSkullOwner(new GameProfile(UUID.fromString("f5a216d9-d660-4996-8d0f-d49053677676"), "patbox"), player.server)
-                    .setName(Text.literal("Patbox's Head"))
+                    .setName(Component.literal("Patbox's Head"))
                     .glow()
             );
 
             gui.setSlot(7, new GuiElementBuilder()
                     .setItem(Items.BARRIER)
                     .glow()
-                    .setName(Text.literal("Bye")
-                            .setStyle(Style.EMPTY.withItalic(false).withBold(true).withFormatting(Formatting.RED)))
-                    .addLoreLine(Text.literal("Some lore"))
-                    .addLoreLine(Text.literal("More lore").formatted(Formatting.RED))
+                    .setName(Component.literal("Bye")
+                            .setStyle(Style.EMPTY.withItalic(false).withBold(true).applyLegacyFormat(ChatFormatting.RED)))
+                    .addLoreLine(Component.literal("Some lore"))
+                    .addLoreLine(Component.literal("More lore").withStyle(ChatFormatting.RED))
                     .setCount(3)
                     .setCallback((index, clickType, actionType) -> gui.close())
             );
@@ -574,13 +572,13 @@ public class SGuiTest implements ModInitializer {
             gui.setSlot(8, new GuiElementBuilder()
                     .setItem(Items.TNT)
                     .glow()
-                    .setName(Text.literal("Test :)")
+                    .setName(Component.literal("Test :)")
                             .setStyle(Style.EMPTY.withItalic(false).withBold(true)))
-                    .addLoreLine(Text.literal("Some lore"))
-                    .addLoreLine(Text.literal("More lore").formatted(Formatting.RED))
+                    .addLoreLine(Component.literal("Some lore"))
+                    .addLoreLine(Component.literal("More lore").withStyle(ChatFormatting.RED))
                     .setCount(1)
                     .setCallback((index, clickType, actionType) -> {
-                        player.sendMessage(Text.literal("derg "), false);
+                        player.sendSystemMessage(Component.literal("derg "), false);
                         ItemStack item = gui.getSlot(index).getItemStack();
                         if (clickType == ClickType.MOUSE_LEFT) {
                             item.setCount(item.getCount() == 1 ? item.getCount() : item.getCount() - 1);
@@ -589,7 +587,7 @@ public class SGuiTest implements ModInitializer {
                         }
                         ((GuiElement) gui.getSlot(index)).setItemStack(item);
 
-                        if (item.getCount() <= player.getEnderChestInventory().size()) {
+                        if (item.getCount() <= player.getEnderChestInventory().getContainerSize()) {
                             gui.setSlotRedirect(4, new Slot(player.getEnderChestInventory(), item.getCount() - 1, 0, 0));
                         }
                     })
@@ -603,18 +601,18 @@ public class SGuiTest implements ModInitializer {
         return 0;
     }
 
-    private static int test11(CommandContext<ServerCommandSource> objectCommandContext) {
+    private static int test11(CommandContext<CommandSourceStack> objectCommandContext) {
         try {
-            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
+            ServerPlayer player = objectCommandContext.getSource().getPlayer();
 
             var num = new MutableInt();
             var creator = new MutableObject<Supplier<SimpleGui>>();
             creator.setValue(() -> {
                 var previousGui = GuiHelpers.getCurrentGui(player);
-                var gui = new SimpleGui(ScreenHandlerType.HOPPER, player, true);
+                var gui = new SimpleGui(MenuType.HOPPER, player, true);
                 var next = new MutableObject<SimpleGui>();
-                gui.setTitle(Text.literal("Simple Nested gui test: " + num.getAndIncrement()));
-                gui.setSlot(0, new GuiElementBuilder(Items.TRIDENT).setName(Text.literal("Go deeper"))
+                gui.setTitle(Component.literal("Simple Nested gui test: " + num.getAndIncrement()));
+                gui.setSlot(0, new GuiElementBuilder(Items.TRIDENT).setName(Component.literal("Go deeper"))
                         .setCallback(() -> {
                             if (next.getValue() == null) {
                                 next.setValue(creator.getValue().get());
@@ -624,7 +622,7 @@ public class SGuiTest implements ModInitializer {
                         })
                 );
 
-                gui.setSlot(1, new GuiElementBuilder(Items.BARRIER).setName(Text.literal("Go back"))
+                gui.setSlot(1, new GuiElementBuilder(Items.BARRIER).setName(Component.literal("Go back"))
                         .setCallback(() -> {
                             if (previousGui != null) {
                                 previousGui.open();
@@ -646,11 +644,11 @@ public class SGuiTest implements ModInitializer {
         return 0;
     }
 
-    private static int test12(CommandContext<ServerCommandSource> objectCommandContext) {
+    private static int test12(CommandContext<CommandSourceStack> objectCommandContext) {
         try {
-            var player = objectCommandContext.getSource().getPlayerOrThrow();
-            player.sendMessage(
-                Text.literal("Pickaxe should *only* be able to be swapped only to offhand, both in and out of inventory gui")
+            var player = objectCommandContext.getSource().getPlayerOrException();
+            player.sendSystemMessage(
+                    Component.literal("Pickaxe should *only* be able to be swapped only to offhand, both in and out of inventory gui")
             );
 
             var hotbar = new HotbarGui(player);
@@ -676,19 +674,19 @@ public class SGuiTest implements ModInitializer {
         return 0;
     }
 
-    private static int test13(CommandContext<ServerCommandSource> objectCommandContext) {
+    private static int test13(CommandContext<CommandSourceStack> objectCommandContext) {
         try {
-            var player = objectCommandContext.getSource().getPlayerOrThrow();
-            player.getInventory().setStack(PlayerInventory.OFF_HAND_SLOT, new ItemStack(Items.DIAMOND));
+            var player = objectCommandContext.getSource().getPlayerOrException();
+            player.getInventory().setItem(Inventory.SLOT_OFFHAND, new ItemStack(Items.DIAMOND));
 
             var stack = new ItemStack(Items.GOLDEN_PICKAXE);
             stack.set(
-                DataComponentTypes.CUSTOM_NAME,
-                Text.literal("Can't swap to offhand")
+                    DataComponents.CUSTOM_NAME,
+                    Component.literal("Can't swap to offhand")
             );
 
-            var gui = new SimpleGui(ScreenHandlerType.GENERIC_9X3, player, true);
-            gui.setTitle(Text.literal("Offhand item should be invisible in gui"));
+            var gui = new SimpleGui(MenuType.GENERIC_9x3, player, true);
+            gui.setTitle(Component.literal("Offhand item should be invisible in gui"));
             gui.setSlot(0, stack);
             gui.open();
         } catch (Exception e) {
@@ -697,18 +695,18 @@ public class SGuiTest implements ModInitializer {
         return 0;
     }
 
-    private static int test14(CommandContext<ServerCommandSource> context) {
+    private static int test14(CommandContext<CommandSourceStack> context) {
         try {
-            new TypewriterGui(context.getSource().getPlayerOrThrow());
+            new TypewriterGui(context.getSource().getPlayerOrException());
         } catch (Exception e) {
             e.printStackTrace();
         }
         return 0;
     }
 
-    private static int snake(CommandContext<ServerCommandSource> objectCommandContext) {
+    private static int snake(CommandContext<CommandSourceStack> objectCommandContext) {
         try {
-            ServerPlayerEntity player = objectCommandContext.getSource().getPlayer();
+            ServerPlayer player = objectCommandContext.getSource().getPlayer();
             LayeredGui gui = new SnakeGui(player);
             gui.open();
         } catch (Exception e) {

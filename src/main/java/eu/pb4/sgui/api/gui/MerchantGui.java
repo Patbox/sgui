@@ -4,16 +4,15 @@ import eu.pb4.sgui.virtual.SguiScreenHandlerFactory;
 import eu.pb4.sgui.virtual.merchant.VirtualMerchant;
 import eu.pb4.sgui.virtual.merchant.VirtualMerchantScreenHandler;
 import eu.pb4.sgui.virtual.merchant.VirtualTradeOutputSlot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.village.MerchantInventory;
-import net.minecraft.village.TradeOffer;
-import net.minecraft.village.TradeOfferList;
-import net.minecraft.village.TradedItem;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.MerchantContainer;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.trading.ItemCost;
+import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.world.item.trading.MerchantOffers;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -31,7 +30,7 @@ import java.util.OptionalInt;
 public class MerchantGui extends SimpleGui {
 
     protected final VirtualMerchant merchant;
-    protected final MerchantInventory merchantInventory;
+    protected final MerchantContainer merchantInventory;
 
     /**
      * Constructs a new MerchantGui for the supplied player.
@@ -40,32 +39,32 @@ public class MerchantGui extends SimpleGui {
      * @param manipulatePlayerSlots if <code>true</code> the players inventory
      *                              will be treated as slots of this gui
      */
-    public MerchantGui(ServerPlayerEntity player, boolean manipulatePlayerSlots) {
-        super(ScreenHandlerType.MERCHANT, player, manipulatePlayerSlots);
+    public MerchantGui(ServerPlayer player, boolean manipulatePlayerSlots) {
+        super(MenuType.MERCHANT, player, manipulatePlayerSlots);
         this.merchant = new VirtualMerchant(player);
-        this.merchantInventory = new MerchantInventory(this.merchant);
-        this.setTitle(Text.empty());
+        this.merchantInventory = new MerchantContainer(this.merchant);
+        this.setTitle(Component.empty());
 
         this.setSlotRedirect(0, new Slot(this.merchantInventory, 0, 0, 0));
         this.setSlotRedirect(1, new Slot(this.merchantInventory, 1, 0, 0));
         this.setSlotRedirect(2, new VirtualTradeOutputSlot(player, merchant, this.merchantInventory, 2, 0, 0));
     }
 
-    public static boolean areTradeOffersEqualIgnoreUses(@Nullable TradeOffer x, @Nullable TradeOffer y) {
+    public static boolean areMerchantOffersEqualIgnoreUses(@Nullable MerchantOffer x, @Nullable MerchantOffer y) {
         if (x == null && y == null) {
             return true;
         } else if (x == null || y == null) {
             return false;
         }
 
-        return x.shouldRewardPlayerExperience() == y.shouldRewardPlayerExperience()
-                && x.getDemandBonus() == y.getDemandBonus()
+        return x.shouldRewardExp() == y.shouldRewardExp()
+                && x.getDemand() == y.getDemand()
                 && x.getMaxUses() == y.getMaxUses()
-                && x.getMerchantExperience() == y.getMerchantExperience()
-                && x.getSpecialPrice() == y.getSpecialPrice()
-                && ItemStack.areEqual(x.getSellItem(), y.getSellItem())
-                && ItemStack.areEqual(x.getOriginalFirstBuyItem(), y.getOriginalFirstBuyItem())
-                && ItemStack.areEqual(x.getSecondBuyItem().map(TradedItem::itemStack).orElse(ItemStack.EMPTY), y.getSecondBuyItem().map(TradedItem::itemStack).orElse(ItemStack.EMPTY));
+                && x.getXp() == y.getXp()
+                && x.getSpecialPriceDiff() == y.getSpecialPriceDiff()
+                && ItemStack.matches(x.getResult(), y.getResult())
+                && ItemStack.matches(x.getBaseCostA(), y.getBaseCostA())
+                && ItemStack.matches(x.getItemCostB().map(ItemCost::itemStack).orElse(ItemStack.EMPTY), y.getItemCostB().map(ItemCost::itemStack).orElse(ItemStack.EMPTY));
 
     }
 
@@ -74,7 +73,7 @@ public class MerchantGui extends SimpleGui {
      *
      * @param trade the trade to add
      */
-    public void addTrade(TradeOffer trade) {
+    public void addTrade(MerchantOffer trade) {
         this.merchant.getOffers().add(trade);
 
         if (this.isOpen() && this.autoUpdate) {
@@ -89,7 +88,7 @@ public class MerchantGui extends SimpleGui {
      * @param trade the trade to insert
      * @throws IndexOutOfBoundsException if index is out of bounds
      */
-    public void setTrade(int index, TradeOffer trade) {
+    public void setTrade(int index, MerchantOffer trade) {
         this.merchant.getOffers().add(index, trade);
 
         if (this.isOpen() && this.autoUpdate) {
@@ -141,7 +140,7 @@ public class MerchantGui extends SimpleGui {
      * @return the experience of the merchant
      */
     public int getExperience() {
-        return this.merchant.getExperience();
+        return this.merchant.getVillagerXp();
     }
 
     /**
@@ -153,7 +152,7 @@ public class MerchantGui extends SimpleGui {
      * @param experience the experience of the merchant
      */
     public void setExperience(int experience) {
-        this.merchant.setExperienceFromServer(experience);
+        this.merchant.overrideXp(experience);
 
         if (this.isOpen() && this.autoUpdate) {
             this.sendUpdate();
@@ -165,7 +164,7 @@ public class MerchantGui extends SimpleGui {
      *
      * @param offer the offer selected
      */
-    public void onSelectTrade(TradeOffer offer) {
+    public void onSelectTrade(MerchantOffer offer) {
     }
 
     /**
@@ -173,8 +172,8 @@ public class MerchantGui extends SimpleGui {
      *
      * @return the trade offer or <code>null</code> if none has been selected
      */
-    public TradeOffer getSelectedTrade() {
-        return this.merchantInventory.getTradeOffer();
+    public MerchantOffer getSelectedTrade() {
+        return this.merchantInventory.getActiveOffer();
     }
 
     /**
@@ -183,7 +182,7 @@ public class MerchantGui extends SimpleGui {
      * @param offer the trade offer being done
      * @return if the trade should complete
      */
-    public boolean onTrade(TradeOffer offer) {
+    public boolean onTrade(MerchantOffer offer) {
         return true;
     }
 
@@ -192,7 +191,7 @@ public class MerchantGui extends SimpleGui {
      *
      * @param offer the trade that is being suggested.
      */
-    public void onSuggestSell(TradeOffer offer) {
+    public void onSuggestSell(MerchantOffer offer) {
     }
 
     /**
@@ -201,9 +200,9 @@ public class MerchantGui extends SimpleGui {
      * @param offer the trade offer
      * @return the index or <code>-1</code> if the merchant does not have the offer
      */
-    public int getOfferIndex(TradeOffer offer) {
+    public int getOfferIndex(MerchantOffer offer) {
         for (int i = 0; i < this.merchant.getOffers().size(); i++) {
-            if (MerchantGui.areTradeOffersEqualIgnoreUses(this.merchant.getOffers().get(i), offer)) {
+            if (MerchantGui.areMerchantOffersEqualIgnoreUses(this.merchant.getOffers().get(i), offer)) {
                 return i;
             }
         }
@@ -214,23 +213,23 @@ public class MerchantGui extends SimpleGui {
      * Sends an update packet to the player. This will update trades, levels and experience.
      */
     public void sendUpdate() {
-        TradeOfferList tradeOfferList = this.merchant.getOffers();
-        if (!tradeOfferList.isEmpty()) {
-            player.sendTradeOffers(this.syncId, tradeOfferList, this.merchant.getLevel(), this.merchant.getExperience(), this.merchant.isLeveledMerchant(), this.merchant.canRefreshTrades());
+        MerchantOffers MerchantOffers = this.merchant.getOffers();
+        if (!MerchantOffers.isEmpty()) {
+            player.sendMerchantOffers(this.syncId, MerchantOffers, this.merchant.getLevel(), this.merchant.getVillagerXp(), this.merchant.showProgressBar(), this.merchant.canRestock());
         }
     }
 
     @Override
     protected boolean sendGui() {
         this.reOpen = true;
-        OptionalInt opSyncId = player.openHandledScreen(new SguiScreenHandlerFactory<>(this, (syncId, playerInventory, playerx) -> new VirtualMerchantScreenHandler(syncId, this.player, this.merchant, this, this.merchantInventory)));
+        OptionalInt opSyncId = player.openMenu(new SguiScreenHandlerFactory<>(this, (syncId, playerInventory, playerx) -> new VirtualMerchantScreenHandler(syncId, this.player, this.merchant, this, this.merchantInventory)));
         if (opSyncId.isPresent()) {
             this.syncId = opSyncId.getAsInt();
-            this.screenHandler = (VirtualMerchantScreenHandler) this.player.currentScreenHandler;
+            this.screenHandler = (VirtualMerchantScreenHandler) this.player.containerMenu;
 
-            TradeOfferList tradeOfferList = this.merchant.getOffers();
-            if (!tradeOfferList.isEmpty()) {
-                player.sendTradeOffers(opSyncId.getAsInt(), tradeOfferList, this.merchant.getLevel(), this.merchant.getExperience(), this.merchant.isLeveledMerchant(), this.merchant.canRefreshTrades());
+            MerchantOffers merchantOfferList = this.merchant.getOffers();
+            if (!merchantOfferList.isEmpty()) {
+                player.sendMerchantOffers(opSyncId.getAsInt(), merchantOfferList, this.merchant.getLevel(), this.merchant.getVillagerXp(), this.merchant.showProgressBar(), this.merchant.canRestock());
             }
 
             this.reOpen = false;

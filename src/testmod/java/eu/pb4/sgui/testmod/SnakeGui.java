@@ -4,21 +4,18 @@ import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.layered.Layer;
 import eu.pb4.sgui.api.gui.layered.LayeredGui;
-import it.unimi.dsi.fastutil.objects.ReferenceSortedSet;
 import it.unimi.dsi.fastutil.objects.ReferenceSortedSets;
-import net.minecraft.block.entity.BannerPatterns;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.BannerPatternsComponent;
-import net.minecraft.component.type.TooltipDisplayComponent;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.StringNbtReader;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.Unit;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.level.block.entity.BannerPatternLayers;
+import net.minecraft.world.level.block.entity.BannerPatterns;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +23,10 @@ import java.util.Random;
 
 public class SnakeGui extends LayeredGui {
 
-    static ItemStack create(BannerPatternsComponent component) {
-        ItemStack stack = Items.GRAY_BANNER.getDefaultStack();
-        stack.set(DataComponentTypes.BANNER_PATTERNS, component);
-        stack.set(DataComponentTypes.TOOLTIP_DISPLAY, new TooltipDisplayComponent(true, ReferenceSortedSets.emptySet()));
+    static ItemStack create(BannerPatternLayers component) {
+        ItemStack stack = Items.GRAY_BANNER.getDefaultInstance();
+        stack.set(DataComponents.BANNER_PATTERNS, component);
+        stack.set(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(true, ReferenceSortedSets.emptySet()));
         return stack;
     }
 
@@ -54,41 +51,41 @@ public class SnakeGui extends LayeredGui {
 
     Random random = new Random();
 
-    public SnakeGui(ServerPlayerEntity player) {
-        super(ScreenHandlerType.GENERIC_9X6, player, true);
-        this.setTitle(Text.literal("SGui Snake"));
+    public SnakeGui(ServerPlayer player) {
+        super(MenuType.GENERIC_9x6, player, true);
+        this.setTitle(Component.literal("SGui Snake"));
         
-        var reg = player.getRegistryManager().getOrThrow(RegistryKeys.BANNER_PATTERN);
+        var reg = player.registryAccess().lookupOrThrow(Registries.BANNER_PATTERN);
         
         NUMBERS = new ItemStack[]{
-                create(new BannerPatternsComponent.Builder().add(reg.getOptional(BannerPatterns.STRIPE_BOTTOM).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.STRIPE_LEFT).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.STRIPE_RIGHT).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.STRIPE_DOWNLEFT).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
-                create(new BannerPatternsComponent.Builder().add(reg.getOptional(BannerPatterns.STRIPE_CENTER).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.SQUARE_TOP_LEFT).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.CURLY_BORDER).orElseThrow(), DyeColor.GRAY).add(reg.getOptional(BannerPatterns.STRIPE_BOTTOM).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
-                create(new BannerPatternsComponent.Builder().add(reg.getOptional(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.RHOMBUS).orElseThrow(), DyeColor.GRAY).add(reg.getOptional(BannerPatterns.STRIPE_BOTTOM).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.STRIPE_DOWNLEFT).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
-                create(new BannerPatternsComponent.Builder().add(reg.getOptional(BannerPatterns.STRIPE_BOTTOM).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.STRIPE_MIDDLE).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.CURLY_BORDER).orElseThrow(), DyeColor.GRAY).add(reg.getOptional(BannerPatterns.STRIPE_RIGHT).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
-                create(new BannerPatternsComponent.Builder().add(reg.getOptional(BannerPatterns.STRIPE_LEFT).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.HALF_HORIZONTAL_BOTTOM).orElseThrow(), DyeColor.GRAY).add(reg.getOptional(BannerPatterns.STRIPE_RIGHT).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.STRIPE_MIDDLE).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
-                create(new BannerPatternsComponent.Builder().add(reg.getOptional(BannerPatterns.STRIPE_BOTTOM).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.RHOMBUS).orElseThrow(), DyeColor.GRAY).add(reg.getOptional(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.STRIPE_DOWNRIGHT).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
-                create(new BannerPatternsComponent.Builder().add(reg.getOptional(BannerPatterns.STRIPE_BOTTOM).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.STRIPE_RIGHT).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.HALF_HORIZONTAL).orElseThrow(), DyeColor.GRAY).add(reg.getOptional(BannerPatterns.STRIPE_MIDDLE).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.STRIPE_LEFT).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
-                create(new BannerPatternsComponent.Builder().add(reg.getOptional(BannerPatterns.STRIPE_DOWNLEFT).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
-                create(new BannerPatternsComponent.Builder().add(reg.getOptional(BannerPatterns.STRIPE_DOWNLEFT).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
-                create(new BannerPatternsComponent.Builder().add(reg.getOptional(BannerPatterns.STRIPE_LEFT).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.HALF_HORIZONTAL_BOTTOM).orElseThrow(), DyeColor.GRAY).add(reg.getOptional(BannerPatterns.STRIPE_MIDDLE).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.STRIPE_RIGHT).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.STRIPE_BOTTOM).orElseThrow(), DyeColor.WHITE).add(reg.getOptional(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
+                create(new BannerPatternLayers.Builder().add(reg.get(BannerPatterns.STRIPE_BOTTOM).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.STRIPE_LEFT).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.STRIPE_RIGHT).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.STRIPE_DOWNLEFT).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
+                create(new BannerPatternLayers.Builder().add(reg.get(BannerPatterns.STRIPE_CENTER).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.SQUARE_TOP_LEFT).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.CURLY_BORDER).orElseThrow(), DyeColor.GRAY).add(reg.get(BannerPatterns.STRIPE_BOTTOM).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
+                create(new BannerPatternLayers.Builder().add(reg.get(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.RHOMBUS_MIDDLE).orElseThrow(), DyeColor.GRAY).add(reg.get(BannerPatterns.STRIPE_BOTTOM).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.STRIPE_DOWNLEFT).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
+                create(new BannerPatternLayers.Builder().add(reg.get(BannerPatterns.STRIPE_BOTTOM).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.STRIPE_MIDDLE).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.CURLY_BORDER).orElseThrow(), DyeColor.GRAY).add(reg.get(BannerPatterns.STRIPE_RIGHT).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
+                create(new BannerPatternLayers.Builder().add(reg.get(BannerPatterns.STRIPE_LEFT).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.HALF_HORIZONTAL_MIRROR).orElseThrow(), DyeColor.GRAY).add(reg.get(BannerPatterns.STRIPE_RIGHT).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.STRIPE_MIDDLE).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
+                create(new BannerPatternLayers.Builder().add(reg.get(BannerPatterns.STRIPE_BOTTOM).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.RHOMBUS_MIDDLE).orElseThrow(), DyeColor.GRAY).add(reg.get(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.STRIPE_DOWNRIGHT).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
+                create(new BannerPatternLayers.Builder().add(reg.get(BannerPatterns.STRIPE_BOTTOM).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.STRIPE_RIGHT).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.HALF_HORIZONTAL).orElseThrow(), DyeColor.GRAY).add(reg.get(BannerPatterns.STRIPE_MIDDLE).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.STRIPE_LEFT).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
+                create(new BannerPatternLayers.Builder().add(reg.get(BannerPatterns.STRIPE_DOWNLEFT).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
+                create(new BannerPatternLayers.Builder().add(reg.get(BannerPatterns.STRIPE_DOWNLEFT).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
+                create(new BannerPatternLayers.Builder().add(reg.get(BannerPatterns.STRIPE_LEFT).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.HALF_HORIZONTAL_MIRROR).orElseThrow(), DyeColor.GRAY).add(reg.get(BannerPatterns.STRIPE_MIDDLE).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.STRIPE_TOP).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.STRIPE_RIGHT).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.STRIPE_BOTTOM).orElseThrow(), DyeColor.WHITE).add(reg.get(BannerPatterns.BORDER).orElseThrow(), DyeColor.GRAY).build()),
         };
 
         Layer controller = new Layer(3, 3);
         this.controller = controller;
 
-        controller.setSlot(1, new GuiElementBuilder(Items.MAGMA_CREAM).setName(Text.literal("^"))
+        controller.setSlot(1, new GuiElementBuilder(Items.MAGMA_CREAM).setName(Component.literal("^"))
             .setCallback((x, y, z) -> changeDirection(Direction.UP)));
 
-        controller.setSlot(3, new GuiElementBuilder(Items.MAGMA_CREAM).setName(Text.literal("<"))
+        controller.setSlot(3, new GuiElementBuilder(Items.MAGMA_CREAM).setName(Component.literal("<"))
             .setCallback((x, y, z) -> changeDirection(Direction.LEFT)));
 
-        controller.setSlot(5, new GuiElementBuilder(Items.MAGMA_CREAM).setName(Text.literal(">"))
+        controller.setSlot(5, new GuiElementBuilder(Items.MAGMA_CREAM).setName(Component.literal(">"))
             .setCallback((x, y, z) -> changeDirection(Direction.RIGHT)));
 
-        controller.setSlot(7, new GuiElementBuilder(Items.MAGMA_CREAM).setName(Text.literal("v"))
+        controller.setSlot(7, new GuiElementBuilder(Items.MAGMA_CREAM).setName(Component.literal("v"))
             .setCallback((x, y, z) -> changeDirection(Direction.DOWN)));
 
-        controller.setSlot(4, new GuiElementBuilder(Items.WHITE_STAINED_GLASS_PANE).setName(Text.empty()));
+        controller.setSlot(4, new GuiElementBuilder(Items.WHITE_STAINED_GLASS_PANE).setName(Component.empty()));
 
         this.addLayer(controller, 3, 6).setZIndex(5);
 
@@ -112,14 +109,14 @@ public class SnakeGui extends LayeredGui {
 
         Layer backdrop = new Layer(4, 9);
 
-        GuiElementBuilder builder = new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE).setName(Text.empty());
+        GuiElementBuilder builder = new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE).setName(Component.empty());
 
         while (backdrop.getFirstEmptySlot() != -1) {
             backdrop.addSlot(builder);
         }
 
-        backdrop.setSlot(backdrop.getSize() - 1, new GuiElementBuilder(Items.BARRIER).setName(Text.literal("Close")).setCallback((a, b, c, g) -> g.close()));
-        backdrop.setSlot(backdrop.getSize() - 9, new GuiElementBuilder(Items.EMERALD).setName(Text.literal("Restart")).setCallback((a, b, c, g) -> new SnakeGui(this.getPlayer()).open()));
+        backdrop.setSlot(backdrop.getSize() - 1, new GuiElementBuilder(Items.BARRIER).setName(Component.literal("Close")).setCallback((a, b, c, g) -> g.close()));
+        backdrop.setSlot(backdrop.getSize() - 9, new GuiElementBuilder(Items.EMERALD).setName(Component.literal("Restart")).setCallback((a, b, c, g) -> new SnakeGui(this.getPlayer()).open()));
         this.addLayer(backdrop, 0, 6);
     }
 
@@ -154,7 +151,7 @@ public class SnakeGui extends LayeredGui {
 
                 if (this.snakeParts.contains(this.snakeHead)) {
                     this.gameover = true;
-                    this.setTitle(Text.literal("Game Over!"));
+                    this.setTitle(Component.literal("Game Over!"));
                     return;
                 }
 
@@ -199,25 +196,25 @@ public class SnakeGui extends LayeredGui {
         this.gameplayLayer.clearSlots();
 
         for (Pos pos : this.apples) {
-            this.gameplayLayer.setSlot(pos.index(), Items.APPLE.getDefaultStack());
+            this.gameplayLayer.setSlot(pos.index(), Items.APPLE.getDefaultInstance());
         }
 
         for (Pos pos : this.goldApples) {
-            this.gameplayLayer.setSlot(pos.index(), Items.GOLDEN_APPLE.getDefaultStack());
+            this.gameplayLayer.setSlot(pos.index(), Items.GOLDEN_APPLE.getDefaultInstance());
         }
 
-        ItemStack stack = this.gameover ? Items.GRAY_WOOL.getDefaultStack() : Items.GREEN_WOOL.getDefaultStack();
+        ItemStack stack = this.gameover ? Items.GRAY_WOOL.getDefaultInstance() : Items.GREEN_WOOL.getDefaultInstance();
         for (Pos pos : this.snakeParts) {
             this.gameplayLayer.setSlot(pos.index(), stack);
         }
 
-        this.gameplayLayer.setSlot(this.snakeHead.index(), this.gameover ? Items.SKELETON_SKULL.getDefaultStack() : Items.CREEPER_HEAD.getDefaultStack());
+        this.gameplayLayer.setSlot(this.snakeHead.index(), this.gameover ? Items.SKELETON_SKULL.getDefaultInstance() : Items.CREEPER_HEAD.getDefaultInstance());
 
-        var scoreText = Text.literal("" + this.points);
+        var scoreComponent = Component.literal("" + this.points);
         for (int x = 0; x < 5; x++) {
             int score = (this.points / (int) Math.pow(10, x)) % 10;
             ItemStack stack1 = NUMBERS[score].copy();
-            stack1.set(DataComponentTypes.CUSTOM_NAME, scoreText);
+            stack1.set(DataComponents.CUSTOM_NAME, scoreComponent);
             this.scoreLayer.setSlot(4 - x, stack1);
         }
 

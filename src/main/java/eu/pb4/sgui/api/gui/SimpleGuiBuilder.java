@@ -5,11 +5,11 @@ import eu.pb4.sgui.api.SlotHolder;
 import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.elements.GuiElementBuilderInterface;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Simple Gui Builder
@@ -21,14 +21,14 @@ public final class SimpleGuiBuilder implements SlotHolder {
     private final int size;
     private final int width;
     private final int height;
-    private final ScreenHandlerType<?> type;
+    private final MenuType<?> type;
     private final GuiElementInterface[] elements;
     private final Slot[] slotRedirects;
     private final boolean includePlayer;
     private final int sizeCont;
     private boolean lockPlayerInventory = false;
     private boolean hasRedirects = false;
-    private Text title = null;
+    private Component title = null;
 
     /**
      * Constructs a new simple container gui for the supplied player.
@@ -37,7 +37,7 @@ public final class SimpleGuiBuilder implements SlotHolder {
      * @param manipulatePlayerSlots if <code>true</code> the players inventory
      *                                    will be treated as slots of this gui
      */
-    public SimpleGuiBuilder(ScreenHandlerType<?> type, boolean manipulatePlayerSlots) {
+    public SimpleGuiBuilder(MenuType<?> type, boolean manipulatePlayerSlots) {
         this.height = GuiHelpers.getHeight(type);
         this.width = GuiHelpers.getWidth(type);
 
@@ -58,7 +58,7 @@ public final class SimpleGuiBuilder implements SlotHolder {
      * @param player Player
      * @return SimpleGui instance
      */
-    public SimpleGui build(ServerPlayerEntity player) {
+    public SimpleGui build(ServerPlayer player) {
         SimpleGui gui = new SimpleGui(this.type, player, this.includePlayer);
         gui.setTitle(this.title);
         gui.setLockPlayerInventory(true);
@@ -183,15 +183,15 @@ public final class SimpleGuiBuilder implements SlotHolder {
         return this.hasRedirects;
     }
 
-    public Text getTitle() {
+    public Component getTitle() {
         return this.title;
     }
 
-    public void setTitle(Text title) {
+    public void setTitle(Component title) {
         this.title = title;
     }
 
-    public ScreenHandlerType<?> getType() {
+    public MenuType<?> getType() {
         return this.type;
     }
 

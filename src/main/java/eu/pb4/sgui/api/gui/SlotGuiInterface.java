@@ -5,9 +5,8 @@ import eu.pb4.sgui.api.SlotHolder;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
 import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
 import eu.pb4.sgui.virtual.inventory.VirtualSlot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,11 +26,11 @@ public interface SlotGuiInterface extends SlotHolder, GuiInterface {
     /**
      * Used internally to receive clicks from the client.
      *
-     * @see SlotGuiInterface#onClick(int, ClickType, SlotActionType, GuiElementInterface)
-     * @see SlotGuiInterface#onAnyClick(int, ClickType, SlotActionType)
+     * @see SlotGuiInterface#onClick(int, ClickType, net.minecraft.world.inventory.ClickType, GuiElementInterface)
+     * @see SlotGuiInterface#onAnyClick(int, ClickType, net.minecraft.world.inventory.ClickType)
      */
     @ApiStatus.Internal
-    default boolean click(int index, ClickType type, SlotActionType action) {
+    default boolean click(int index, ClickType type, net.minecraft.world.inventory.ClickType action) {
         GuiElementInterface element = this.getSlot(index);
         if (element != null) {
             element.getGuiCallback().click(index, type, action, this);
@@ -47,7 +46,7 @@ public interface SlotGuiInterface extends SlotHolder, GuiInterface {
      * @param action Minecraft's Slot Action Type
      * @return <code>true</code> if to allow manipulation of redirected slots, otherwise <code>false</code>
      */
-    default boolean onAnyClick(int index, ClickType type, SlotActionType action) {
+    default boolean onAnyClick(int index, ClickType type, net.minecraft.world.inventory.ClickType action) {
         return true;
     }
 
@@ -60,7 +59,7 @@ public interface SlotGuiInterface extends SlotHolder, GuiInterface {
      * @param element Clicked GuiElement
      * @return Returns false, for automatic handling and syncing or true, if you want to do it manually
      */
-    default boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element) {
+    default boolean onClick(int index, ClickType type, net.minecraft.world.inventory.ClickType action, GuiElementInterface element) {
         return false;
     }
 
@@ -99,17 +98,17 @@ public interface SlotGuiInterface extends SlotHolder, GuiInterface {
             return this.getSlotRedirect(index);
         }
 
-        if (this.getPlayer().currentScreenHandler instanceof VirtualScreenHandler virt && virt.getGui() == this && index < virt.slots.size()) {
+        if (this.getPlayer().containerMenu instanceof VirtualScreenHandler virt && virt.getGui() == this && index < virt.slots.size()) {
             return virt.slots.get(index);
         }
         return null;
     }
 
-    default ItemStack quickMove(int index) {
+    default ItemStack quickMoveStack(int index) {
         ItemStack itemStack = ItemStack.EMPTY;
         Slot slot = this.getSlotRedirectOrPlayer(index);
-        if (slot != null && slot.hasStack() && !(slot instanceof VirtualSlot)) {
-            ItemStack itemStack2 = slot.getStack();
+        if (slot != null && slot.hasItem() && !(slot instanceof VirtualSlot)) {
+            ItemStack itemStack2 = slot.getItem();
             itemStack = itemStack2.copy();
             if (index < this.getVirtualSize()) {
                 if (!this.insertItem(itemStack2, this.getVirtualSize(), this.getVirtualSize() + 9 * 4, true)) {
@@ -119,12 +118,12 @@ public interface SlotGuiInterface extends SlotHolder, GuiInterface {
                 return ItemStack.EMPTY;
             }
             if (itemStack2.isEmpty()) {
-                slot.setStack(ItemStack.EMPTY);
+                slot.set(ItemStack.EMPTY);
             } else {
-                slot.markDirty();
+                slot.setChanged();
             }
         } else if (slot instanceof VirtualSlot) {
-            return slot.getStack();
+            return slot.getItem();
         }
 
         return itemStack;
@@ -140,20 +139,20 @@ public interface SlotGuiInterface extends SlotHolder, GuiInterface {
         if (stack.isStackable()) {
             while (!stack.isEmpty() && (fromLast ? i >= startIndex : i < endIndex)) {
                 var slot = this.getSlotRedirectOrPlayer(i);
-                if (slot != null && slot.canInsert(stack)) {
-                    var stackInSlot = slot.getStack();
-                    if (!stackInSlot.isEmpty() && ItemStack.areItemsAndComponentsEqual(stack, stackInSlot)) {
+                if (slot != null && slot.mayPlace(stack)) {
+                    var stackInSlot = slot.getItem();
+                    if (!stackInSlot.isEmpty() && ItemStack.isSameItemSameComponents(stack, stackInSlot)) {
                         var totalCount = stackInSlot.getCount() + stack.getCount();
-                        var maxSize = slot.getMaxItemCount(stackInSlot);
+                        var maxSize = slot.getMaxStackSize(stackInSlot);
                         if (totalCount <= maxSize) {
                             stack.setCount(0);
                             stackInSlot.setCount(totalCount);
-                            slot.markDirty();
+                            slot.setChanged();
                             modified = true;
                         } else if (stackInSlot.getCount() < maxSize) {
-                            stack.decrement(maxSize - stackInSlot.getCount());
+                            stack.shrink(maxSize - stackInSlot.getCount());
                             stackInSlot.setCount(maxSize);
-                            slot.markDirty();
+                            slot.setChanged();
                             modified = true;
                         }
                     }
@@ -176,12 +175,12 @@ public interface SlotGuiInterface extends SlotHolder, GuiInterface {
 
             while (fromLast ? i >= startIndex : i < endIndex) {
                 var slot = this.getSlotRedirectOrPlayer(i);
-                if (slot != null && slot.canInsert(stack)) {
-                    var stackInSlot = slot.getStack();
-                    if (stackInSlot.isEmpty() && slot.canInsert(stack)) {
-                        int maxSize = slot.getMaxItemCount(stack);
-                        slot.setStack(stack.split(Math.min(stack.getCount(), maxSize)));
-                        slot.markDirty();
+                if (slot != null && slot.mayPlace(stack)) {
+                    var stackInSlot = slot.getItem();
+                    if (stackInSlot.isEmpty() && slot.mayPlace(stack)) {
+                        int maxSize = slot.getMaxStackSize(stack);
+                        slot.set(stack.split(Math.min(stack.getCount(), maxSize)));
+                        slot.setChanged();
                         modified = true;
                         break;
                     }

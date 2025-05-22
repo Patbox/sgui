@@ -5,13 +5,11 @@ import eu.pb4.sgui.api.ScreenProperty;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.server.network.ServerPlayerEntity;
-import org.jetbrains.annotations.ApiStatus;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.Slot;
 
 public abstract class BaseSlotGui implements SlotGuiInterface {
-    protected final ServerPlayerEntity player;
+    protected final ServerPlayer player;
     protected final GuiElementInterface[] elements;
     protected final Slot[] slotRedirects;
     protected boolean autoUpdate = true;
@@ -20,7 +18,7 @@ public abstract class BaseSlotGui implements SlotGuiInterface {
     protected final IntList properties = new IntArrayList();
 
 
-    public BaseSlotGui(ServerPlayerEntity player, int size) {
+    public BaseSlotGui(ServerPlayer player, int size) {
         this.player = player;
         this.elements = new GuiElementInterface[size];
         this.slotRedirects = new Slot[size];
@@ -102,7 +100,7 @@ public abstract class BaseSlotGui implements SlotGuiInterface {
     }
 
     @Override
-    public ServerPlayerEntity getPlayer() {
+    public ServerPlayer getPlayer() {
         return this.player;
     }
 

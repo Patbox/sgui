@@ -1,9 +1,9 @@
 package eu.pb4.sgui.virtual.inventory;
 
 import eu.pb4.sgui.api.gui.SlotGuiInterface;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.slot.Slot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.Optional;
 
@@ -17,38 +17,38 @@ public class VirtualSlot extends Slot {
     }
 
     @Override
-    public ItemStack takeStack(int amount) {
+    public ItemStack remove(int amount) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public boolean canTakeItems(PlayerEntity playerEntity) {
+    public boolean mayPickup(Player Player) {
         return false;
     }
 
     @Override
-    public boolean canTakePartial(PlayerEntity player) {
+    public boolean allowModification(Player player) {
         return false;
     }
 
     @Override
-    public ItemStack insertStack(ItemStack stack, int count) {
+    public ItemStack safeInsert(ItemStack stack, int count) {
         return stack;
     }
 
     @Override
-    public Optional<ItemStack> tryTakeStackRange(int min, int max, PlayerEntity player) {
+    public Optional<ItemStack> tryRemove(int min, int max, Player player) {
         return Optional.empty();
     }
 
     @Override
-    public ItemStack insertStack(ItemStack stack) {
+    public ItemStack safeInsert(ItemStack stack) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public ItemStack getStack() {
-        var x = this.gui.getSlot(this.getIndex());
+    public ItemStack getItem() {
+        var x = this.gui.getSlot(this.getContainerSlot());
         if (x == null) {
             return ItemStack.EMPTY;
         }
@@ -56,27 +56,27 @@ public class VirtualSlot extends Slot {
     }
 
     @Override
-    public void setStackNoCallbacks(ItemStack stack) {
+    public void setByPlayer(ItemStack stack) {
 
     }
 
     @Override
-    public void setStack(ItemStack stack) {
+    public void set(ItemStack stack) {
 
     }
 
     @Override
-    public boolean hasStack() {
+    public boolean hasItem() {
         return true;
     }
 
     @Override
-    public boolean canInsert(ItemStack stack) {
+    public boolean mayPlace(ItemStack stack) {
         return false;
     }
 
     @Override
-    public void markDirty() {
+    public void setChanged() {
 
     }
 }

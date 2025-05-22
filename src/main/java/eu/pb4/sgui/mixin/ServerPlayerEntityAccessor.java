@@ -1,12 +1,12 @@
 package eu.pb4.sgui.mixin;
 
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Mixin(ServerPlayerEntity.class)
+@Mixin(ServerPlayer.class)
 public interface ServerPlayerEntityAccessor {
     @Invoker
-    void callOnScreenHandlerOpened(ScreenHandler screenHandler);
+    void callInitMenu(AbstractContainerMenu screenHandler);
 }

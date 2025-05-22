@@ -4,25 +4,20 @@ import eu.pb4.sgui.api.GuiHelpers;
 import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
 import eu.pb4.sgui.mixin.ScreenHandlerAccessor;
-import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
 import eu.pb4.sgui.virtual.SguiScreenHandlerFactory;
+import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
 import eu.pb4.sgui.virtual.inventory.VirtualSlot;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.BundleS2CPacket;
-import net.minecraft.network.packet.s2c.play.InventoryS2CPacket;
-import net.minecraft.network.packet.s2c.play.OpenScreenS2CPacket;
-import net.minecraft.network.packet.s2c.play.ScreenHandlerPropertyUpdateS2CPacket;
-import net.minecraft.recipe.NetworkRecipeId;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.sync.ItemStackHash;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.*;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.display.RecipeDisplayId;
 
 import java.util.ArrayList;
 import java.util.OptionalInt;
@@ -37,14 +32,14 @@ import java.util.OptionalInt;
 public class SimpleGui extends BaseSlotGui {
     protected final int width;
     protected final int height;
-    protected final ScreenHandlerType<?> type;
+    protected final MenuType<?> type;
     private final boolean includePlayer;
     private final int sizeCont;
     protected boolean lockPlayerInventory = false;
     protected VirtualScreenHandler screenHandler = null;
     protected int syncId = -1;
     protected boolean hasRedirects = false;
-    private Text title = null;
+    private Component title = null;
 
     /**
      * Constructs a new simple container gui for the supplied player.
@@ -54,7 +49,7 @@ public class SimpleGui extends BaseSlotGui {
      * @param manipulatePlayerSlots if <code>true</code> the players inventory
      *                              will be treated as slots of this gui
      */
-    public SimpleGui(ScreenHandlerType<?> type, ServerPlayerEntity player, boolean manipulatePlayerSlots) {
+    public SimpleGui(MenuType<?> type, ServerPlayer player, boolean manipulatePlayerSlots) {
         super(player, GuiHelpers.getHeight(type) * GuiHelpers.getWidth(type) + (manipulatePlayerSlots ? 36 : 0));
         this.height = GuiHelpers.getHeight(type);
         this.width = GuiHelpers.getWidth(type);
@@ -109,32 +104,32 @@ public class SimpleGui extends BaseSlotGui {
 
     @Override
     public boolean isOpen() {
-        return this.screenHandler != null && this.screenHandler == this.player.currentScreenHandler;
+        return this.screenHandler != null && this.screenHandler == this.player.containerMenu;
     }
 
     @Override
-    public Text getTitle() {
+    public Component getTitle() {
         return this.title;
     }
 
     @Override
-    public void setTitle(Text title) {
+    public void setTitle(Component title) {
         this.title = title;
 
         if (this.isOpen()) {
-            var list = new ArrayList<Packet<? super ClientPlayPacketListener>>();
-            list.add(new OpenScreenS2CPacket(this.syncId, this.type, title));
-            list.add(new InventoryS2CPacket(this.syncId, this.screenHandler.getRevision(),
-                    this.screenHandler.getStacks(), this.screenHandler.getCursorStack()));
+            var list = new ArrayList<Packet<? super ClientGamePacketListener>>();
+            list.add(new ClientboundOpenScreenPacket(this.syncId, this.type, title));
+            list.add(new ClientboundContainerSetContentPacket(this.syncId, this.screenHandler.getStateId(),
+                    this.screenHandler.getItems(), this.screenHandler.getCarried()));
             for (int i = 0; i < this.properties.size(); i++) {
-                list.add(new ScreenHandlerPropertyUpdateS2CPacket(this.syncId, i, this.properties.getInt(i)));
+                list.add(new ClientboundContainerSetDataPacket(this.syncId, i, this.properties.getInt(i)));
             }
 
-            this.player.networkHandler.sendPacket(new BundleS2CPacket(list));
+            this.player.connection.send(new ClientboundBundlePacket(list));
             for (var i = 0; i < this.screenHandler.slots.size(); i++) {
-                this.screenHandler.setReceivedStack(i, this.screenHandler.slots.get(i).getStack().copy());
+                this.screenHandler.setRemoteSlot(i, this.screenHandler.slots.get(i).getItem().copy());
             }
-            ((ScreenHandlerAccessor) this.screenHandler).getTrackedCursorSlot().setReceivedStack(this.screenHandler.getCursorStack());
+            ((ScreenHandlerAccessor) this.screenHandler).getRemoteCarried().force(this.screenHandler.getCarried());
         }
     }
 
@@ -186,12 +181,12 @@ public class SimpleGui extends BaseSlotGui {
      */
     protected boolean sendGui() {
         this.reOpen = true;
-        OptionalInt temp = this.player.openHandledScreen(SguiScreenHandlerFactory.ofDefault(this));
+        OptionalInt temp = this.player.openMenu(SguiScreenHandlerFactory.ofDefault(this));
         this.reOpen = false;
         if (temp.isPresent()) {
             this.syncId = temp.getAsInt();
-            if (this.player.currentScreenHandler instanceof VirtualScreenHandler) {
-                this.screenHandler = (VirtualScreenHandler) this.player.currentScreenHandler;
+            if (this.player.containerMenu instanceof VirtualScreenHandler) {
+                this.screenHandler = (VirtualScreenHandler) this.player.containerMenu;
                 return true;
             }
         }
@@ -205,17 +200,17 @@ public class SimpleGui extends BaseSlotGui {
      * @param recipe the selected recipe identifier
      * @param shift  is shift was held
      */
-    public void onCraftRequest(NetworkRecipeId recipe, boolean shift) {
+    public void onCraftRequest(RecipeDisplayId recipe, boolean shift) {
     }
 
     @Override
-    public ScreenHandlerType<?> getType() {
+    public MenuType<?> getType() {
         return this.type;
     }
 
     @Override
     public boolean open() {
-        if (this.player.isDisconnected() || this.isOpen()) {
+        if (this.player.hasDisconnected() || this.isOpen()) {
             return false;
         } else {
             this.beforeOpen();
@@ -225,8 +220,8 @@ public class SimpleGui extends BaseSlotGui {
         }
     }
 
-    public ScreenHandler openAsScreenHandler(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-        if (this.player.isDisconnected() || player != this.player || this.isOpen()) {
+    public AbstractContainerMenu openAsScreenHandler(int syncId, Inventory playerInventory, Player player) {
+        if (this.player.hasDisconnected() || player != this.player || this.isOpen()) {
             return null;
         } else {
             this.beforeOpen();
@@ -239,12 +234,12 @@ public class SimpleGui extends BaseSlotGui {
     @Override
     public void close(boolean screenHandlerIsClosed) {
         if ((this.isOpen() || screenHandlerIsClosed) && !this.reOpen) {
-            if (!screenHandlerIsClosed && this.player.currentScreenHandler == this.screenHandler) {
-                this.player.closeHandledScreen();
+            if (!screenHandlerIsClosed && this.player.containerMenu == this.screenHandler) {
+                this.player.closeContainer();
                 this.screenHandler = null;
             }
 
-            this.player.currentScreenHandler.syncState();
+            this.player.containerMenu.broadcastChanges();
 
             this.onClose();
         } else {
@@ -278,7 +273,7 @@ public class SimpleGui extends BaseSlotGui {
      */
     @Deprecated
     public void sendProperty(int property, int value) {
-        this.player.networkHandler.sendPacket(new ScreenHandlerPropertyUpdateS2CPacket(this.syncId, property, value));
+        this.player.connection.send(new ClientboundContainerSetDataPacket(this.syncId, property, value));
     }
 
     @Deprecated

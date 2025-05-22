@@ -2,22 +2,19 @@ package eu.pb4.sgui.testmod;
 
 import eu.pb4.sgui.api.gui.GuiInterface;
 import eu.pb4.sgui.virtual.FakeScreenHandler;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.WritableBookContentComponent;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.WritableBookItem;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
-import net.minecraft.network.packet.s2c.play.OpenWrittenBookS2CPacket;
-import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.RawFilteredPair;
-import net.minecraft.text.Text;
-import net.minecraft.util.Hand;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.network.protocol.game.ClientboundOpenBookPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.Filterable;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.WritableBookItem;
+import net.minecraft.world.item.component.WritableBookContent;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,7 +38,7 @@ import java.util.List;
  */
 @Deprecated
 public class BookInputGui implements GuiInterface {
-    protected final ServerPlayerEntity player;
+    protected final ServerPlayer player;
     protected boolean open = false;
     protected boolean reOpen = false;
     protected FakeScreenHandler screenHandler = null;
@@ -49,14 +46,14 @@ public class BookInputGui implements GuiInterface {
     protected int syncId = -1;
     private boolean autoUpdate;
     private String title;
-    private List<String> pages;
+    private final List<String> pages;
 
     /**
      * Constructs a new book input gui for the supplied player.
      *
      * @param player the player to server this gui to
      */
-    public BookInputGui(ServerPlayerEntity player) {
+    public BookInputGui(ServerPlayer player) {
         this(player, null);
     }
 
@@ -66,11 +63,11 @@ public class BookInputGui implements GuiInterface {
      * @param player the player to server this gui to
      * @param book   book to base on
      */
-    public BookInputGui(ServerPlayerEntity player, ItemStack book) {
+    public BookInputGui(ServerPlayer player, ItemStack book) {
         this.player = player;
         this.pages = new ArrayList<>();
         if (book != null && book.getItem() instanceof WritableBookItem) {
-            for (RawFilteredPair<String> page : book.get(DataComponentTypes.WRITABLE_BOOK_CONTENT).pages()) {
+            for (Filterable<String> page : book.get(DataComponents.WRITABLE_BOOK_CONTENT).pages()) {
                 this.pages.add(page.raw());
             }
         }
@@ -85,19 +82,19 @@ public class BookInputGui implements GuiInterface {
     public boolean open() {
         this.reOpen = true;
 
-        if (this.player.currentScreenHandler != this.player.playerScreenHandler && this.player.currentScreenHandler != this.screenHandler) {
-            this.player.closeHandledScreen();
+        if (this.player.containerMenu != this.player.inventoryMenu && this.player.containerMenu != this.screenHandler) {
+            this.player.closeContainer();
         }
         if (screenHandler == null) {
             this.screenHandler = new FakeScreenHandler(this);
         }
-        this.player.currentScreenHandler = this.screenHandler;
+        this.player.containerMenu = this.screenHandler;
 
-        ItemStack stack = Items.WRITABLE_BOOK.getDefaultStack();
-        stack.set(DataComponentTypes.WRITABLE_BOOK_CONTENT, new WritableBookContentComponent(pages.stream().map(RawFilteredPair::of).toList()));
+        ItemStack stack = Items.WRITABLE_BOOK.getDefaultInstance();
+        stack.set(DataComponents.WRITABLE_BOOK_CONTENT, new WritableBookContent(pages.stream().map(Filterable::passThrough).toList()));
 
-        this.player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, PlayerInventory.OFF_HAND_SLOT, stack));
-        this.player.networkHandler.sendPacket(new OpenWrittenBookS2CPacket(Hand.OFF_HAND));
+        this.player.connection.send(new ClientboundContainerSetSlotPacket(-2, 0, Inventory.SLOT_OFFHAND, stack));
+        this.player.connection.send(new ClientboundOpenBookPacket(InteractionHand.OFF_HAND));
 
         this.reOpen = false;
         this.open = true;
@@ -106,7 +103,7 @@ public class BookInputGui implements GuiInterface {
     }
 
     @Override
-    public ServerPlayerEntity getPlayer() {
+    public ServerPlayer getPlayer() {
         return this.player;
     }
 
@@ -116,12 +113,12 @@ public class BookInputGui implements GuiInterface {
             this.open = false;
             this.reOpen = false;
 
-            this.player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, PlayerInventory.OFF_HAND_SLOT, this.player.getOffHandStack()));
+            this.player.connection.send(new ClientboundContainerSetSlotPacket(-2, 0, Inventory.SLOT_OFFHAND, this.player.getOffhandItem()));
 
-            if (alreadyClosed && this.player.currentScreenHandler == this.screenHandler) {
-                this.player.onHandledScreenClosed();
+            if (alreadyClosed && this.player.containerMenu == this.screenHandler) {
+                this.player.doCloseContainer();
             } else {
-                this.player.closeHandledScreen();
+                this.player.closeContainer();
             }
 
             this.onClose();
@@ -235,18 +232,18 @@ public class BookInputGui implements GuiInterface {
 
     @Deprecated
     @Override
-    public Text getTitle() {
+    public Component getTitle() {
         return null;
     }
 
     @Deprecated
     @Override
-    public void setTitle(Text title) {
+    public void setTitle(Component title) {
     }
 
     @Deprecated
     @Override
-    public ScreenHandlerType<?> getType() {
+    public MenuType<?> getType() {
         return null;
     }
 

@@ -1,7 +1,5 @@
 package eu.pb4.sgui.api;
 
-import net.minecraft.screen.slot.SlotActionType;
-
 /**
  * Simplified Click Type
  * <br>
@@ -58,7 +56,7 @@ public enum ClickType {
         this.isDragging = isDragging;
     }
 
-    public static ClickType toClickType(SlotActionType action, int button, int slot) {
+    public static ClickType toClickType(net.minecraft.world.inventory.ClickType action, int button, int slot) {
         switch (action) {
             case PICKUP:
                 return button == 0 ? MOUSE_LEFT : MOUSE_RIGHT;

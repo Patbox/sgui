@@ -4,12 +4,12 @@ import com.mojang.authlib.GameProfile;
 import eu.pb4.sgui.impl.PlayerExtensions;
 import eu.pb4.sgui.virtual.SguiScreenHandlerFactory;
 import eu.pb4.sgui.virtual.VirtualScreenHandlerInterface;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -20,37 +20,37 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.OptionalInt;
 
-@Mixin(ServerPlayerEntity.class)
-public abstract class ServerPlayerEntityMixin extends PlayerEntity implements PlayerExtensions {
+@Mixin(ServerPlayer.class)
+public abstract class ServerPlayerEntityMixin extends Player implements PlayerExtensions {
     @Shadow
-    public abstract void onHandledScreenClosed();
+    public abstract void doCloseContainer();
 
     @Unique
     private boolean sgui$ignoreNext = false;
 
-    public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
+    public ServerPlayerEntityMixin(ServerLevel world, BlockPos pos, float yaw, GameProfile gameProfile) {
         super(world, pos, yaw, gameProfile);
     }
 
-    @Inject(method = "openHandledScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;closeHandledScreen()V", shift = At.Shift.BEFORE))
-    private void sgui$dontForceCloseFor(NamedScreenHandlerFactory factory, CallbackInfoReturnable<OptionalInt> cir) {
+    @Inject(method = "openMenu", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;closeContainer()V", shift = At.Shift.BEFORE))
+    private void sgui$dontForceCloseFor(MenuProvider factory, CallbackInfoReturnable<OptionalInt> cir) {
         if (factory instanceof SguiScreenHandlerFactory<?> sguiScreenHandlerFactory && !sguiScreenHandlerFactory.gui().resetMousePosition()) {
             this.sgui$ignoreNext = true;
         }
     }
 
-    @Inject(method = "closeHandledScreen", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "closeContainer", at = @At("HEAD"), cancellable = true)
     private void sgui$ignoreClosing(CallbackInfo ci) {
         if (this.sgui$ignoreNext) {
             this.sgui$ignoreNext = false;
-            this.onHandledScreenClosed();
+            this.doCloseContainer();
             ci.cancel();
         }
     }
 
-    @Inject(method = "onDeath", at = @At("TAIL"))
+    @Inject(method = "die", at = @At("TAIL"))
     private void sgui$onDeath(DamageSource source, CallbackInfo ci) {
-        if (this.currentScreenHandler instanceof VirtualScreenHandlerInterface handler) {
+        if (this.containerMenu instanceof VirtualScreenHandlerInterface handler) {
             handler.getGui().close(true);
         }
     }

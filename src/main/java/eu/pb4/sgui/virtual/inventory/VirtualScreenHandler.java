@@ -3,26 +3,26 @@ package eu.pb4.sgui.virtual.inventory;
 import eu.pb4.sgui.api.GuiHelpers;
 import eu.pb4.sgui.api.gui.SlotGuiInterface;
 import eu.pb4.sgui.virtual.VirtualScreenHandlerInterface;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerListener;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.screen.slot.Slot;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerListener;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-public class VirtualScreenHandler extends ScreenHandler implements VirtualScreenHandlerInterface {
+public class VirtualScreenHandler extends AbstractContainerMenu implements VirtualScreenHandlerInterface {
     private final SlotGuiInterface gui;
 
-    public VirtualScreenHandler(@Nullable ScreenHandlerType<?> type, int syncId, SlotGuiInterface gui, PlayerEntity player) {
+    public VirtualScreenHandler(@Nullable MenuType<?> type, int syncId, SlotGuiInterface gui, Player player) {
         super(type, syncId);
         this.gui = gui;
 
         setupSlots(player);
     }
 
-    protected void setupSlots(PlayerEntity player) {
+    protected void setupSlots(Player player) {
         int n;
         int m;
 
@@ -43,7 +43,7 @@ public class VirtualScreenHandler extends ScreenHandler implements VirtualScreen
                 }
             }
         } else {
-            PlayerInventory playerInventory = player.getInventory();
+            Inventory playerInventory = player.getInventory();
             for (n = 0; n < 3; ++n) {
                 for (m = 0; m < 9; ++m) {
                     this.addSlot(new Slot(playerInventory, m + n * 9 + 9, 0, 0));
@@ -57,18 +57,18 @@ public class VirtualScreenHandler extends ScreenHandler implements VirtualScreen
     }
 
     @Override
-    public void addListener(ScreenHandlerListener listener) {
-        super.addListener(listener);
+    public void addSlotListener(ContainerListener listener) {
+        super.addSlotListener(listener);
         this.gui.afterOpen();
     }
 
     @Override
-    public void syncState() {
-        super.syncState();
+    public void sendAllDataToRemote() {
+        super.sendAllDataToRemote();
         // We have to manually sync offhand state
         int index = this.getGui().getOffhandSlotIndex();
-        ItemStack updated = index >= 0 ? this.getSlot(index).getStack() : ItemStack.EMPTY;
-        GuiHelpers.sendSlotUpdate(this.gui.getPlayer(), -2, PlayerInventory.OFF_HAND_SLOT, updated, this.getRevision());
+        ItemStack updated = index >= 0 ? this.getSlot(index).getItem() : ItemStack.EMPTY;
+        GuiHelpers.sendSlotUpdate(this.gui.getPlayer(), -2, Inventory.SLOT_OFFHAND, updated, this.getStateId());
     }
 
     @Override
@@ -77,37 +77,37 @@ public class VirtualScreenHandler extends ScreenHandler implements VirtualScreen
     }
 
     @Override
-    public boolean canUse(PlayerEntity player) {
+    public boolean stillValid(Player player) {
         return true;
     }
 
     @Override
-    public void setStackInSlot(int slot, int i, ItemStack stack) {
+    public void setItem(int slot, int i, ItemStack stack) {
         if (this.gui.getSize() <= slot) {
-            this.getSlot(slot).setStack(stack);
+            this.getSlot(slot).set(stack);
         } else {
-            this.getSlot(slot).setStack(ItemStack.EMPTY);
+            this.getSlot(slot).set(ItemStack.EMPTY);
         }
     }
 
     @Override
-    public void sendContentUpdates() {
+    public void broadcastChanges() {
         try {
             this.gui.onTick();
         } catch (Exception e) {
             this.gui.handleException(e);
         }
-        super.sendContentUpdates();
+        super.broadcastChanges();
     }
 
     @Override
-    public ItemStack quickMove(PlayerEntity player, int index) {
-        return this.gui.quickMove(index);
+    public ItemStack quickMoveStack(Player player, int index) {
+        return this.gui.quickMoveStack(index);
     }
 
     @Override
-    public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
-        return !(slot instanceof VirtualSlot) && super.canInsertIntoSlot(stack, slot);
+    public boolean canDragTo(Slot slot) {
+        return !(slot instanceof VirtualSlot) && super.canDragTo(slot);
     }
 
     @Override
@@ -120,7 +120,7 @@ public class VirtualScreenHandler extends ScreenHandler implements VirtualScreen
     }
 
     @Override
-    protected boolean insertItem(ItemStack stack, int startIndex, int endIndex, boolean fromLast) {
+    protected boolean moveItemStackTo(ItemStack stack, int startIndex, int endIndex, boolean fromLast) {
         return this.gui.insertItem(stack, startIndex, endIndex, fromLast);
     }
 }

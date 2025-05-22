@@ -2,18 +2,18 @@ package eu.pb4.sgui.api.gui;
 
 import eu.pb4.sgui.api.GuiHelpers;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Anvil Input Helper
  * <p>
- * The AnvilInputGui is a standard gui for taking text input from the player.
+ * The AnvilInputGui is a standard gui for taking Component input from the player.
  * It is superior to a {@link SignGui} as the client sends constant updates
  * of the input back to the server, so filtering and modification can be done
  * on the fly.
@@ -23,8 +23,8 @@ import org.jetbrains.annotations.ApiStatus;
  */
 @SuppressWarnings({"unused"})
 public class AnvilInputGui extends SimpleGui {
-    private String inputText;
-    private String defaultText;
+    private String inputComponent;
+    private String defaultComponent;
 
     /**
      * Constructs a new input gui for the provided player.
@@ -33,8 +33,8 @@ public class AnvilInputGui extends SimpleGui {
      * @param manipulatePlayerSlots if <code>true</code> the players inventory
      *                              will be treated as slots of this gui
      */
-    public AnvilInputGui(ServerPlayerEntity player, boolean manipulatePlayerSlots) {
-        super(ScreenHandlerType.ANVIL, player, manipulatePlayerSlots);
+    public AnvilInputGui(ServerPlayer player, boolean manipulatePlayerSlots) {
+        super(MenuType.ANVIL, player, manipulatePlayerSlots);
         this.setDefaultInputValue("");
     }
 
@@ -44,13 +44,13 @@ public class AnvilInputGui extends SimpleGui {
      * @param input the default input
      */
     public void setDefaultInputValue(String input) {
-        ItemStack itemStack = Items.PAPER.getDefaultStack();
-        itemStack.set(DataComponentTypes.CUSTOM_NAME, Text.literal(input));
-        this.inputText = input;
-        this.defaultText = input;
+        ItemStack itemStack = Items.PAPER.getDefaultInstance();
+        itemStack.set(DataComponents.CUSTOM_NAME, Component.literal(input));
+        this.inputComponent = input;
+        this.defaultComponent = input;
         this.setSlot(0, itemStack, ((index, type1, action, gui) -> {
             this.reOpen = true;
-            this.inputText = this.defaultText;
+            this.inputComponent = this.defaultComponent;
             this.sendGui();
         }));
     }
@@ -61,7 +61,7 @@ public class AnvilInputGui extends SimpleGui {
      * @return the current string
      */
     public String getInput() {
-        return this.inputText;
+        return this.inputComponent;
     }
 
     /**
@@ -77,7 +77,7 @@ public class AnvilInputGui extends SimpleGui {
      */
     @ApiStatus.Internal
     public void input(String input) {
-        this.inputText = input;
+        this.inputComponent = input;
         this.onInput(input);
         GuiElementInterface element = this.getSlot(2);
         ItemStack stack = ItemStack.EMPTY;

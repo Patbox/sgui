@@ -1,20 +1,20 @@
 package eu.pb4.sgui.virtual.sign;
 
 import eu.pb4.sgui.mixin.SignBlockEntityAccessor;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.SignBlockEntity;
-import net.minecraft.block.entity.SignText;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.SignText;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * SignBlockEntity which doesn't invoke {@link SignBlockEntity#updateListeners()}
+ * SignBlockEntity which doesn't invoke {@link SignBlockEntity#markUpdated()}
  */
 public class VirtualSignBlockEntity extends SignBlockEntity {
 
-    public VirtualSignBlockEntity(World world, BlockPos pos, BlockState state) {
+    public VirtualSignBlockEntity(Level level, BlockPos pos, BlockState state) {
         super(pos, state);
-        this.setWorld(world);
+        this.setLevel(level);
     }
 
     public boolean setText(SignText text, boolean front) {

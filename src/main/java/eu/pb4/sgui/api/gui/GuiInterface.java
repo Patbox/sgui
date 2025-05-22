@@ -1,11 +1,11 @@
 package eu.pb4.sgui.api.gui;
 
 import eu.pb4.sgui.api.ScreenProperty;
-import net.minecraft.network.packet.s2c.play.ScreenHandlerPropertyUpdateS2CPacket;
-import net.minecraft.registry.Registries;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundContainerSetDataPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.MenuType;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +17,7 @@ public interface GuiInterface {
      *
      * @param title the new title
      */
-    void setTitle(Text title);
+    void setTitle(Component title);
 
     /**
      * Returns the title of the gui.
@@ -25,22 +25,22 @@ public interface GuiInterface {
      * @return the title of the gui or <code>null</code> if not set
      */
     @Nullable
-    Text getTitle();
+    Component getTitle();
 
     /**
-     * Returns the {@link net.minecraft.screen.ScreenHandler} type that will be sent to the client. <br>
+     * Returns the {@link net.minecraft.world.inventory.MenuType} type that will be sent to the client. <br>
      * The other GUI data should match what the client would expect for this handler (slot count, ect).
      *
      * @return the screen handler type
      */
-    ScreenHandlerType<?> getType();
+    MenuType<?> getType();
 
     /**
      * Returns the player this gui was constructed for.
      *
      * @return the player
      */
-    ServerPlayerEntity getPlayer();
+    ServerPlayer getPlayer();
 
     /**
      * Returns the sync id used for communicating information about this screen between the server and client.
@@ -135,16 +135,16 @@ public interface GuiInterface {
      */
     default void sendProperty(ScreenProperty property, int value) {
         if (!property.validFor(this.getType())) {
-            throw new IllegalArgumentException(String.format("The property '%s' is not valid for the handler '%s'", property.name(), Registries.SCREEN_HANDLER.getId(this.getType())));
+            throw new IllegalArgumentException(String.format("The property '%s' is not valid for the handler '%s'", property.name(), BuiltInRegistries.MENU.getId(this.getType())));
         }
         if (this.isOpen()) {
-            this.getPlayer().networkHandler.sendPacket(new ScreenHandlerPropertyUpdateS2CPacket(this.getSyncId(), property.id(), value));
+            this.getPlayer().connection.send(new ClientboundContainerSetDataPacket(this.getSyncId(), property.id(), value));
         }
     }
 
     default void sendRawProperty(int id, int value) {
         if (this.isOpen()) {
-            this.getPlayer().networkHandler.sendPacket(new ScreenHandlerPropertyUpdateS2CPacket(this.getSyncId(), id, value));
+            this.getPlayer().connection.send(new ClientboundContainerSetDataPacket(this.getSyncId(), id, value));
         }
     }
 

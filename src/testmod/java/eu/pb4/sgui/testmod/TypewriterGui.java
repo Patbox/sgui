@@ -2,10 +2,11 @@ package eu.pb4.sgui.testmod;
 
 import eu.pb4.sgui.api.elements.BookElementBuilder;
 import eu.pb4.sgui.api.gui.BookGui;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.server.level.ServerPlayer;
+
 
 public class TypewriterGui extends BookGui {
     private static final String[] KEYBOARD = {
@@ -20,7 +21,7 @@ public class TypewriterGui extends BookGui {
 
     private String word = "";
 
-    public TypewriterGui(ServerPlayerEntity player) {
+    public TypewriterGui(ServerPlayer player) {
         super(player);
         updateText();
 
@@ -28,7 +29,7 @@ public class TypewriterGui extends BookGui {
     }
 
     private void updateText() {
-        var text = Text.empty();
+        var text = Component.empty();
 
         int line = 0;
         for (int i = 0; i < this.word.length(); i += MAX_LINE) {
@@ -40,7 +41,7 @@ public class TypewriterGui extends BookGui {
         for (var kl : KEYBOARD) {
             for (int i = 0; i < kl.length(); i++) {
                 var chr = kl.charAt(i);
-                text.append(Text.literal("" + chr).setStyle(
+                text.append(Component.literal("" + chr).setStyle(
                         Style.EMPTY.withClickEvent(new ClickEvent.ChangePage (1000 + chr))));
                 text.append(" ");
                 line++;
@@ -48,10 +49,10 @@ public class TypewriterGui extends BookGui {
             text.append("\n");
         }
         text.append("   ");
-        text.append(Text.literal("[SPACE]").setStyle(
+        text.append(Component.literal("[SPACE]").setStyle(
                 Style.EMPTY.withClickEvent(new ClickEvent.ChangePage (1000 + ' '))));
         text.append("   ");
-        text.append(Text.literal("[<---]").setStyle(
+        text.append(Component.literal("[<---]").setStyle(
                 Style.EMPTY.withClickEvent(new ClickEvent.ChangePage(100))));
 
         var book = new BookElementBuilder();
