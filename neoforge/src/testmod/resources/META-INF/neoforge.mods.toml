@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+issueTrackerURL="https://github.com/Patbox/sgui/issues"
+license="LGPLv3"
+
+[[mods]]
+modId="sguitest"
+version="1.0.0"
+displayName="Server GUI (Neoforge Test Mod)"
+displayURL="https://github.com/Patbox/sgui/releases"
+logoFile="icon.png"
+authors="Patbox,aws404"
+description='''Library for creating server side guis!'''
+displayTest="IGNORE_ALL_VERSION"
+
+[[dependencies.sguitest]]
+    modId="neoforge"
+    type="required"
+    versionRange="[21.5.10-beta,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.sguitest]]
+    modId="minecraft"
+    type="required"
+    versionRange="[1.21.5,)"
+    ordering="NONE"
+    side="BOTH"
