@@ -360,7 +360,7 @@ public class SGuiTest implements ModInitializer {
                 }
 
                 @Override
-                public boolean onTrade(TradeOffer offer) {
+                public boolean shouldTrade(TradeOffer offer) {
                     return player.isCreative();
                 }
 

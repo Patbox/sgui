@@ -5,6 +5,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.village.SimpleMerchant;
+import net.minecraft.village.TradeOffer;
 
 public class VirtualMerchant extends SimpleMerchant {
 
@@ -46,6 +47,16 @@ public class VirtualMerchant extends SimpleMerchant {
     public void sendOffers(PlayerEntity player, Text test, int levelProgress) {
         if (player.currentScreenHandler instanceof VirtualMerchantScreenHandler) {
             ((VirtualMerchantScreenHandler) player.currentScreenHandler).getGui().sendUpdate();
+        }
+    }
+
+    @Override
+    public void trade(TradeOffer offer) {
+        super.trade(offer);
+        ServerPlayerEntity player = (ServerPlayerEntity) this.getCustomer();
+        assert player != null;
+        if (player.currentScreenHandler instanceof VirtualMerchantScreenHandler) {
+            ((VirtualMerchantScreenHandler) player.currentScreenHandler).getGui().onTrade(offer);
         }
     }
 }
