@@ -183,8 +183,16 @@ public class MerchantGui extends SimpleGui {
      * @param offer the trade offer being done
      * @return if the trade should complete
      */
-    public boolean onTrade(TradeOffer offer) {
+    public boolean shouldTrade(TradeOffer offer) {
         return true;
+    }
+
+    /**
+     * Runs after a trade has been completed.
+     *
+     * @param offer the trade offer being done
+     */
+    public void onTrade(TradeOffer offer) {
     }
 
     /**

@@ -18,7 +18,7 @@ public class VirtualTradeOutputSlot extends TradeOutputSlot {
     public boolean canTakeItems(PlayerEntity playerEntity) {
         TradeOffer tradeOffer = this.merchantInventory.getTradeOffer();
         VirtualMerchantScreenHandler handler = (VirtualMerchantScreenHandler) playerEntity.currentScreenHandler;
-        return tradeOffer != null && handler.getGui().onTrade(tradeOffer);
+        return tradeOffer != null && handler.getGui().shouldTrade(tradeOffer);
     }
 
 }
