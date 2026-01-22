@@ -39,7 +39,12 @@ public class VirtualScreenHandler extends AbstractContainerMenu implements Virtu
             int size = this.gui.getHeight() * this.gui.getWidth();
             for (n = 0; n < 4; ++n) {
                 for (m = 0; m < 9; ++m) {
-                    this.addSlot(new VirtualSlot(gui, m + n * 9 + size, 0, 0));
+                    Slot slot = this.gui.getSlotRedirect(m + n * 9 + size);
+                    if (slot != null) {
+                        this.addSlot(slot);
+                    } else {
+                        this.addSlot(new VirtualSlot(gui, m + n * 9 + size, 0, 0));
+                    }
                 }
             }
         } else {
