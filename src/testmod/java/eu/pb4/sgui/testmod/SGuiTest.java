@@ -1,9 +1,8 @@
 package eu.pb4.sgui.testmod;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.context.CommandContext;
 import eu.pb4.sgui.api.ClickType;
-import eu.pb4.sgui.api.GuiHelpers;
+import eu.pb4.sgui.api.SguiUtils;
 import eu.pb4.sgui.api.ScreenProperty;
 import eu.pb4.sgui.api.elements.*;
 import eu.pb4.sgui.api.gui.*;
@@ -26,6 +25,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.DyeColor;
@@ -42,10 +42,8 @@ import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.block.Blocks;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.mutable.MutableObject;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -61,7 +59,7 @@ public class SGuiTest implements ModInitializer {
             ServerPlayer player = objectCommandContext.getSource().getPlayer();
             SimpleGui gui = new SimpleGui(MenuType.GENERIC_3x3, player, false) {
                 @Override
-                public boolean onClick(int index, ClickType type, net.minecraft.world.inventory.ClickType action, GuiElementInterface element) {
+                public boolean onClick(int index, ClickType type, ContainerInput action, GuiElement element) {
                     this.player.sendSystemMessage(Component.literal(type.toString()), false);
 
                     return super.onClick(index, type, action, element);
@@ -104,7 +102,7 @@ public class SGuiTest implements ModInitializer {
             for (int x = 3; x < gui.getSize(); x++) {
                 ItemStack itemStack = Items.STONE.getDefaultInstance();
                 itemStack.setCount(x);
-                gui.setSlot(x, new GuiElement(itemStack, (index, clickType, actionType) -> {
+                gui.setSlot(x, new SimpleGuiElement(itemStack, (index, clickType, actionType) -> {
                 }));
             }
 
@@ -146,20 +144,20 @@ public class SGuiTest implements ModInitializer {
                     .setCount(1)
                     .setCallback((index, clickType, actionType) -> {
                         player.sendSystemMessage(Component.literal("derg "), false);
-                        ItemStack item = gui.getSlot(index).getItemStack();
+                        ItemStack item = gui.getSlotElement(index).getItemStack();
                         if (clickType == ClickType.MOUSE_LEFT) {
                             item.setCount(item.getCount() == 1 ? item.getCount() : item.getCount() - 1);
                         } else if (clickType == ClickType.MOUSE_RIGHT) {
                             item.setCount(item.getCount() + 1);
                         }
-                        ((GuiElement) gui.getSlot(index)).setItemStack(item);
+                        ((SimpleGuiElement) gui.getSlotElement(index)).setItemStack(item);
 
                         if (item.getCount() <= player.getEnderChestInventory().getContainerSize()) {
-                            gui.setSlotRedirect(4, new Slot(player.getEnderChestInventory(), item.getCount() - 1, 0, 0));
+                            gui.setSlot(4, new Slot(player.getEnderChestInventory(), item.getCount() - 1, 0, 0));
                         }
                     })
             );
-            gui.setSlotRedirect(4, new Slot(player.getEnderChestInventory(), 0, 0, 0));
+            gui.setSlot(4, new Slot(player.getEnderChestInventory(), 0, 0, 0));
 
             gui.open();
         } catch (Exception e) {
@@ -174,23 +172,23 @@ public class SGuiTest implements ModInitializer {
             AnvilInputGui gui = new AnvilInputGui(player, true) {
                 @Override
                 public void onClose() {
-                    player.displayClientMessage(Component.literal(this.getInput()), false);
+                    player.sendSystemMessage(Component.literal(this.getInput()), false);
                     super.onClose();
                 }
             };
 
             gui.setTitle(Component.literal("Nice"));
-            gui.setSlot(1, new GuiElement(Items.DIAMOND_AXE.getDefaultInstance(), (index, clickType, actionType) -> {
-                ItemStack item = gui.getSlot(index).getItemStack();
+            gui.setSlot(1, new SimpleGuiElement(Items.DIAMOND_AXE.getDefaultInstance(), (index, clickType, actionType) -> {
+                ItemStack item = gui.getSlotElement(index).getItemStack();
                 if (clickType == ClickType.MOUSE_LEFT) {
                     item.setCount(item.getCount() == 1 ? item.getCount() : item.getCount() - 1);
                 } else if (clickType == ClickType.MOUSE_RIGHT) {
                     item.setCount(item.getCount() + 1);
                 }
-                ((GuiElement) gui.getSlot(index)).setItemStack(item);
+                ((SimpleGuiElement) gui.getSlotElement(index)).setItemStack(item);
             }));
 
-            gui.setSlot(2, new GuiElement(Items.SLIME_BALL.getDefaultInstance(), (index, clickType, actionType) -> {
+            gui.setSlot(2, new SimpleGuiElement(Items.SLIME_BALL.getDefaultInstance(), (index, clickType, actionType) -> {
                 player.sendSystemMessage(Component.literal(gui.getInput()), false);
             }));
 
@@ -477,13 +475,13 @@ public class SGuiTest implements ModInitializer {
 
                 @Override
                 public void onOpen() {
-                    player.displayClientMessage(Component.literal("OPEN!"), false);
+                    player.sendSystemMessage(Component.literal("OPEN!"), false);
                     super.onOpen();
                 }
 
                 @Override
                 public void onClose() {
-                    player.displayClientMessage(Component.literal("CLOSE!"), false);
+                    player.sendSystemMessage(Component.literal("CLOSE!"), false);
                     super.onClose();
                 }
 
@@ -493,9 +491,9 @@ public class SGuiTest implements ModInitializer {
                 }
 
                 @Override
-                public boolean onClick(int index, ClickType type, net.minecraft.world.inventory.ClickType action, GuiElementInterface element) {
-                    player.displayClientMessage(Component.literal("CLICK!"), false);
-                    player.displayClientMessage(Component.literal(type + " " + index), false);
+                public boolean onClick(int index, ClickType type, ContainerInput action, GuiElement element) {
+                    player.sendSystemMessage(Component.literal("CLICK!"), false);
+                    player.sendSystemMessage(Component.literal(type + " " + index), false);
                     return super.onClick(index, type, action, element);
                 }
 
@@ -546,7 +544,7 @@ public class SGuiTest implements ModInitializer {
             for (int x = 3; x < gui.getSize(); x++) {
                 ItemStack itemStack = Items.STONE.getDefaultInstance();
                 itemStack.setCount(x);
-                gui.setSlot(x, new GuiElement(itemStack, (index, clickType, actionType) -> {
+                gui.setSlot(x, new SimpleGuiElement(itemStack, (index, clickType, actionType) -> {
                 }));
             }
 
@@ -585,20 +583,20 @@ public class SGuiTest implements ModInitializer {
                     .setCount(1)
                     .setCallback((index, clickType, actionType) -> {
                         player.sendSystemMessage(Component.literal("derg "), false);
-                        ItemStack item = gui.getSlot(index).getItemStack();
+                        ItemStack item = gui.getSlotElement(index).getItemStack();
                         if (clickType == ClickType.MOUSE_LEFT) {
                             item.setCount(item.getCount() == 1 ? item.getCount() : item.getCount() - 1);
                         } else if (clickType == ClickType.MOUSE_RIGHT) {
                             item.setCount(item.getCount() + 1);
                         }
-                        ((GuiElement) gui.getSlot(index)).setItemStack(item);
+                        ((SimpleGuiElement) gui.getSlotElement(index)).setItemStack(item);
 
                         if (item.getCount() <= player.getEnderChestInventory().getContainerSize()) {
-                            gui.setSlotRedirect(4, new Slot(player.getEnderChestInventory(), item.getCount() - 1, 0, 0));
+                            gui.setSlot(4, new Slot(player.getEnderChestInventory(), item.getCount() - 1, 0, 0));
                         }
                     })
             );
-            gui.setSlotRedirect(4, new Slot(player.getEnderChestInventory(), 0, 0, 0));
+            gui.setSlot(4, new Slot(player.getEnderChestInventory(), 0, 0, 0));
 
             gui.open();
         } catch (Exception e) {
@@ -614,7 +612,7 @@ public class SGuiTest implements ModInitializer {
             var num = new MutableInt();
             var creator = new MutableObject<Supplier<SimpleGui>>();
             creator.setValue(() -> {
-                var previousGui = GuiHelpers.getCurrentGui(player);
+                var previousGui = SguiUtils.getCurrentGui(player);
                 var gui = new SimpleGui(MenuType.HOPPER, player, true);
                 var next = new MutableObject<SimpleGui>();
                 gui.setTitle(Component.literal("Simple Nested gui test: " + num.getAndIncrement()));
@@ -658,12 +656,12 @@ public class SGuiTest implements ModInitializer {
             );
 
             var hotbar = new HotbarGui(player);
-            var elements = new GuiElement[1];
-            elements[0] = new GuiElement(new ItemStack(Items.GOLDEN_PICKAXE), (a, type, c, gui) -> {
+            var elements = new SimpleGuiElement[1];
+            elements[0] = new SimpleGuiElement(new ItemStack(Items.GOLDEN_PICKAXE), (a, type, c, gui) -> {
                 if (type != ClickType.OFFHAND_SWAP) {
                     return;
                 }
-                var offhand = gui.getSlot(9);
+                var offhand = gui.getSlotElement(9);
                 if (offhand == null || offhand.getItemStack().isEmpty()) {
                     gui.setSlot(9, elements[0].getItemStack());
                     elements[0].setItemStack(ItemStack.EMPTY);

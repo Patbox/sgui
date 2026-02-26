@@ -1,7 +1,7 @@
 package eu.pb4.sgui.api.gui;
 
-import eu.pb4.sgui.virtual.FakeScreenHandler;
-import eu.pb4.sgui.virtual.sign.VirtualSignBlockEntity;
+import eu.pb4.sgui.api.containerwrappers.FakeMenu;
+import eu.pb4.sgui.impl.virtual.sign.VirtualSignBlockEntity;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
@@ -30,13 +30,13 @@ import net.minecraft.world.level.block.state.BlockState;
  * so it hopefully goes unnoticed. The fake block is removed when the GUI is closed.
  * This also means in order to refresh the data on the sign, we must close and re-open the GUI,
  * as only handled screens have property support.
- * On the server side however, this sign GUI uses a custom {@link FakeScreenHandler} so the server
+ * On the server side however, this sign GUI uses a custom {@link FakeMenu} so the server
  * can manage and trigger methods like onTIck, onClose, ect.
  * <p>
  * SignGui has lots of deprecated methods which have no function, mainly due to the lack of
  * item slots and a client ScreenHandler.
  */
-public class SignGui implements GuiInterface {
+public class SignGui implements GuiLike {
 
     protected final VirtualSignBlockEntity signEntity;
     protected BlockState type = Blocks.OAK_SIGN.defaultBlockState();
@@ -46,7 +46,7 @@ public class SignGui implements GuiInterface {
     protected final ServerPlayer player;
     protected boolean open = false;
     protected boolean reOpen = false;
-    protected FakeScreenHandler screenHandler;
+    protected FakeMenu screenHandler;
     private final Component[] texts = new Component[4];
 
     /**
@@ -145,7 +145,7 @@ public class SignGui implements GuiInterface {
             this.player.closeContainer();
         }
         if (screenHandler == null) {
-            this.screenHandler = new FakeScreenHandler(this);
+            this.screenHandler = new FakeMenu(this);
         }
         this.player.containerMenu = this.screenHandler;
 

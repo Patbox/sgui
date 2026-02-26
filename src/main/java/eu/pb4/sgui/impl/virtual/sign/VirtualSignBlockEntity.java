@@ -1,4 +1,4 @@
-package eu.pb4.sgui.virtual.sign;
+package eu.pb4.sgui.impl.virtual.sign;
 
 import eu.pb4.sgui.mixin.SignBlockEntityAccessor;
 import net.minecraft.core.BlockPos;

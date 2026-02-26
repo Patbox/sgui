@@ -2,8 +2,8 @@ package eu.pb4.sgui.api.gui;
 
 import eu.pb4.sgui.api.ScreenProperty;
 import eu.pb4.sgui.api.elements.BookElementBuilder;
-import eu.pb4.sgui.virtual.SguiScreenHandlerFactory;
-import eu.pb4.sgui.virtual.book.BookScreenHandler;
+import eu.pb4.sgui.api.containerwrappers.SguiScreenHandlerFactory;
+import eu.pb4.sgui.impl.virtual.book.BookScreenHandler;
 import java.util.OptionalInt;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,12 +20,10 @@ import net.minecraft.world.item.ItemStack;
  * mainly due to the lack of item slots in the book interface.
  */
 @SuppressWarnings("unused")
-public class BookGui implements GuiInterface {
+public class BookGui implements GuiLike {
     protected final ServerPlayer player;
     protected ItemStack book;
     protected int page = 0;
-    @Deprecated(forRemoval = true)
-    protected boolean open = false;
     protected boolean reOpen = false;
     protected BookScreenHandler screenHandler = null;
 
@@ -161,7 +159,6 @@ public class BookGui implements GuiInterface {
 
     protected boolean setupScreenHandler() {
         //noinspection removal
-        this.open = true;
         this.onOpen();
         this.reOpen = true;
         OptionalInt temp = this.player.openMenu(new SguiScreenHandlerFactory<>(this, (syncId, inv, player) -> new BookScreenHandler(syncId, this, player)));
@@ -191,7 +188,6 @@ public class BookGui implements GuiInterface {
     public void close(boolean screenHandlerIsClosed) {
         if (this.isOpen() && !this.reOpen) {
             //noinspection removal
-            this.open = this.isOpen();
             this.reOpen = false;
 
             if (!screenHandlerIsClosed && this.player.containerMenu == this.screenHandler) {

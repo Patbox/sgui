@@ -1,7 +1,7 @@
 package eu.pb4.sgui.api.gui.layered;
 
 import eu.pb4.sgui.api.SlotHolder;
-import eu.pb4.sgui.api.elements.GuiElementInterface;
+import eu.pb4.sgui.api.elements.GuiElement;
 import java.util.HashSet;
 import java.util.Set;
 import net.minecraft.world.inventory.Slot;
@@ -13,7 +13,7 @@ public class Layer implements SlotHolder {
     protected final int height;
     protected final int width;
     protected final int size;
-    protected final GuiElementInterface[] elements;
+    protected final GuiElement[] elements;
     protected final Slot[] slots;
     final Set<LayerView> layerViews = new HashSet<>();
 
@@ -21,7 +21,7 @@ public class Layer implements SlotHolder {
         this.height = height;
         this.width = width;
         this.size = height * width;
-        this.elements = new GuiElementInterface[this.size];
+        this.elements = new GuiElement[this.size];
         this.slots = new Slot[this.size];
     }
 
@@ -42,14 +42,14 @@ public class Layer implements SlotHolder {
     }
 
     @Override
-    public void setSlot(int index, GuiElementInterface element) {
+    public void setSlot(int index, GuiElement element) {
         this.elements[index] = element;
         this.slots[index] = null;
         this.markDirty();
     }
 
     @Override
-    public void setSlotRedirect(int index, Slot slot) {
+    public void setSlot(int index, Slot slot) {
         this.elements[index] = null;
         this.slots[index] = slot;
         this.markDirty();
@@ -86,7 +86,7 @@ public class Layer implements SlotHolder {
     }
 
     @Override
-    public GuiElementInterface getSlot(int index) {
+    public GuiElement getSlotElement(int index) {
         return this.elements[index];
     }
 

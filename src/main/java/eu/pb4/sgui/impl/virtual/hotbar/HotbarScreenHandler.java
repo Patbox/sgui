@@ -1,10 +1,10 @@
-package eu.pb4.sgui.virtual.hotbar;
+package eu.pb4.sgui.impl.virtual.hotbar;
 
-import eu.pb4.sgui.api.GuiHelpers;
+import eu.pb4.sgui.api.SguiUtils;
 import eu.pb4.sgui.api.gui.HotbarGui;
-import eu.pb4.sgui.api.gui.SlotGuiInterface;
-import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
-import eu.pb4.sgui.virtual.inventory.VirtualSlot;
+import eu.pb4.sgui.api.gui.SlotBasedGui;
+import eu.pb4.sgui.api.containerwrappers.SlotBasedWrapperMenu;
+import eu.pb4.sgui.api.containerwrappers.slot.WrappingSlot;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
@@ -13,28 +13,28 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-public class HotbarScreenHandler extends VirtualScreenHandler {
+public class HotbarScreenHandler extends SlotBasedWrapperMenu {
     private final int x = 0;
     public NonNullList<ItemStack> slotsOld = null;
 
-    public HotbarScreenHandler(@Nullable MenuType<?> type, int syncId, SlotGuiInterface gui, Player player) {
+    public HotbarScreenHandler(@Nullable MenuType<?> type, int syncId, SlotBasedGui gui, Player player) {
         super(type, syncId, gui, player);
     }
 
     @Override
-    public HotbarGui getGui() {
-        return (HotbarGui) super.getGui();
+    public HotbarGui getBackingGui() {
+        return (HotbarGui) super.getBackingGui();
     }
 
     @Override
     protected void setupSlots(Player player) {
-        for (int n = 0; n < this.getGui().getSize(); n++) {
+        for (int n = 0; n < this.getBackingGui().getSize(); n++) {
             int nR = HotbarGui.VANILLA_TO_GUI_IDS[n];
-            Slot slot = this.getGui().getSlotRedirect(nR);
+            Slot slot = this.getBackingGui().getSlotRedirect(nR);
             if (slot != null) {
                 this.addSlot(slot);
             } else {
-                this.addSlot(new VirtualSlot(this.getGui(), nR, 0, 0));
+                this.addSlot(new WrappingSlot(this.getBackingGui(), nR, 0, 0));
             }
         }
     }
@@ -60,7 +60,7 @@ public class HotbarScreenHandler extends VirtualScreenHandler {
                             this.getGui().getPlayer().networkHandler.sendPacket(new SetPlayerInventoryS2CPacket(i, itemStack));
 
                             /*if ((i > -1 && i < 5) || i == 45) {
-                                GuiHelpers.sendSlotUpdate(this.getGui().getPlayer(), 0, i, itemStack);
+                                SguiUtils.sendSlotUpdate(this.getGui().getPlayer(), 0, i, itemStack);
                             } else {
                                 int n = i;
 
@@ -69,7 +69,7 @@ public class HotbarScreenHandler extends VirtualScreenHandler {
                                 } else if (i > 4 && i < 9) {
                                     n = i - 5;
                                 }
-                                GuiHelpers.sendSlotUpdate(this.getGui().getPlayer(), -2, n, itemStack);
+                                SguiUtils.sendSlotUpdate(this.getGui().getPlayer(), -2, n, itemStack);
                             }* /
                         }
                     }
@@ -82,19 +82,19 @@ public class HotbarScreenHandler extends VirtualScreenHandler {
 
     @ApiStatus.Internal
     public void syncSelectedSlot() {
-        var gui = this.getGui();
+        var gui = this.getBackingGui();
         if (gui.isOpen()) {
             int index = gui.getHotbarSlotIndex(this.slots.size(), gui.getSelectedSlot());
-            GuiHelpers.sendSlotUpdate(gui.getPlayer(), this.containerId, index, this.getSlot(index).getItem(), this.incrementStateId());
+            SguiUtils.sendSlotUpdate(gui.getPlayer(), this.containerId, index, this.getSlot(index).getItem(), this.incrementStateId());
         }
     }
 
     @ApiStatus.Internal
     public void syncOffhandSlot() {
-        var gui = this.getGui();
+        var gui = this.getBackingGui();
         if (gui.isOpen()) {
             int index = gui.getOffhandSlotIndex();
-            GuiHelpers.sendSlotUpdate(gui.getPlayer(), this.containerId, index, this.getSlot(index).getItem(), this.incrementStateId());
+            SguiUtils.sendSlotUpdate(gui.getPlayer(), this.containerId, index, this.getSlot(index).getItem(), this.incrementStateId());
         }
     }
 }

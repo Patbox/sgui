@@ -9,7 +9,7 @@ import net.minecraft.world.inventory.MenuType;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings({"unused"})
-public interface GuiInterface {
+public interface GuiLike {
 
     /**
      * Sets the title of the gui.
@@ -59,7 +59,7 @@ public interface GuiInterface {
      * Opens the screen for the player.
      *
      * @return <code>true</code> if the screen successfully opened
-     * @see GuiInterface#onOpen()
+     * @see GuiLike#onOpen()
      */
     boolean open();
 
@@ -71,14 +71,14 @@ public interface GuiInterface {
      * Used internally for closing the gui.
      *
      * @param alreadyClosed Is set to true, if gui's ScreenHandler is already closed and close packet shouldn't be sent
-     * @see GuiInterface#onClose()
+     * @see GuiLike#onClose()
      */
     void close(boolean alreadyClosed);
 
     /**
      * Closes the current gui
      *
-     * @see GuiInterface#onClose()
+     * @see GuiLike#onClose()
      */
     default void close() {
         this.close(false);
@@ -103,7 +103,7 @@ public interface GuiInterface {
     }
 
     /**
-     * Executes when the screen is closed with GuiInterface#close
+     * Executes when the screen is closed with GuiLike#close
      * Which can be called by your code or outside of it.
      */
     default void onClose() {
@@ -112,7 +112,7 @@ public interface GuiInterface {
     /**
      * Executes when the screen is closed by player
      *
-     * @param success Whatever screen will be actually closed, or forcefully reopened. Depends on value of GuiInterface#canPlayerClose()
+     * @param success Whatever screen will be actually closed, or forcefully reopened. Depends on value of GuiLike#canPlayerClose()
      */
     default void onPlayerClose(boolean success) {
     }

@@ -1,8 +1,8 @@
 package eu.pb4.sgui.api;
 
-import eu.pb4.sgui.api.gui.GuiInterface;
+import eu.pb4.sgui.api.containerwrappers.AbstractWrapperMenu;
+import eu.pb4.sgui.api.gui.GuiLike;
 import eu.pb4.sgui.impl.PlayerExtensions;
-import eu.pb4.sgui.virtual.VirtualScreenHandlerInterface;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.UnaryOperator;
@@ -15,12 +15,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 
-public final class GuiHelpers {
+public final class SguiUtils {
     public static final UnaryOperator<Style> STYLE_CLEARER = style -> style.withItalic(style.isItalic()).withColor(style.getColor() != null ? style.getColor() : TextColor.fromLegacyFormat(ChatFormatting.WHITE));
 
     @Nullable
-    public static GuiInterface getCurrentGui(ServerPlayer player) {
-        return player.containerMenu instanceof VirtualScreenHandlerInterface v ? v.getGui() : null;
+    public static GuiLike getCurrentGui(ServerPlayer player) {
+        return player.containerMenu instanceof AbstractWrapperMenu v ? v.getBackingGui() : null;
     }
 
     public static void ignoreNextGuiClosing(ServerPlayer player) {
@@ -35,7 +35,7 @@ public final class GuiHelpers {
         sendSlotUpdate(player, syncId, slot, stack, 0);
     }
 
-    public static void sendPlayerScreenHandler(ServerPlayer player) {
+    public static void sendCurrentMenu(ServerPlayer player) {
         player.connection.send(new ClientboundContainerSetContentPacket(player.containerMenu.containerId, player.containerMenu.incrementStateId(), player.containerMenu.getItems(), player.containerMenu.getCarried()));
     }
 
@@ -79,6 +79,6 @@ public final class GuiHelpers {
         return 9;
     }
 
-    private GuiHelpers() {
+    private SguiUtils() {
     }
 }

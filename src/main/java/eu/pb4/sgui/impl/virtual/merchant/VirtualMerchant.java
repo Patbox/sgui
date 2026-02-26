@@ -1,4 +1,4 @@
-package eu.pb4.sgui.virtual.merchant;
+package eu.pb4.sgui.impl.virtual.merchant;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;

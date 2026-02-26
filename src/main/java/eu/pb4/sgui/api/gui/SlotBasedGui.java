@@ -2,9 +2,10 @@ package eu.pb4.sgui.api.gui;
 
 import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.SlotHolder;
-import eu.pb4.sgui.api.elements.GuiElementInterface;
-import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
-import eu.pb4.sgui.virtual.inventory.VirtualSlot;
+import eu.pb4.sgui.api.elements.GuiElement;
+import eu.pb4.sgui.api.containerwrappers.SlotBasedWrapperMenu;
+import eu.pb4.sgui.api.containerwrappers.slot.WrappingSlot;
+import net.minecraft.world.inventory.ContainerInput;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,7 +13,7 @@ import java.util.List;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public interface SlotGuiInterface extends SlotHolder, GuiInterface {
+public interface SlotBasedGui extends SlotHolder, GuiLike {
 
     /**
      * Returns the number of slots in the inventory.
@@ -28,12 +29,12 @@ public interface SlotGuiInterface extends SlotHolder, GuiInterface {
     /**
      * Used internally to receive clicks from the client.
      *
-     * @see SlotGuiInterface#onClick(int, ClickType, net.minecraft.world.inventory.ClickType, GuiElementInterface)
-     * @see SlotGuiInterface#onAnyClick(int, ClickType, net.minecraft.world.inventory.ClickType)
+     * @see SlotBasedGui#onClick(int, ClickType, ContainerInput, GuiElement)
+     * @see SlotBasedGui#onAnyClick(int, ClickType, ContainerInput)
      */
     @ApiStatus.Internal
-    default boolean click(int index, ClickType type, net.minecraft.world.inventory.ClickType action) {
-        GuiElementInterface element = this.getSlot(index);
+    default boolean click(int index, ClickType type, ContainerInput action) {
+        GuiElement element = this.getSlotElement(index);
         if (element != null) {
             element.getGuiCallback().click(index, type, action, this);
         }
@@ -48,20 +49,20 @@ public interface SlotGuiInterface extends SlotHolder, GuiInterface {
      * @param action Minecraft's Slot Action Type
      * @return <code>true</code> if to allow manipulation of redirected slots, otherwise <code>false</code>
      */
-    default boolean onAnyClick(int index, ClickType type, net.minecraft.world.inventory.ClickType action) {
+    default boolean onAnyClick(int index, ClickType type, ContainerInput action) {
         return true;
     }
 
     /**
-     * Executed when player clicks a {@link GuiElementInterface}
+     * Executed when player clicks a {@link GuiElement}
      *
      * @param index   slot index
      * @param type    Simplified type of click
      * @param action  Minecraft's Slot Action Type
-     * @param element Clicked GuiElement
+     * @param element Clicked SimpleGuiElement
      * @return Returns false, for automatic handling and syncing or true, if you want to do it manually
      */
-    default boolean onClick(int index, ClickType type, net.minecraft.world.inventory.ClickType action, GuiElementInterface element) {
+    default boolean onClick(int index, ClickType type, ContainerInput action, GuiElement element) {
         return false;
     }
 
@@ -100,7 +101,7 @@ public interface SlotGuiInterface extends SlotHolder, GuiInterface {
             return this.getSlotRedirect(index);
         }
 
-        if (this.getPlayer().containerMenu instanceof VirtualScreenHandler virt && virt.getGui() == this && index < virt.slots.size()) {
+        if (this.getPlayer().containerMenu instanceof SlotBasedWrapperMenu virt && virt.getBackingGui() == this && index < virt.slots.size()) {
             return virt.slots.get(index);
         }
         return null;
@@ -109,7 +110,7 @@ public interface SlotGuiInterface extends SlotHolder, GuiInterface {
     default ItemStack quickMove(int index) {
         ItemStack itemStack = ItemStack.EMPTY;
         Slot slot = this.getSlotRedirectOrPlayer(index);
-        if (slot != null && slot.hasItem() && !(slot instanceof VirtualSlot)) {
+        if (slot != null && slot.hasItem() && !(slot instanceof WrappingSlot)) {
             ItemStack itemStack2 = slot.getItem();
             itemStack = itemStack2.copy();
             if (index < this.getVirtualSize()) {
@@ -124,7 +125,7 @@ public interface SlotGuiInterface extends SlotHolder, GuiInterface {
             } else {
                 slot.setChanged();
             }
-        } else if (slot instanceof VirtualSlot) {
+        } else if (slot instanceof WrappingSlot) {
             return slot.getItem();
         }
 

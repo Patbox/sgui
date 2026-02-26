@@ -1,22 +1,21 @@
 package eu.pb4.sgui.api.elements;
 
-import eu.pb4.sgui.api.gui.GuiInterface;
-import java.util.WeakHashMap;
+import eu.pb4.sgui.api.gui.GuiLike;
 import net.minecraft.world.item.ItemStack;
 
 /**
  * Animated Gui Element
  * <br>
- * Animated gui elements are a GuiElement constructed of
+ * Animated gui elements are a SimpleGuiElement constructed of
  * multiple different {@link ItemStack} frames, which cycle
  * (optionally randomly) on a set cycle time.
  *
  * Gui elements are typically constructed via their respective builder.
  * @see AnimatedGuiElementBuilder
  *
- * @see GuiElementInterface
+ * @see GuiElement
  */
-public class AnimatedGuiElement implements GuiElementInterface {
+public class AnimatedGuiElement implements GuiElement {
     protected final ClickCallback callback;
     protected ItemStack[] items;
     protected int frame = 0;
@@ -76,12 +75,13 @@ public class AnimatedGuiElement implements GuiElementInterface {
     }
 
     @Override
-    public ItemStack getItemStackForDisplay(GuiInterface gui) {
+    public ItemStack getItemStackForDisplay(GuiLike gui) {
         int cFrame = this.frame;
 
-        if (gui.getPlayer().level().getServer() != null && this.lastTick != gui.getPlayer().level().getServer().getTickCount()) {
+        var server = gui.getPlayer().level().getServer();
+        if (this.lastTick != server.getTickCount()) {
             this.tick += 1;
-            this.lastTick = gui.getPlayer().level().getServer().getTickCount();
+            this.lastTick = server.getTickCount();
         }
         if (this.tick >= this.changeEvery) {
             this.tick = 0;

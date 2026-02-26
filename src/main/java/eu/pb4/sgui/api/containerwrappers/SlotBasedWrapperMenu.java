@@ -1,22 +1,21 @@
-package eu.pb4.sgui.virtual.inventory;
+package eu.pb4.sgui.api.containerwrappers;
 
-import eu.pb4.sgui.api.GuiHelpers;
-import eu.pb4.sgui.api.gui.SlotGuiInterface;
-import eu.pb4.sgui.virtual.VirtualScreenHandlerInterface;
+import eu.pb4.sgui.api.SguiUtils;
+import eu.pb4.sgui.api.gui.SlotBasedGui;
+import eu.pb4.sgui.api.containerwrappers.slot.WrappingSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerListener;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
-public class VirtualScreenHandler extends AbstractContainerMenu implements VirtualScreenHandlerInterface {
-    private final SlotGuiInterface gui;
+public class SlotBasedWrapperMenu extends AbstractWrapperMenu {
+    private final SlotBasedGui gui;
 
-    public VirtualScreenHandler(@Nullable MenuType<?> type, int syncId, SlotGuiInterface gui, Player player) {
-        super(type, syncId);
+    public SlotBasedWrapperMenu(@Nullable MenuType<?> type, int syncId, SlotBasedGui gui, Player player) {
+        super(type, syncId, gui);
         this.gui = gui;
 
         setupSlots(player);
@@ -31,7 +30,7 @@ public class VirtualScreenHandler extends AbstractContainerMenu implements Virtu
             if (slot != null) {
                 this.addSlot(slot);
             } else {
-                this.addSlot(new VirtualSlot(gui, n, 0, 0));
+                this.addSlot(new WrappingSlot(gui, n, 0, 0));
             }
         }
 
@@ -43,7 +42,7 @@ public class VirtualScreenHandler extends AbstractContainerMenu implements Virtu
                     if (slot != null) {
                         this.addSlot(slot);
                     } else {
-                        this.addSlot(new VirtualSlot(gui, m + n * 9 + size, 0, 0));
+                        this.addSlot(new WrappingSlot(gui, m + n * 9 + size, 0, 0));
                     }
                 }
             }
@@ -62,28 +61,17 @@ public class VirtualScreenHandler extends AbstractContainerMenu implements Virtu
     }
 
     @Override
-    public void addSlotListener(ContainerListener listener) {
-        super.addSlotListener(listener);
-        this.gui.afterOpen();
-    }
-
-    @Override
     public void sendAllDataToRemote() {
         super.sendAllDataToRemote();
         // We have to manually sync offhand state
-        int index = this.getGui().getOffhandSlotIndex();
+        int index = this.gui.getOffhandSlotIndex();
         ItemStack updated = index >= 0 ? this.getSlot(index).getItem() : ItemStack.EMPTY;
-        GuiHelpers.sendSlotUpdate(this.gui.getPlayer(), -2, Inventory.SLOT_OFFHAND, updated, this.getStateId());
+        SguiUtils.sendSlotUpdate(this.gui.getPlayer(), -2, Inventory.SLOT_OFFHAND, updated, this.getStateId());
     }
 
     @Override
-    public SlotGuiInterface getGui() {
+    public SlotBasedGui getBackingGui() {
         return this.gui;
-    }
-
-    @Override
-    public boolean stillValid(Player player) {
-        return true;
     }
 
     @Override
@@ -96,27 +84,17 @@ public class VirtualScreenHandler extends AbstractContainerMenu implements Virtu
     }
 
     @Override
-    public void broadcastChanges() {
-        try {
-            this.gui.onTick();
-        } catch (Exception e) {
-            this.gui.handleException(e);
-        }
-        super.broadcastChanges();
-    }
-
-    @Override
-    public ItemStack quickMoveStack(Player player, int index) {
+    public @NonNull ItemStack quickMoveStack(Player player, int index) {
         return this.gui.quickMove(index);
     }
 
     @Override
     public boolean canTakeItemForPickAll(ItemStack stack, Slot slot) {
-        return !(slot instanceof VirtualSlot) && super.canTakeItemForPickAll(stack, slot);
+        return !(slot instanceof WrappingSlot) && super.canTakeItemForPickAll(stack, slot);
     }
 
     @Override
-    public Slot addSlot(Slot slot) {
+    public @NonNull Slot addSlot(Slot slot) {
         return super.addSlot(slot);
     }
 
@@ -127,20 +105,5 @@ public class VirtualScreenHandler extends AbstractContainerMenu implements Virtu
     @Override
     protected boolean moveItemStackTo(ItemStack stack, int startIndex, int endIndex, boolean fromLast) {
         return this.gui.insertItem(stack, startIndex, endIndex, fromLast);
-    }
-
-    @Override
-    public boolean clickMenuButton(Player player, int id) {
-        return this.gui.onButtonClick(id);
-    }
-
-    @Override
-    public void removed(Player player) {
-        super.removed(player);
-        try {
-            this.getGui().onScreenHandlerClosed();
-        } catch (Throwable e) {
-            this.getGui().handleException(e);
-        }
     }
 }

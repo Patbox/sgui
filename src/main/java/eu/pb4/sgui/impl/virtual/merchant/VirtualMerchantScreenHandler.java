@@ -1,7 +1,7 @@
-package eu.pb4.sgui.virtual.merchant;
+package eu.pb4.sgui.impl.virtual.merchant;
 
 import eu.pb4.sgui.api.gui.MerchantGui;
-import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
+import eu.pb4.sgui.api.containerwrappers.SlotBasedWrapperMenu;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -10,8 +10,9 @@ import net.minecraft.world.inventory.MerchantContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.ItemCost;
+import org.jspecify.annotations.NonNull;
 
-public class VirtualMerchantScreenHandler extends VirtualScreenHandler {
+public class VirtualMerchantScreenHandler extends SlotBasedWrapperMenu {
 
     private final VirtualMerchant merchant;
     private final MerchantContainer merchantInventory;
@@ -38,7 +39,7 @@ public class VirtualMerchantScreenHandler extends VirtualScreenHandler {
     }
 
     @Override
-    public ItemStack quickMoveStack(Player player, int index) {
+    public @NonNull ItemStack quickMoveStack(Player player, int index) {
         ItemStack newCursorStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
         if (slot.hasItem()) {
@@ -155,8 +156,7 @@ public class VirtualMerchantScreenHandler extends VirtualScreenHandler {
         }
     }
 
-    @Override
     public MerchantGui getGui() {
-        return (MerchantGui) super.getGui();
+        return (MerchantGui) super.getBackingGui();
     }
 }

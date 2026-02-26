@@ -1,9 +1,10 @@
 package eu.pb4.sgui.api.gui.layered;
 
 import eu.pb4.sgui.api.ClickType;
-import eu.pb4.sgui.api.elements.GuiElementInterface;
+import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.MenuType;
 
 class BackendSimpleGui extends SimpleGui {
@@ -15,11 +16,11 @@ class BackendSimpleGui extends SimpleGui {
     }
 
     @Override
-    public boolean onAnyClick(int index, ClickType type, net.minecraft.world.inventory.ClickType action) {
+    public boolean onAnyClick(int index, ClickType type, ContainerInput action) {
         return this.gui.onAnyClick(index, type, action);
     }
     @Override
-    public boolean onClick(int index, ClickType type, net.minecraft.world.inventory.ClickType action, GuiElementInterface element) {
+    public boolean onClick(int index, ClickType type, ContainerInput action, GuiElement element) {
         return this.gui.onClick(index, type, action, element);
     }
 

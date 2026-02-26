@@ -1,6 +1,6 @@
 package eu.pb4.sgui.api.gui.layered;
 
-import eu.pb4.sgui.api.elements.GuiElementInterface;
+import eu.pb4.sgui.api.elements.GuiElement;
 import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.Slot;
 
@@ -11,7 +11,7 @@ import net.minecraft.world.inventory.Slot;
 public final class LayerView {
     private final Layer layer;
     private final LayeredGui gui;
-    protected GuiElementInterface[] elements;
+    protected GuiElement[] elements;
     protected Slot[] slots;
     protected int height;
     protected int width;
@@ -30,7 +30,7 @@ public final class LayerView {
         this.width = this.layer.width;
         layer.layerViews.add(this);
         this.gui = gui;
-        this.elements = new GuiElementInterface[this.gui.size];
+        this.elements = new GuiElement[this.gui.size];
         this.slots = new Slot[this.gui.size];
         this.redraw();
     }

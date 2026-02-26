@@ -1,5 +1,6 @@
 package eu.pb4.sgui.api;
 
+import eu.pb4.sgui.api.gui.GuiLike;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.inventory.MenuType;
@@ -12,7 +13,7 @@ import org.apache.commons.lang3.ArrayUtils;
  * update visual or logical elements of the screen. <br>
  * Screen properties are specific to the {@link MenuType} that they modify.
  * 
- * @see eu.pb4.sgui.api.gui.GuiInterface#sendProperty(ScreenProperty, int)
+ * @see GuiLike#sendProperty(ScreenProperty, int)
  */
 @SuppressWarnings("unused")
 public enum ScreenProperty {
@@ -59,8 +60,6 @@ public enum ScreenProperty {
     ENCHANT_SEED(3, MenuType.ENCHANTMENT),
     /**
      * The enchantment id of the respective enchantment (set to -1 to hide).
-     * <p>
-     * To get the id use {@link Registry#getId(Object)} for {@link BuiltInRegistries#ENCHANTMENT}.
      */
     TOP_ENCHANTMENT_ID(4, MenuType.ENCHANTMENT),
     MIDDLE_ENCHANTMENT_ID(5, MenuType.ENCHANTMENT),

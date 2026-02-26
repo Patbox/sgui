@@ -1,13 +1,11 @@
 package eu.pb4.sgui.api.elements;
 
-import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.minecraft.MinecraftProfileTextures;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.datafixers.util.Either;
-import eu.pb4.sgui.api.GuiHelpers;
+import eu.pb4.sgui.api.SguiUtils;
 import eu.pb4.sgui.mixin.StaticAccessor;
 import it.unimi.dsi.fastutil.objects.ReferenceSortedSets;
 import net.minecraft.core.ClientAsset;
@@ -49,7 +47,7 @@ import java.util.*;
 public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<AnimatedGuiElementBuilder> {
     protected final List<ItemStack> itemStacks = new ArrayList<>();
     protected ItemStack itemStack = new ItemStack(Items.STONE);
-    protected GuiElement.ClickCallback callback = GuiElement.EMPTY_CALLBACK;
+    protected SimpleGuiElement.ClickCallback callback = SimpleGuiElement.EMPTY_CALLBACK;
     protected int interval = 1;
     protected boolean random = false;
     protected boolean hideComponentTooltips = false;
@@ -115,7 +113,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
      * @return this element builder
      */
     public AnimatedGuiElementBuilder setName(Component name) {
-        this.itemStack.set(DataComponents.CUSTOM_NAME, name.copy().withStyle(GuiHelpers.STYLE_CLEARER));
+        this.itemStack.set(DataComponents.CUSTOM_NAME, name.copy().withStyle(SguiUtils.STYLE_CLEARER));
         return this;
     }
 
@@ -172,7 +170,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
     public AnimatedGuiElementBuilder setLore(List<Component> lore) {
         var l = new ArrayList<Component>(lore.size());
         for (var t : lore) {
-            l.add(t.copy().withStyle(GuiHelpers.STYLE_CLEARER));
+            l.add(t.copy().withStyle(SguiUtils.STYLE_CLEARER));
         }
 
         this.itemStack.set(DataComponents.LORE, new ItemLore(l));
@@ -197,7 +195,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
      * @return this element builder
      */
     public AnimatedGuiElementBuilder addLoreLine(Component lore) {
-        this.itemStack.update(DataComponents.LORE, ItemLore.EMPTY, lore.copy().withStyle(GuiHelpers.STYLE_CLEARER), ItemLore::withLineAdded);
+        this.itemStack.update(DataComponents.LORE, ItemLore.EMPTY, lore.copy().withStyle(SguiUtils.STYLE_CLEARER), ItemLore::withLineAdded);
         return this;
     }
 
@@ -411,50 +409,6 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
     }
 
     /**
-     * Sets the skull owner tag of a player head.
-     * If the server parameter is not supplied it may lag the client while it loads the texture,
-     * otherwise if the server is provided and the {@link GameProfile} contains a UUID then the
-     * textures will be loaded by the server. This can take some time the first load,
-     * however the skins are cached for later uses so its often less noticeable to let the
-     * server load the textures.
-     *
-     * @param profile the {@link GameProfile} of the owner
-     * @return this element builder
-     */
-    @Deprecated
-    public AnimatedGuiElementBuilder setSkullOwner(GameProfile profile, @Nullable MinecraftServer server) {
-        return this.setProfile(profile);
-    }
-
-    /**
-     * Sets the skull owner tag of a player head.
-     * This method uses raw values required by client to display the skin
-     * Ideal for textures generated with 3rd party websites like mineskin.org
-     *
-     * @param value     texture value used by client
-     * @return this element builder
-     */
-    @Deprecated
-    public AnimatedGuiElementBuilder setSkullOwner(String value) {
-        return this.setSkullOwner(value, null, null);
-    }
-
-    /**
-     * Sets the skull owner tag of a player head.
-     * This method uses raw values required by client to display the skin
-     * Ideal for textures generated with 3rd party websites like mineskin.org
-     *
-     * @param value     texture value used by client
-     * @param signature optional signature, will be ignored when set to null
-     * @param uuid      UUID of skin owner, if null default will be used
-     * @return this element builder
-     */
-    @Deprecated
-    public AnimatedGuiElementBuilder setSkullOwner(String value, @Nullable String signature, @Nullable UUID uuid) {
-        return this.setProfileSkinTexture(value, signature, uuid);
-    }
-
-    /**
      * Sets the model of the element.
      *
      * @param model model to display item as
@@ -472,13 +426,13 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
 
 
     @Override
-    public AnimatedGuiElementBuilder setCallback(GuiElement.ClickCallback callback) {
+    public AnimatedGuiElementBuilder setCallback(SimpleGuiElement.ClickCallback callback) {
         this.callback = callback;
         return this;
     }
 
     @Override
-    public AnimatedGuiElementBuilder setCallback(GuiElementInterface.ItemClickCallback callback) {
+    public AnimatedGuiElementBuilder setCallback(GuiElement.ItemClickCallback callback) {
         this.callback = callback;
         return this;
     }
@@ -486,7 +440,7 @@ public class AnimatedGuiElementBuilder implements GuiElementBuilderInterface<Ani
     /**
      * Constructs an ItemStack from the current builder options.
      * Note that this ignores the callback as it is stored in
-     * the {@link GuiElement}.
+     * the {@link SimpleGuiElement}.
      *
      * @return this builder as a stack
      * @see AnimatedGuiElementBuilder#build()

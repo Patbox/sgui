@@ -1,8 +1,8 @@
 package eu.pb4.sgui.api;
 
-import eu.pb4.sgui.api.elements.GuiElement;
+import eu.pb4.sgui.api.elements.SimpleGuiElement;
 import eu.pb4.sgui.api.elements.GuiElementBuilderInterface;
-import eu.pb4.sgui.api.elements.GuiElementInterface;
+import eu.pb4.sgui.api.elements.GuiElement;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -24,22 +24,22 @@ public interface SlotHolder {
     int getWidth();
 
     /**
-     * Sets slot with selected GuiElement.
+     * Sets slot with selected SimpleGuiElement.
      *
      * @param index   the slots index, from 0 to (max size - 1)
-     * @param element any GuiElement
+     * @param element any SimpleGuiElement
      * @throws IndexOutOfBoundsException if the slot is out of bounds
-     * @see SlotHolder#addSlot(GuiElementInterface)
+     * @see SlotHolder#addSlot(GuiElement)
      */
-    void setSlot(int index, GuiElementInterface element);
+    void setSlot(int index, GuiElement element);
 
     /**
-     * Sets the first open slot with selected GuiElement.
+     * Sets the first open slot with selected SimpleGuiElement.
      *
-     * @param element any GuiElement
-     * @see SlotHolder#setSlot(int, GuiElementInterface)
+     * @param element any SimpleGuiElement
+     * @see SlotHolder#setSlot(int, GuiElement)
      */
-    default void addSlot(GuiElementInterface element) {
+    default void addSlot(GuiElement element) {
         this.setSlot(this.getFirstEmptySlot(), element);
     }
 
@@ -52,7 +52,7 @@ public interface SlotHolder {
      * @see SlotHolder#addSlot(ItemStack)
      */
     default void setSlot(int index, ItemStack itemStack) {
-        this.setSlot(index, new GuiElement(itemStack, GuiElementInterface.EMPTY_CALLBACK));
+        this.setSlot(index, new SimpleGuiElement(itemStack, GuiElement.EMPTY_CALLBACK));
     }
 
     /**
@@ -66,7 +66,7 @@ public interface SlotHolder {
     }
 
     /**
-     * Sets slot with selected GuiElement created from a builder.
+     * Sets slot with selected SimpleGuiElement created from a builder.
      *
      * @param index   the slots index, from 0 to (max size - 1)
      * @param element any GuiElementBuilder
@@ -78,7 +78,7 @@ public interface SlotHolder {
     }
 
     /**
-     * Sets the first open slot with selected GuiElement created from a builder.
+     * Sets the first open slot with selected SimpleGuiElement created from a builder.
      *
      * @param element any GuiElementBuilder
      * @see SlotHolder#setSlot(int, GuiElementBuilderInterface)
@@ -94,10 +94,10 @@ public interface SlotHolder {
      * @param itemStack a stack of items
      * @param callback  the callback to run when clicked
      * @throws IndexOutOfBoundsException if the slot is out of bounds
-     * @see SlotHolder#addSlot(ItemStack, GuiElement.ClickCallback)
+     * @see SlotHolder#addSlot(ItemStack, SimpleGuiElement.ClickCallback)
      */
-    default void setSlot(int index, ItemStack itemStack, GuiElement.ClickCallback callback) {
-        this.setSlot(index, new GuiElement(itemStack, callback));
+    default void setSlot(int index, ItemStack itemStack, SimpleGuiElement.ClickCallback callback) {
+        this.setSlot(index, new SimpleGuiElement(itemStack, callback));
     }
 
     /**
@@ -107,10 +107,10 @@ public interface SlotHolder {
      * @param itemStack a stack of items
      * @param callback  the callback to run when clicked
      * @throws IndexOutOfBoundsException if the slot is out of bounds
-     * @see SlotHolder#addSlot(ItemStack, GuiElement.ClickCallback)
+     * @see SlotHolder#addSlot(ItemStack, SimpleGuiElement.ClickCallback)
      */
-    default void setSlot(int index, ItemStack itemStack, GuiElementInterface.ItemClickCallback callback) {
-        this.setSlot(index, new GuiElement(itemStack, callback));
+    default void setSlot(int index, ItemStack itemStack, GuiElement.ItemClickCallback callback) {
+        this.setSlot(index, new SimpleGuiElement(itemStack, callback));
     }
 
     /**
@@ -118,10 +118,10 @@ public interface SlotHolder {
      *
      * @param itemStack a stack of items
      * @param callback  the callback to run when clicked
-     * @see SlotHolder#setSlot(int, ItemStack, GuiElement.ClickCallback)
+     * @see SlotHolder#setSlot(int, ItemStack, SimpleGuiElement.ClickCallback)
      */
-    default void addSlot(ItemStack itemStack, GuiElement.ClickCallback callback) {
-        this.setSlot(this.getFirstEmptySlot(), new GuiElement(itemStack, callback));
+    default void addSlot(ItemStack itemStack, SimpleGuiElement.ClickCallback callback) {
+        this.setSlot(this.getFirstEmptySlot(), new SimpleGuiElement(itemStack, callback));
     }
 
     /**
@@ -130,8 +130,8 @@ public interface SlotHolder {
      * @param itemStack a stack of items
      * @see SlotHolder#setSlot(int, ItemStack)
      */
-    default void addSlot(ItemStack itemStack, GuiElementInterface.ItemClickCallback callback) {
-        this.setSlot(this.getFirstEmptySlot(), new GuiElement(itemStack, callback));
+    default void addSlot(ItemStack itemStack, GuiElement.ItemClickCallback callback) {
+        this.setSlot(this.getFirstEmptySlot(), new SimpleGuiElement(itemStack, callback));
     }
 
     /**
@@ -140,9 +140,9 @@ public interface SlotHolder {
      *
      * @param index the slot index (in this gui)
      * @param slot  the slot to redirect to
-     * @see SlotHolder#addSlotRedirect(Slot)
+     * @see SlotHolder#addSlot(Slot)
      */
-    void setSlotRedirect(int index, Slot slot);
+    void setSlot(int index, Slot slot);
 
     /**
      * Sets the first open slot with selected Slot instance.
@@ -150,10 +150,10 @@ public interface SlotHolder {
      * Do not add duplicates (including player inventory) as it can cause item duplication!
      *
      * @param slot the slot to redirect to
-     * @see SlotHolder#setSlotRedirect(int, Slot)
+     * @see SlotHolder#setSlot(int, Slot)
      */
-    default void addSlotRedirect(Slot slot) {
-        this.setSlotRedirect(this.getFirstEmptySlot(), slot);
+    default void addSlot(Slot slot) {
+        this.setSlot(this.getFirstEmptySlot(), slot);
     }
 
     /**
@@ -201,14 +201,14 @@ public interface SlotHolder {
      * @see SlotHolder#getSlotRedirect(int)
      */
     @Nullable
-    GuiElementInterface getSlot(int index);
+    GuiElement getSlotElement(int index);
 
     /**
      * Returns the external slot the referenced slot is redirecting to.
      *
      * @param index the slot index
      * @return the element or <code>null</code> if no redirect
-     * @see SlotHolder#getSlot(int)
+     * @see SlotHolder#getSlotElement(int)
      */
     @Nullable
     Slot getSlotRedirect(int index);

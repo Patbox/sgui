@@ -1,7 +1,7 @@
 package eu.pb4.sgui.api.gui;
 
-import eu.pb4.sgui.api.GuiHelpers;
-import eu.pb4.sgui.api.elements.GuiElementInterface;
+import eu.pb4.sgui.api.SguiUtils;
+import eu.pb4.sgui.api.elements.GuiElement;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,8 +23,8 @@ import org.jetbrains.annotations.ApiStatus;
  */
 @SuppressWarnings({"unused"})
 public class AnvilInputGui extends SimpleGui {
-    private String inputText;
-    private String defaultText;
+    protected String inputText;
+    protected String defaultText;
 
     /**
      * Constructs a new input gui for the provided player.
@@ -38,16 +38,27 @@ public class AnvilInputGui extends SimpleGui {
         this.setDefaultInputValue("");
     }
 
+    public ItemStack createInputItem(String input) {
+        ItemStack itemStack = Items.PAPER.getDefaultInstance();
+        itemStack.set(DataComponents.ITEM_NAME, Component.empty());
+        itemStack.set(DataComponents.CUSTOM_NAME, Component.literal(input));
+        return itemStack;
+    }
+
     /**
      * Sets the default name value for the input (the input stacks name).
      *
      * @param input the default input
      */
     public void setDefaultInputValue(String input) {
-        ItemStack itemStack = Items.PAPER.getDefaultInstance();
-        itemStack.set(DataComponents.CUSTOM_NAME, Component.literal(input));
         this.inputText = input;
         this.defaultText = input;
+
+        this.updateDefaultInputItem(input);
+    }
+
+    public void updateDefaultInputItem(String input) {
+        var itemStack = createInputItem(input);
         this.setSlot(0, itemStack, ((index, type1, action, gui) -> {
             this.reOpen = true;
             this.inputText = this.defaultText;
@@ -75,15 +86,14 @@ public class AnvilInputGui extends SimpleGui {
     /**
      * Used internally to receive input from the client
      */
-    @ApiStatus.Internal
-    public void input(String input) {
+    public void receiveInput(String input) {
         this.inputText = input;
         this.onInput(input);
-        GuiElementInterface element = this.getSlot(2);
+        GuiElement element = this.getSlotElement(2);
         ItemStack stack = ItemStack.EMPTY;
         if (element != null) {
             stack = element.getItemStack();
         }
-        GuiHelpers.sendSlotUpdate(player, this.syncId, 2, stack);
+        SguiUtils.sendSlotUpdate(player, this.syncId, 2, stack);
     }
 }

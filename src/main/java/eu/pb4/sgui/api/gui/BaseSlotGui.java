@@ -1,17 +1,16 @@
 package eu.pb4.sgui.api.gui;
 
-import eu.pb4.sgui.api.GuiHelpers;
+import eu.pb4.sgui.api.SguiUtils;
 import eu.pb4.sgui.api.ScreenProperty;
-import eu.pb4.sgui.api.elements.GuiElementInterface;
+import eu.pb4.sgui.api.elements.GuiElement;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.Slot;
-import org.jetbrains.annotations.ApiStatus;
 
-public abstract class BaseSlotGui implements SlotGuiInterface {
+public abstract class BaseSlotGui implements SlotBasedGui {
     protected final ServerPlayer player;
-    protected final GuiElementInterface[] elements;
+    protected final GuiElement[] elements;
     protected final Slot[] slotRedirects;
     protected boolean autoUpdate = true;
     protected boolean reOpen = false;
@@ -21,13 +20,13 @@ public abstract class BaseSlotGui implements SlotGuiInterface {
 
     public BaseSlotGui(ServerPlayer player, int size) {
         this.player = player;
-        this.elements = new GuiElementInterface[size];
+        this.elements = new GuiElement[size];
         this.slotRedirects = new Slot[size];
         this.size = size;
     }
 
     @Override
-    public void setSlot(int index, GuiElementInterface element) {
+    public void setSlot(int index, GuiElement element) {
         if (this.elements[index] != null) {
             this.elements[index].onRemoved(this);
         }
@@ -37,7 +36,7 @@ public abstract class BaseSlotGui implements SlotGuiInterface {
     }
 
     @Override
-    public void setSlotRedirect(int index, Slot slot) {
+    public void setSlot(int index, Slot slot) {
         if (this.elements[index] != null) {
             this.elements[index].onRemoved(this);
             this.elements[index] = null;
@@ -65,7 +64,7 @@ public abstract class BaseSlotGui implements SlotGuiInterface {
     }
 
     @Override
-    public GuiElementInterface getSlot(int index) {
+    public GuiElement getSlotElement(int index) {
         if (index >= 0 && index < this.size) {
             return this.elements[index];
         }
@@ -82,7 +81,7 @@ public abstract class BaseSlotGui implements SlotGuiInterface {
 
     @Override
     public boolean isOpen() {
-        return GuiHelpers.getCurrentGui(this.player) == this;
+        return SguiUtils.getCurrentGui(this.player) == this;
     }
 
     @Override
@@ -107,7 +106,7 @@ public abstract class BaseSlotGui implements SlotGuiInterface {
 
     @Override
     public void sendProperty(ScreenProperty property, int value) {
-        SlotGuiInterface.super.sendProperty(property, value);
+        SlotBasedGui.super.sendProperty(property, value);
         while (this.properties.size() <= property.id()) {
             this.properties.add(0);
         }
@@ -116,7 +115,7 @@ public abstract class BaseSlotGui implements SlotGuiInterface {
 
     @Override
     public void sendRawProperty(int id, int value) {
-        SlotGuiInterface.super.sendRawProperty(id, value);
+        SlotBasedGui.super.sendRawProperty(id, value);
         while (this.properties.size() <= id) {
             this.properties.add(0);
         }

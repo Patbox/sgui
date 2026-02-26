@@ -2,8 +2,7 @@ package eu.pb4.sgui.mixin;
 
 import com.mojang.authlib.GameProfile;
 import eu.pb4.sgui.impl.PlayerExtensions;
-import eu.pb4.sgui.virtual.SguiScreenHandlerFactory;
-import eu.pb4.sgui.virtual.VirtualScreenHandlerInterface;
+import eu.pb4.sgui.api.containerwrappers.SguiScreenHandlerFactory;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;

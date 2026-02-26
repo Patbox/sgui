@@ -1,12 +1,12 @@
 package eu.pb4.sgui.api.gui;
 
-import eu.pb4.sgui.api.GuiHelpers;
+import eu.pb4.sgui.api.SguiUtils;
+import eu.pb4.sgui.api.elements.SimpleGuiElement;
 import eu.pb4.sgui.api.elements.GuiElement;
-import eu.pb4.sgui.api.elements.GuiElementInterface;
 import eu.pb4.sgui.mixin.ScreenHandlerAccessor;
-import eu.pb4.sgui.virtual.inventory.VirtualScreenHandler;
-import eu.pb4.sgui.virtual.SguiScreenHandlerFactory;
-import eu.pb4.sgui.virtual.inventory.VirtualSlot;
+import eu.pb4.sgui.api.containerwrappers.SlotBasedWrapperMenu;
+import eu.pb4.sgui.api.containerwrappers.SguiScreenHandlerFactory;
+import eu.pb4.sgui.api.containerwrappers.slot.WrappingSlot;
 import java.util.ArrayList;
 import java.util.OptionalInt;
 import net.minecraft.network.chat.Component;
@@ -39,7 +39,7 @@ public class SimpleGui extends BaseSlotGui {
     private final boolean includePlayer;
     private final int sizeCont;
     protected boolean lockPlayerInventory = false;
-    protected VirtualScreenHandler screenHandler = null;
+    protected SlotBasedWrapperMenu wrappedMenu = null;
     protected int syncId = -1;
     protected boolean hasRedirects = false;
     private Component title = null;
@@ -53,9 +53,9 @@ public class SimpleGui extends BaseSlotGui {
      *                              will be treated as slots of this gui
      */
     public SimpleGui(MenuType<?> type, ServerPlayer player, boolean manipulatePlayerSlots) {
-        super(player, GuiHelpers.getHeight(type) * GuiHelpers.getWidth(type) + (manipulatePlayerSlots ? 36 : 0));
-        this.height = GuiHelpers.getHeight(type);
-        this.width = GuiHelpers.getWidth(type);
+        super(player, SguiUtils.getHeight(type) * SguiUtils.getWidth(type) + (manipulatePlayerSlots ? 36 : 0));
+        this.height = SguiUtils.getHeight(type);
+        this.width = SguiUtils.getWidth(type);
 
         this.type = type;
         this.sizeCont = this.width * this.height;
@@ -81,18 +81,18 @@ public class SimpleGui extends BaseSlotGui {
     }
 
     @Override
-    public void setSlot(int index, GuiElementInterface element) {
+    public void setSlot(int index, GuiElement element) {
         super.setSlot(index, element);
         if (this.isOpen() && this.autoUpdate) {
-            this.screenHandler.setSlot(index, new VirtualSlot(this, index, 0, 0));
+            this.wrappedMenu.setSlot(index, new WrappingSlot(this, index, 0, 0));
         }
     }
 
     @Override
-    public void setSlotRedirect(int index, Slot slot) {
-        super.setSlotRedirect(index, slot);
+    public void setSlot(int index, Slot slot) {
+        super.setSlot(index, slot);
         if (this.isOpen() && this.autoUpdate) {
-            this.screenHandler.setSlot(index, slot);
+            this.wrappedMenu.setSlot(index, slot);
         }
     }
 
@@ -101,13 +101,13 @@ public class SimpleGui extends BaseSlotGui {
         super.clearSlot(index);
         this.hasRedirects = true;
         if (this.isOpen() && this.autoUpdate) {
-            this.screenHandler.setSlot(index, new VirtualSlot(this, index, 0, 0));
+            this.wrappedMenu.setSlot(index, new WrappingSlot(this, index, 0, 0));
         }
     }
 
     @Override
     public boolean isOpen() {
-        return this.screenHandler != null && this.screenHandler == this.player.containerMenu;
+        return this.wrappedMenu != null && this.wrappedMenu == this.player.containerMenu;
     }
 
     @Override
@@ -119,31 +119,25 @@ public class SimpleGui extends BaseSlotGui {
     public void setTitle(Component title) {
         this.title = title;
 
-        if (this.isOpen()) {
-            var list = new ArrayList<Packet<? super ClientGamePacketListener>>();
-            list.add(new ClientboundOpenScreenPacket(this.syncId, this.type, title));
-            list.add(new ClientboundContainerSetContentPacket(this.syncId, this.screenHandler.getStateId(),
-                    this.screenHandler.getItems(), this.screenHandler.getCarried()));
-            for (int i = 0; i < this.properties.size(); i++) {
-                list.add(new ClientboundContainerSetDataPacket(this.syncId, i, this.properties.getInt(i)));
-            }
-
-            this.player.connection.send(new ClientboundBundlePacket(list));
-            for (var i = 0; i < this.screenHandler.slots.size(); i++) {
-                this.screenHandler.setRemoteSlot(i, this.screenHandler.slots.get(i).getItem().copy());
-            }
-            ((ScreenHandlerAccessor) this.screenHandler).getRemoteCarried().force(this.screenHandler.getCarried());
+        if (this.isOpen() && this.autoUpdate) {
+            this.forceUpdateAll();
         }
     }
 
-    @Override
-    public boolean getAutoUpdate() {
-        return this.autoUpdate;
-    }
+    protected void forceUpdateAll() {
+        var list = new ArrayList<Packet<? super ClientGamePacketListener>>();
+        list.add(new ClientboundOpenScreenPacket(this.syncId, this.type, title));
+        list.add(new ClientboundContainerSetContentPacket(this.syncId, this.wrappedMenu.getStateId(),
+                this.wrappedMenu.getItems(), this.wrappedMenu.getCarried()));
+        for (int i = 0; i < this.properties.size(); i++) {
+            list.add(new ClientboundContainerSetDataPacket(this.syncId, i, this.properties.getInt(i)));
+        }
 
-    @Override
-    public void setAutoUpdate(boolean value) {
-        this.autoUpdate = value;
+        this.player.connection.send(new ClientboundBundlePacket(list));
+        for (var i = 0; i < this.wrappedMenu.slots.size(); i++) {
+            this.wrappedMenu.setRemoteSlot(i, this.wrappedMenu.slots.get(i).getItem().copy());
+        }
+        ((ScreenHandlerAccessor) this.wrappedMenu).getRemoteCarried().force(this.wrappedMenu.getCarried());
     }
 
     /**
@@ -188,8 +182,8 @@ public class SimpleGui extends BaseSlotGui {
         this.reOpen = false;
         if (temp.isPresent()) {
             this.syncId = temp.getAsInt();
-            if (this.player.containerMenu instanceof VirtualScreenHandler) {
-                this.screenHandler = (VirtualScreenHandler) this.player.containerMenu;
+            if (this.player.containerMenu instanceof SlotBasedWrapperMenu) {
+                this.wrappedMenu = (SlotBasedWrapperMenu) this.player.containerMenu;
                 return true;
             }
         }
@@ -229,17 +223,17 @@ public class SimpleGui extends BaseSlotGui {
         } else {
             this.beforeOpen();
             this.onOpen();
-            this.screenHandler = new VirtualScreenHandler(this.getType(), syncId, this, player);
-            return this.screenHandler;
+            this.wrappedMenu = new SlotBasedWrapperMenu(this.getType(), syncId, this, player);
+            return this.wrappedMenu;
         }
     }
 
     @Override
     public void close(boolean screenHandlerIsClosed) {
         if ((this.isOpen() || screenHandlerIsClosed) && !this.reOpen) {
-            if (!screenHandlerIsClosed && this.player.containerMenu == this.screenHandler) {
+            if (!screenHandlerIsClosed && this.player.containerMenu == this.wrappedMenu) {
                 this.player.closeContainer();
-                this.screenHandler = null;
+                this.wrappedMenu = null;
             }
 
             this.player.containerMenu.sendAllDataToRemote();
@@ -263,29 +257,5 @@ public class SimpleGui extends BaseSlotGui {
     @Override
     public int getSyncId() {
         return syncId;
-    }
-
-    /**
-     * Allows to send some additional properties to guis
-     * <p>
-     * See values at https://wiki.vg/Protocol#Window_Property as reference
-     *
-     * @param property the property id
-     * @param value    the value of the property to send
-     * @deprecated As of 0.4.0, replaced by {@link GuiInterface#sendProperty} as its much more readable
-     */
-    @Deprecated
-    public void sendProperty(int property, int value) {
-        this.player.connection.send(new ClientboundContainerSetDataPacket(this.syncId, property, value));
-    }
-
-    @Deprecated
-    public void setSlot(int index, ItemStack itemStack, GuiElementInterface.ItemClickCallback callback) {
-        this.setSlot(index, new GuiElement(itemStack, callback));
-    }
-
-    @Deprecated
-    public void addSlot(ItemStack itemStack, GuiElementInterface.ItemClickCallback callback) {
-        this.addSlot(new GuiElement(itemStack, callback));
     }
 }

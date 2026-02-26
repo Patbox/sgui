@@ -1,4 +1,4 @@
-package eu.pb4.sgui.virtual.merchant;
+package eu.pb4.sgui.impl.virtual.merchant;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MerchantContainer;

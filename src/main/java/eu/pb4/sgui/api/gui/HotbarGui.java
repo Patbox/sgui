@@ -1,11 +1,10 @@
 package eu.pb4.sgui.api.gui;
 
 import eu.pb4.sgui.api.ClickType;
-import eu.pb4.sgui.api.GuiHelpers;
-import eu.pb4.sgui.api.elements.GuiElementInterface;
+import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.mixin.ServerPlayerEntityAccessor;
-import eu.pb4.sgui.virtual.hotbar.HotbarScreenHandler;
-import eu.pb4.sgui.virtual.inventory.VirtualSlot;
+import eu.pb4.sgui.impl.virtual.hotbar.HotbarScreenHandler;
+import eu.pb4.sgui.api.containerwrappers.slot.WrappingSlot;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.core.BlockPos;
@@ -15,6 +14,8 @@ import net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.phys.BlockHitResult;
@@ -73,15 +74,15 @@ public class HotbarGui extends BaseSlotGui {
     }
 
     @Override
-    public void setSlot(int index, GuiElementInterface element) {
+    public void setSlot(int index, GuiElement element) {
         super.setSlot(index, element);
         if (this.isOpen() && this.autoUpdate) {
-            this.screenHandler.setSlot(GUI_TO_VANILLA_IDS[index], new VirtualSlot(this, index, 0, 0));
+            this.screenHandler.setSlot(GUI_TO_VANILLA_IDS[index], new WrappingSlot(this, index, 0, 0));
         }
     }
 
-    public void setSlotRedirect(int index, Slot slot) {
-        super.setSlotRedirect(index, slot);
+    public void setSlot(int index, Slot slot) {
+        super.setSlot(index, slot);
 
         if (this.isOpen() && this.autoUpdate) {
             this.screenHandler.setSlot(GUI_TO_VANILLA_IDS[index], slot);
@@ -95,13 +96,13 @@ public class HotbarGui extends BaseSlotGui {
 
         if (this.isOpen() && this.autoUpdate) {
             if (this.screenHandler != null) {
-                this.screenHandler.setSlot(GUI_TO_VANILLA_IDS[index], new VirtualSlot(this, index, 0, 0));
+                this.screenHandler.setSlot(GUI_TO_VANILLA_IDS[index], new WrappingSlot(this, index, 0, 0));
             }
         }
     }
 
     @Override
-    public boolean click(int index, ClickType type, net.minecraft.world.inventory.ClickType action) {
+    public boolean click(int index, ClickType type, ContainerInput action) {
         if (index >= 0 && index < SIZE) {
             return super.click(VANILLA_TO_GUI_IDS[index], type, action);
         }
@@ -165,9 +166,9 @@ public class HotbarGui extends BaseSlotGui {
      */
     public void onClickItem() {
         if (this.player.isShiftKeyDown()) {
-            this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_RIGHT_SHIFT, net.minecraft.world.inventory.ClickType.QUICK_MOVE);
+            this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_RIGHT_SHIFT, ContainerInput.QUICK_MOVE);
         } else {
-            this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_RIGHT, net.minecraft.world.inventory.ClickType.PICKUP);
+            this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_RIGHT, ContainerInput.PICKUP);
         }
     }
 
@@ -177,20 +178,20 @@ public class HotbarGui extends BaseSlotGui {
      */
     public boolean onHandSwing() {
         if (this.player.isShiftKeyDown()) {
-            this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_LEFT_SHIFT, net.minecraft.world.inventory.ClickType.QUICK_MOVE);
+            this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_LEFT_SHIFT, ContainerInput.QUICK_MOVE);
         } else {
-            this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_LEFT, net.minecraft.world.inventory.ClickType.PICKUP);
+            this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_LEFT, ContainerInput.PICKUP);
         }
         return false;
     }
 
     public boolean onPickItemFromBlock(BlockPos pos, boolean includeData) {
-        this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_MIDDLE, net.minecraft.world.inventory.ClickType.CLONE);
+        this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_MIDDLE, ContainerInput.CLONE);
         return false;
     }
 
     public boolean onPickItemFromEntity(int entityId, boolean includeData) {
-        this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_MIDDLE, net.minecraft.world.inventory.ClickType.CLONE);
+        this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_MIDDLE, ContainerInput.CLONE);
         return false;
     }
 
@@ -200,9 +201,9 @@ public class HotbarGui extends BaseSlotGui {
      */
     public boolean onClickBlock(BlockHitResult hitResult) {
         if (this.player.isShiftKeyDown()) {
-            this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_RIGHT_SHIFT, net.minecraft.world.inventory.ClickType.QUICK_MOVE);
+            this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_RIGHT_SHIFT, ContainerInput.QUICK_MOVE);
         } else {
-            this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_RIGHT, net.minecraft.world.inventory.ClickType.PICKUP);
+            this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_RIGHT, ContainerInput.PICKUP);
         }
 
         return false;
@@ -214,16 +215,17 @@ public class HotbarGui extends BaseSlotGui {
      */
     public boolean onPlayerAction(ServerboundPlayerActionPacket.Action action, Direction direction) {
         switch (action) {
-            case DROP_ITEM -> this.tickLimitedClick(this.selectedSlot, ClickType.DROP, net.minecraft.world.inventory.ClickType.THROW);
-            case DROP_ALL_ITEMS -> this.tickLimitedClick(this.selectedSlot, ClickType.CTRL_DROP, net.minecraft.world.inventory.ClickType.THROW);
+            case DROP_ITEM -> this.tickLimitedClick(this.selectedSlot, ClickType.DROP, ContainerInput.THROW);
+            case DROP_ALL_ITEMS -> this.tickLimitedClick(this.selectedSlot, ClickType.CTRL_DROP, ContainerInput.THROW);
             case STOP_DESTROY_BLOCK -> {
                 if (this.player.isShiftKeyDown()) {
-                    this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_LEFT_SHIFT, net.minecraft.world.inventory.ClickType.QUICK_MOVE);
+                    this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_LEFT_SHIFT, ContainerInput.QUICK_MOVE);
                 } else {
-                    this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_LEFT, net.minecraft.world.inventory.ClickType.PICKUP);
+                    this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_LEFT, ContainerInput.PICKUP);
                 }
             }
-            case SWAP_ITEM_WITH_OFFHAND -> this.tickLimitedClick(this.selectedSlot, ClickType.OFFHAND_SWAP, net.minecraft.world.inventory.ClickType.SWAP);
+            case SWAP_ITEM_WITH_OFFHAND ->
+                    this.tickLimitedClick(this.selectedSlot, ClickType.OFFHAND_SWAP, ContainerInput.SWAP);
         }
 
         return false;
@@ -233,19 +235,22 @@ public class HotbarGui extends BaseSlotGui {
      * This method is called when player clicks an entity
      * If you return false, vanilla action will be canceled
      */
-    public boolean onClickEntity(int entityId, EntityInteraction type, boolean isSneaking, @Nullable Vec3 interactionPos) {
-        if (type == EntityInteraction.ATTACK) {
-            if (isSneaking) {
-                this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_LEFT_SHIFT, net.minecraft.world.inventory.ClickType.QUICK_MOVE);
-            } else {
-                this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_LEFT, net.minecraft.world.inventory.ClickType.PICKUP);
-            }
+    public boolean onEntityInteracted(int entityId, InteractionHand hand, boolean isSneaking, Vec3 interactionPos) {
+        if (isSneaking) {
+            this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_RIGHT_SHIFT, ContainerInput.QUICK_MOVE);
         } else {
-            if (isSneaking) {
-                this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_RIGHT_SHIFT, net.minecraft.world.inventory.ClickType.QUICK_MOVE);
-            } else {
-                this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_RIGHT, net.minecraft.world.inventory.ClickType.PICKUP);
-            }
+            this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_RIGHT, ContainerInput.PICKUP);
+        }
+
+        return false;
+    }
+
+
+    public boolean onEntityAttacked(int entityId) {
+        if (this.player.isShiftKeyDown()) {
+            this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_LEFT_SHIFT, ContainerInput.QUICK_MOVE);
+        } else {
+            this.tickLimitedClick(this.selectedSlot, ClickType.MOUSE_LEFT, ContainerInput.PICKUP);
         }
         return false;
     }
@@ -270,7 +275,7 @@ public class HotbarGui extends BaseSlotGui {
     }
 
     @ApiStatus.Internal
-    private void tickLimitedClick(int selectedSlot, ClickType type, net.minecraft.world.inventory.ClickType actionType) {
+    private void tickLimitedClick(int selectedSlot, ClickType type, ContainerInput actionType) {
         if (this.clicksPerTick == 0) {
             this.click(GUI_TO_VANILLA_IDS[selectedSlot], type, actionType);
         }
@@ -364,11 +369,5 @@ public class HotbarGui extends BaseSlotGui {
     @Override
     public void setTitle(Component title) {
 
-    }
-
-    public enum EntityInteraction {
-        INTERACT,
-        ATTACK,
-        INTERACT_AT
     }
 }

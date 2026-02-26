@@ -1,4 +1,4 @@
-package eu.pb4.sgui.virtual.book;
+package eu.pb4.sgui.impl.virtual.book;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;

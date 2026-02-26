@@ -1,10 +1,10 @@
 package eu.pb4.sgui.api.gui;
 
-import eu.pb4.sgui.api.GuiHelpers;
+import eu.pb4.sgui.api.SguiUtils;
 import eu.pb4.sgui.api.SlotHolder;
-import eu.pb4.sgui.api.elements.GuiElement;
+import eu.pb4.sgui.api.elements.SimpleGuiElement;
 import eu.pb4.sgui.api.elements.GuiElementBuilderInterface;
-import eu.pb4.sgui.api.elements.GuiElementInterface;
+import eu.pb4.sgui.api.elements.GuiElement;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.MenuType;
@@ -22,7 +22,7 @@ public final class SimpleGuiBuilder implements SlotHolder {
     private final int width;
     private final int height;
     private final MenuType<?> type;
-    private final GuiElementInterface[] elements;
+    private final GuiElement[] elements;
     private final Slot[] slotRedirects;
     private final boolean includePlayer;
     private final int sizeCont;
@@ -38,15 +38,15 @@ public final class SimpleGuiBuilder implements SlotHolder {
      *                                    will be treated as slots of this gui
      */
     public SimpleGuiBuilder(MenuType<?> type, boolean manipulatePlayerSlots) {
-        this.height = GuiHelpers.getHeight(type);
-        this.width = GuiHelpers.getWidth(type);
+        this.height = SguiUtils.getHeight(type);
+        this.width = SguiUtils.getWidth(type);
 
         this.type = type;
 
         int tmp = manipulatePlayerSlots ? 36 : 0;
         this.size = this.width * this.height + tmp;
         this.sizeCont = this.width * this.height;
-        this.elements = new GuiElementInterface[this.size];
+        this.elements = new GuiElement[this.size];
         this.slotRedirects = new Slot[this.size];
 
         this.includePlayer = manipulatePlayerSlots;
@@ -65,7 +65,7 @@ public final class SimpleGuiBuilder implements SlotHolder {
 
         int pos = 0;
 
-        for (GuiElementInterface element : this.elements) {
+        for (GuiElement element : this.elements) {
             if (element != null) {
                 gui.setSlot(pos, element);
             }
@@ -76,7 +76,7 @@ public final class SimpleGuiBuilder implements SlotHolder {
 
         for (Slot slot : this.slotRedirects) {
             if (slot != null) {
-                gui.setSlotRedirect(pos, slot);
+                gui.setSlot(pos, slot);
             }
             pos++;
         }
@@ -93,16 +93,16 @@ public final class SimpleGuiBuilder implements SlotHolder {
         return this.width;
     }
 
-    public void setSlot(int index, GuiElementInterface element) {
+    public void setSlot(int index, GuiElement element) {
         this.elements[index] = element;
     }
 
-    public void addSlot(GuiElementInterface element) {
+    public void addSlot(GuiElement element) {
         this.setSlot(this.getFirstEmptySlot(), element);
     }
 
     public void setSlot(int index, ItemStack itemStack) {
-        this.setSlot(index, new GuiElement(itemStack, GuiElementInterface.EMPTY_CALLBACK));
+        this.setSlot(index, new SimpleGuiElement(itemStack, GuiElement.EMPTY_CALLBACK));
     }
 
     public void addSlot(ItemStack itemStack) {
@@ -117,30 +117,30 @@ public final class SimpleGuiBuilder implements SlotHolder {
         this.setSlot(this.getFirstEmptySlot(), element.build());
     }
 
-    public void setSlot(int index, ItemStack itemStack, GuiElement.ClickCallback callback) {
-        this.setSlot(index, new GuiElement(itemStack, callback));
+    public void setSlot(int index, ItemStack itemStack, SimpleGuiElement.ClickCallback callback) {
+        this.setSlot(index, new SimpleGuiElement(itemStack, callback));
     }
 
-    public void setSlot(int index, ItemStack itemStack, GuiElementInterface.ItemClickCallback callback) {
-        this.setSlot(index, new GuiElement(itemStack, callback));
+    public void setSlot(int index, ItemStack itemStack, GuiElement.ItemClickCallback callback) {
+        this.setSlot(index, new SimpleGuiElement(itemStack, callback));
     }
 
-    public void addSlot(ItemStack itemStack, GuiElement.ClickCallback callback) {
-        this.setSlot(this.getFirstEmptySlot(), new GuiElement(itemStack, callback));
+    public void addSlot(ItemStack itemStack, SimpleGuiElement.ClickCallback callback) {
+        this.setSlot(this.getFirstEmptySlot(), new SimpleGuiElement(itemStack, callback));
     }
 
-    public void addSlot(ItemStack itemStack, GuiElementInterface.ItemClickCallback callback) {
-        this.setSlot(this.getFirstEmptySlot(), new GuiElement(itemStack, callback));
+    public void addSlot(ItemStack itemStack, GuiElement.ItemClickCallback callback) {
+        this.setSlot(this.getFirstEmptySlot(), new SimpleGuiElement(itemStack, callback));
     }
 
-    public void setSlotRedirect(int index, Slot slot) {
+    public void setSlot(int index, Slot slot) {
         this.elements[index] = null;
         this.slotRedirects[index] = slot;
         this.hasRedirects = true;
     }
 
-    public void addSlotRedirect(Slot slot) {
-        this.setSlotRedirect(this.getFirstEmptySlot(), slot);
+    public void addSlot(Slot slot) {
+        this.setSlot(this.getFirstEmptySlot(), slot);
     }
 
     public int getFirstEmptySlot() {
@@ -165,7 +165,7 @@ public final class SimpleGuiBuilder implements SlotHolder {
         return this.sizeCont;
     }
 
-    public GuiElementInterface getSlot(int index) {
+    public GuiElement getSlotElement(int index) {
         if (index >= 0 && index < this.size) {
             return this.elements[index];
         }

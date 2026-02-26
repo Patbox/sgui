@@ -1,19 +1,18 @@
-package eu.pb4.sgui.virtual.book;
+package eu.pb4.sgui.impl.virtual.book;
 
+import eu.pb4.sgui.api.containerwrappers.AbstractWrapperMenu;
 import eu.pb4.sgui.api.gui.BookGui;
-import eu.pb4.sgui.virtual.VirtualScreenHandlerInterface;
-import eu.pb4.sgui.virtual.inventory.VirtualSlot;
+import eu.pb4.sgui.api.containerwrappers.slot.WrappingSlot;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class BookScreenHandler extends AbstractContainerMenu implements VirtualScreenHandlerInterface {
+public class BookScreenHandler extends AbstractWrapperMenu {
     private final BookGui gui;
 
     public BookScreenHandler(int syncId, BookGui gui, Player player) {
-        super(MenuType.LECTERN, syncId);
+        super(MenuType.LECTERN, syncId, gui);
         this.gui = gui;
 
         this.addSlot(new BookSlot(new BookInventory(gui), 0, 0, 0));
@@ -76,7 +75,7 @@ public class BookScreenHandler extends AbstractContainerMenu implements VirtualS
 
     @Override
     public boolean canTakeItemForPickAll(ItemStack stack, Slot slot) {
-        return !(slot instanceof VirtualSlot) && super.canTakeItemForPickAll(stack, slot);
+        return !(slot instanceof WrappingSlot) && super.canTakeItemForPickAll(stack, slot);
     }
 
     @Override
@@ -85,7 +84,7 @@ public class BookScreenHandler extends AbstractContainerMenu implements VirtualS
     }
 
     @Override
-    public BookGui getGui() {
+    public BookGui getBackingGui() {
         return gui;
     }
 
@@ -93,9 +92,9 @@ public class BookScreenHandler extends AbstractContainerMenu implements VirtualS
     public void removed(Player player) {
         super.removed(player);
         try {
-            this.getGui().onScreenHandlerClosed();
+            this.getBackingGui().onScreenHandlerClosed();
         } catch (Throwable e) {
-            this.getGui().handleException(e);
+            this.getBackingGui().handleException(e);
         }
     }
 }

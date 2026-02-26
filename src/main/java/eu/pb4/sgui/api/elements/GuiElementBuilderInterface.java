@@ -19,7 +19,7 @@ public interface GuiElementBuilderInterface<T extends GuiElementBuilderInterface
      * @param callback the callback
      * @return this element builder
      */
-    T setCallback(GuiElementInterface.ClickCallback callback);
+    T setCallback(GuiElement.ClickCallback callback);
 
     /**
      * Set the callback to execute when this element
@@ -28,8 +28,8 @@ public interface GuiElementBuilderInterface<T extends GuiElementBuilderInterface
      * @param callback the callback
      * @return this element builder
      */
-    default T setCallback(GuiElementInterface.ItemClickCallback callback) {
-        return this.setCallback((GuiElementInterface.ClickCallback) callback);
+    default T setCallback(GuiElement.ItemClickCallback callback) {
+        return this.setCallback((GuiElement.ClickCallback) callback);
     }
 
     default T setCallback(Runnable callback) {
@@ -41,12 +41,10 @@ public interface GuiElementBuilderInterface<T extends GuiElementBuilderInterface
     }
 
     /**
-     * Constructs the GuiElement with the values
+     * Constructs the SimpleGuiElement with the values
      * from the builder.
      *
      * @return the built element
      */
-    GuiElementInterface build();
-
-
+    GuiElement build();
 }

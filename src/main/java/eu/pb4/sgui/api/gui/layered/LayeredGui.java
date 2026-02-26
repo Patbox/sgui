@@ -2,9 +2,10 @@ package eu.pb4.sgui.api.gui.layered;
 
 import com.google.common.collect.ImmutableList;
 import eu.pb4.sgui.api.ClickType;
-import eu.pb4.sgui.api.GuiHelpers;
-import eu.pb4.sgui.api.elements.GuiElementInterface;
-import eu.pb4.sgui.api.gui.SlotGuiInterface;
+import eu.pb4.sgui.api.SguiUtils;
+import eu.pb4.sgui.api.elements.GuiElement;
+import eu.pb4.sgui.api.gui.SlotBasedGui;
+import net.minecraft.world.inventory.ContainerInput;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ import net.minecraft.world.inventory.Slot;
  * This is wrapper around SimpleGui designed to simplify multi-layered/dynamic uis
  */
 @SuppressWarnings({"unused"})
-public class LayeredGui implements SlotGuiInterface {
+public class LayeredGui implements SlotBasedGui {
     protected final int size;
     protected final int width;
     protected final int height;
@@ -39,12 +40,12 @@ public class LayeredGui implements SlotGuiInterface {
      *                              will be treated as slots of this gui
      */
     public LayeredGui(MenuType<?> type, ServerPlayer player, boolean manipulatePlayerSlots) {
-        int width = GuiHelpers.getWidth(type);
+        int width = SguiUtils.getWidth(type);
         if (width != 9) {
             type = MenuType.GENERIC_9x3;
         }
 
-        this.height = GuiHelpers.getHeight(type) + (manipulatePlayerSlots ? 4 : 0);
+        this.height = SguiUtils.getHeight(type) + (manipulatePlayerSlots ? 4 : 0);
         this.width = 9;
 
         this.gui = new BackendSimpleGui(type, player, manipulatePlayerSlots, this);
@@ -71,7 +72,7 @@ public class LayeredGui implements SlotGuiInterface {
 
     @Override
     public void onTick() {
-        SlotGuiInterface.super.onTick();
+        SlotBasedGui.super.onTick();
 
         if (this.isDirty) {
             this.draw();
@@ -84,11 +85,11 @@ public class LayeredGui implements SlotGuiInterface {
         this.layers.sort(Comparator.comparingInt(a -> a.zIndex));
 
         for (int i = 0; i < this.size; i++) {
-            GuiElementInterface element = this.backgroundLayer.elements[i];
+            GuiElement element = this.backgroundLayer.elements[i];
             Slot slot = this.backgroundLayer.slots[i];
 
             for (LayerView view : this.layers) {
-                GuiElementInterface viewElement = view.elements[i];
+                GuiElement viewElement = view.elements[i];
                 Slot viewSlot = view.slots[i];
 
                 if (viewElement != null) {
@@ -102,10 +103,10 @@ public class LayeredGui implements SlotGuiInterface {
 
             if (slot == null && element == null) {
                 this.gui.clearSlot(i);
-            } else if (this.gui.getSlot(i) != element && element != null) {
+            } else if (this.gui.getSlotElement(i) != element && element != null) {
                 this.gui.setSlot(i, element);
             } else if (this.gui.getSlotRedirect(i) != slot && slot != null) {
-                this.gui.setSlotRedirect(i, slot);
+                this.gui.setSlot(i, slot);
             }
         }
     }
@@ -121,13 +122,13 @@ public class LayeredGui implements SlotGuiInterface {
     }
 
 
-    public void setSlot(int index, GuiElementInterface element) {
+    public void setSlot(int index, GuiElement element) {
         this.backgroundLayer.setSlot(index, element);
     }
 
 
-    public void setSlotRedirect(int index, Slot slot) {
-        this.backgroundLayer.setSlotRedirect(index, slot);
+    public void setSlot(int index, Slot slot) {
+        this.backgroundLayer.setSlot(index, slot);
     }
 
 
@@ -151,8 +152,8 @@ public class LayeredGui implements SlotGuiInterface {
     }
 
 
-    public GuiElementInterface getSlot(int index) {
-        return this.backgroundLayer.getSlot(index);
+    public GuiElement getSlotElement(int index) {
+        return this.backgroundLayer.getSlotElement(index);
     }
 
 
@@ -166,13 +167,13 @@ public class LayeredGui implements SlotGuiInterface {
     }
 
 
-    public boolean onAnyClick(int index, ClickType type, net.minecraft.world.inventory.ClickType action) {
+    public boolean onAnyClick(int index, ClickType type, ContainerInput action) {
         return true;
     }
 
     @Deprecated
     @ApiStatus.Internal
-    public boolean click(int index, ClickType type, net.minecraft.world.inventory.ClickType action) {
+    public boolean click(int index, ClickType type, ContainerInput action) {
         return false;
     }
 

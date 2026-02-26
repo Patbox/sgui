@@ -213,7 +213,6 @@ public class BookElementBuilder extends GuiElementBuilder {
      * @return the contents of the page or empty if page does not exist
      * @throws IllegalArgumentException if the item is not a book
      */
-    @Deprecated
     public static Component getPageContents(ItemStack book, int index) {
         WrittenBookContent component = book.getOrDefault(DataComponents.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT);
         if (index < component.pages().size()) {

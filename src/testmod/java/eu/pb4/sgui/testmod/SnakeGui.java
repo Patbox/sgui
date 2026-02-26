@@ -1,16 +1,14 @@
 package eu.pb4.sgui.testmod;
 
-import eu.pb4.sgui.api.elements.GuiElement;
+import eu.pb4.sgui.api.elements.SimpleGuiElement;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.layered.Layer;
 import eu.pb4.sgui.api.gui.layered.LayeredGui;
-import it.unimi.dsi.fastutil.objects.ReferenceSortedSet;
 import it.unimi.dsi.fastutil.objects.ReferenceSortedSets;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Unit;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
@@ -126,13 +124,13 @@ public class SnakeGui extends LayeredGui {
             return;
         }
         if (this.direction.button != -1) {
-            GuiElement oldButton = ((GuiElement) this.controller.getSlot(this.direction.button));
+            SimpleGuiElement oldButton = ((SimpleGuiElement) this.controller.getSlotElement(this.direction.button));
             oldButton.setItemStack(GuiElementBuilder.from(oldButton.getItemStack()).setItem(Items.MAGMA_CREAM).asStack());
         }
 
         this.direction = direction;
 
-        GuiElement button = ((GuiElement) this.controller.getSlot(direction.button));
+        SimpleGuiElement button = ((SimpleGuiElement) this.controller.getSlotElement(direction.button));
         button.setItemStack(GuiElementBuilder.from(button.getItemStack()).setItem(Items.SLIME_BALL).asStack());
     }
 

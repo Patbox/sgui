@@ -1,69 +1,109 @@
 package eu.pb4.sgui.api.elements;
 
-import eu.pb4.sgui.api.gui.GuiInterface;
+import eu.pb4.sgui.api.ClickType;
+import eu.pb4.sgui.api.gui.GuiLike;
+import eu.pb4.sgui.api.gui.SlotBasedGui;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Simple Gui Element
+ * Gui Element Interface
  * <br>
- * A simple, single frame, GuiElement.
- * <p>
- * Gui elements are typically constructed via their respective builder.
+ * This is the interface all GuiElements are based from. It contains
+ * the bare basic methods for what is required to display and trigger
+ * GuiElements.
  *
- * @see GuiElementBuilder
- * @see GuiElementInterface
+ * Elements are typically not constructed directly, but rather through a GuiElementBuilder.
+ * @see GuiElementBuilderInterface
+ *
+ * @see SimpleGuiElement
+ * @see AnimatedGuiElement
  */
-public class GuiElement implements GuiElementInterface {
-    public static final GuiElement EMPTY = new GuiElement(ItemStack.EMPTY, EMPTY_CALLBACK);
-
-    protected final ClickCallback callback;
-    protected ItemStack item;
+@SuppressWarnings({"unused"})
+public interface GuiElement {
+    ClickCallback EMPTY_CALLBACK = (x,y,z,a) -> {};
 
     /**
-     * Constructs a GuiElement with the supplied options.
+     * Returns the elements currently displayed stack
      *
-     * @param item     the stack to use for display
-     * @param callback the callback to execute when the element is selected
-     * @see GuiElementBuilder
+     * @return the current stack
      */
-    public GuiElement(ItemStack item, ClickCallback callback) {
-        this.item = item;
-        this.callback = callback;
-    }
+    ItemStack getItemStack();
 
     /**
-     * Constructs a GuiElement with the supplied options.
+     * Returns the elements callback
      *
-     * @param item     the stack to use for display
-     * @param callback the callback to execute when the element is selected
-     * @see GuiElementBuilder
+     * @return the callback
      */
-    public GuiElement(ItemStack item, ItemClickCallback callback) {
-        this.item = item;
-        this.callback = callback;
-    }
+    ClickCallback getGuiCallback();
 
-    @Override
-    public ItemStack getItemStack() {
-        return this.item;
+    /**
+     * Used for getting displayed item.
+     * Can be used to create animations.
+     */
+    default ItemStack getItemStackForDisplay(GuiLike gui) {
+        return this.getItemStack().copy();
     }
 
     /**
-     * Sets the display ItemStack
+     * This method is called when this SimpleGuiElement is added
+     * to a SlotGuiInstance
      *
-     * @param itemStack the display item
+     * @param gui A gui to which this SimpleGuiElement is added
      */
-    public void setItemStack(ItemStack itemStack) {
-        this.item = itemStack;
+    default void onAdded(SlotBasedGui gui) {
+
     }
 
-    @Override
-    public ClickCallback getGuiCallback() {
-        return this.callback;
+    /**
+     * This method is called when this SimpleGuiElement is removed
+     * from a SlotGuiInstance
+     *
+     * @param gui A gui to which this SimpleGuiElement is removed
+     */
+    default void onRemoved(SlotBasedGui gui) {
+
     }
 
-    @Override
-    public ItemStack getItemStackForDisplay(GuiInterface gui) {
-        return this.item.copy();
+    /**
+     * Item Click Callback
+     * <br>
+     * The callback used to execute actions when an
+     * element is clicked.
+     */
+    @FunctionalInterface
+    interface ItemClickCallback extends ClickCallback {
+
+        /**
+         * Executed when a SimpleGuiElement is clicked.
+         *
+         * @param index  the slot index
+         * @param type   the simplified type of click
+         * @param action the Minecraft action type
+         */
+        void click(int index, ClickType type, ContainerInput action);
+
+        default void click(int index, ClickType type, ContainerInput action, SlotBasedGui gui) {
+            this.click(index, type, action);
+        }
+    }
+
+    /**
+     * Gui-Aware Item Click Callback
+     * <br>
+     * The callback used to execute actions when an
+     * element is clicked.
+     */
+    @FunctionalInterface
+    interface ClickCallback {
+
+        /**
+         * Executed when a SimpleGuiElement is clicked.
+         *  @param index  the slot index
+         * @param type   the simplified type of click
+         * @param action the Minecraft action type
+         * @param gui    the gui being source of the click
+         */
+        void click(int index, ClickType type, ContainerInput action, SlotBasedGui gui);
     }
 }

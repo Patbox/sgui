@@ -1,9 +1,9 @@
 package eu.pb4.sgui.api.gui;
 
-import eu.pb4.sgui.virtual.SguiScreenHandlerFactory;
-import eu.pb4.sgui.virtual.merchant.VirtualMerchant;
-import eu.pb4.sgui.virtual.merchant.VirtualMerchantScreenHandler;
-import eu.pb4.sgui.virtual.merchant.VirtualTradeOutputSlot;
+import eu.pb4.sgui.api.containerwrappers.SguiScreenHandlerFactory;
+import eu.pb4.sgui.impl.virtual.merchant.VirtualMerchant;
+import eu.pb4.sgui.impl.virtual.merchant.VirtualMerchantScreenHandler;
+import eu.pb4.sgui.impl.virtual.merchant.VirtualTradeOutputSlot;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -45,9 +45,9 @@ public class MerchantGui extends SimpleGui {
         this.merchantInventory = new MerchantContainer(this.merchant);
         this.setTitle(Component.empty());
 
-        this.setSlotRedirect(0, new Slot(this.merchantInventory, 0, 0, 0));
-        this.setSlotRedirect(1, new Slot(this.merchantInventory, 1, 0, 0));
-        this.setSlotRedirect(2, new VirtualTradeOutputSlot(player, merchant, this.merchantInventory, 2, 0, 0));
+        this.setSlot(0, new Slot(this.merchantInventory, 0, 0, 0));
+        this.setSlot(1, new Slot(this.merchantInventory, 1, 0, 0));
+        this.setSlot(2, new VirtualTradeOutputSlot(player, merchant, this.merchantInventory, 2, 0, 0));
     }
 
     public static boolean areTradeOffersEqualIgnoreUses(@Nullable MerchantOffer x, @Nullable MerchantOffer y) {
@@ -225,7 +225,7 @@ public class MerchantGui extends SimpleGui {
         OptionalInt opSyncId = player.openMenu(new SguiScreenHandlerFactory<>(this, (syncId, playerInventory, playerx) -> new VirtualMerchantScreenHandler(syncId, this.player, this.merchant, this, this.merchantInventory)));
         if (opSyncId.isPresent()) {
             this.syncId = opSyncId.getAsInt();
-            this.screenHandler = (VirtualMerchantScreenHandler) this.player.containerMenu;
+            this.wrappedMenu = (VirtualMerchantScreenHandler) this.player.containerMenu;
 
             MerchantOffers tradeOfferList = this.merchant.getOffers();
             if (!tradeOfferList.isEmpty()) {
