@@ -31,18 +31,6 @@ public class SimpleGuiElement implements GuiElement {
         this.callback = callback;
     }
 
-    /**
-     * Constructs a SimpleGuiElement with the supplied options.
-     *
-     * @param item     the stack to use for display
-     * @param callback the callback to execute when the element is selected
-     * @see GuiElementBuilder
-     */
-    public SimpleGuiElement(ItemStack item, ItemClickCallback callback) {
-        this.item = item;
-        this.callback = callback;
-    }
-
     @Override
     public ItemStack getItemStack() {
         return this.item;

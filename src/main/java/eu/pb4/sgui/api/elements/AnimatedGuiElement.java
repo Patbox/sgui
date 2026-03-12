@@ -40,22 +40,6 @@ public class AnimatedGuiElement implements GuiElement {
     }
 
     /**
-     * Constructs an AnimatedGuiElement using the supplied options.
-     *
-     * @param items    an array of ItemStack frames
-     * @param interval the interval each frame should remain active for
-     * @param random   <code>true</code> is the frames should be randomly chosen
-     * @param callback the callback to execute when the element is selected
-     * @see AnimatedGuiElementBuilder
-     */
-    public AnimatedGuiElement(ItemStack[] items, int interval, boolean random, ItemClickCallback callback) {
-        this.items = items;
-        this.callback = callback;
-        this.changeEvery = interval;
-        this.random = random;
-    }
-
-    /**
      * Sets the elements animation frames.
      *
      * @param itemStacks the new animation frames

@@ -1,11 +1,13 @@
 package eu.pb4.sgui.api;
 
-import eu.pb4.sgui.api.elements.SimpleGuiElement;
-import eu.pb4.sgui.api.elements.GuiElementBuilderInterface;
 import eu.pb4.sgui.api.elements.GuiElement;
+import eu.pb4.sgui.api.elements.GuiElementBuilderCreator;
+import eu.pb4.sgui.api.elements.SimpleGuiElement;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Consumer;
 
 @SuppressWarnings({"unused"})
 public interface SlotHolder {
@@ -71,9 +73,9 @@ public interface SlotHolder {
      * @param index   the slots index, from 0 to (max size - 1)
      * @param element any GuiElementBuilder
      * @throws IndexOutOfBoundsException if the slot is out of bounds
-     * @see SlotHolder#addSlot(GuiElementBuilderInterface)
+     * @see SlotHolder#addSlot(GuiElementBuilderCreator)
      */
-    default void setSlot(int index, GuiElementBuilderInterface<?> element) {
+    default void setSlot(int index, GuiElementBuilderCreator<?> element) {
         this.setSlot(index, element.build());
     }
 
@@ -81,9 +83,9 @@ public interface SlotHolder {
      * Sets the first open slot with selected SimpleGuiElement created from a builder.
      *
      * @param element any GuiElementBuilder
-     * @see SlotHolder#setSlot(int, GuiElementBuilderInterface)
+     * @see SlotHolder#setSlot(int, GuiElementBuilderCreator)
      */
-    default void addSlot(GuiElementBuilderInterface<?> element) {
+    default void addSlot(GuiElementBuilderCreator<?> element) {
         this.setSlot(this.getFirstEmptySlot(), element.build());
     }
 
@@ -109,8 +111,21 @@ public interface SlotHolder {
      * @throws IndexOutOfBoundsException if the slot is out of bounds
      * @see SlotHolder#addSlot(ItemStack, SimpleGuiElement.ClickCallback)
      */
-    default void setSlot(int index, ItemStack itemStack, GuiElement.ItemClickCallback callback) {
-        this.setSlot(index, new SimpleGuiElement(itemStack, callback));
+    default void setSlot(int index, ItemStack itemStack, Runnable callback) {
+        this.setSlot(index, new SimpleGuiElement(itemStack, GuiElement.callback(callback)));
+    }
+
+    /**
+     * Sets slot with ItemStack and callback.
+     *
+     * @param index     the slots index, from 0 to (max size - 1)
+     * @param itemStack a stack of items
+     * @param callback  the callback to run when clicked
+     * @throws IndexOutOfBoundsException if the slot is out of bounds
+     * @see SlotHolder#addSlot(ItemStack, SimpleGuiElement.ClickCallback)
+     */
+    default void setSlot(int index, ItemStack itemStack, Consumer<ClickType> callback) {
+        this.setSlot(index, new SimpleGuiElement(itemStack, GuiElement.callback(callback)));
     }
 
     /**
@@ -125,13 +140,27 @@ public interface SlotHolder {
     }
 
     /**
-     * Sets the first open slot with selected ItemStack.
+     * Sets the first open slot with ItemStack and callback
      *
      * @param itemStack a stack of items
-     * @see SlotHolder#setSlot(int, ItemStack)
+     * @param callback  the callback to run when clicked
+     * @throws IndexOutOfBoundsException if the slot is out of bounds
+     * @see SlotHolder#addSlot(ItemStack, SimpleGuiElement.ClickCallback)
      */
-    default void addSlot(ItemStack itemStack, GuiElement.ItemClickCallback callback) {
-        this.setSlot(this.getFirstEmptySlot(), new SimpleGuiElement(itemStack, callback));
+    default void addSlot(ItemStack itemStack, Runnable callback) {
+        this.addSlot(new SimpleGuiElement(itemStack, GuiElement.callback(callback)));
+    }
+
+    /**
+     * Sets the first open slot with ItemStack and callback
+     *
+     * @param itemStack a stack of items
+     * @param callback  the callback to run when clicked
+     * @throws IndexOutOfBoundsException if the slot is out of bounds
+     * @see SlotHolder#addSlot(ItemStack, SimpleGuiElement.ClickCallback)
+     */
+    default void addSlot(ItemStack itemStack, Consumer<ClickType> callback) {
+        this.addSlot(new SimpleGuiElement(itemStack, GuiElement.callback(callback)));
     }
 
     /**

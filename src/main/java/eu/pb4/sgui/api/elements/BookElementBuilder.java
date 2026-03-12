@@ -1,16 +1,16 @@
 package eu.pb4.sgui.api.elements;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.network.Filterable;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.WrittenBookContent;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Book Element Builder
@@ -19,10 +19,10 @@ import net.minecraft.world.item.component.WrittenBookContent;
  * Along with general manipulation from the GuiElementBuilder, it also
  * supplies multiple methods for manipulating pages, author, title, ect.
  *
- * @see GuiElementBuilderInterface
+ * @see GuiElementBuilderCreator
  */
 @SuppressWarnings({"unused"})
-public class BookElementBuilder extends GuiElementBuilder {
+public class BookElementBuilder extends BaseItemStackBuilder<BookElementBuilder> {
 
     private static final WrittenBookContent DEFAULT_WRITTEN_COMPONENT = new WrittenBookContent(Filterable.passThrough(""), "", 0, Collections.emptyList(), false);
 
@@ -30,7 +30,8 @@ public class BookElementBuilder extends GuiElementBuilder {
      * Constructs a new BookElementBuilder with the default settings.
      */
     public BookElementBuilder() {
-        super(Items.WRITTEN_BOOK);
+        super();
+        this.setItem(Items.WRITTEN_BOOK);
     }
 
     /**
@@ -40,11 +41,61 @@ public class BookElementBuilder extends GuiElementBuilder {
      * @param count the number of items in the element
      */
     public BookElementBuilder(int count) {
-        super(Items.WRITTEN_BOOK, count);
+        super();
+        this.setItem(Items.WRITTEN_BOOK);
+        this.setCount(count);
     }
 
     private BookElementBuilder(ItemStack stack) {
-        super(stack);
+        super();
+        this.itemStack = stack.copy();
+    }
+
+    /**
+     * Constructs BookElementBuilder based on the supplied book.
+     * Useful for making changes to existing books.
+     * <br>
+     * The method will check for the existence of a 'title'
+     * and 'author' tag, if either is found it will assume
+     * the book has been signed. This can be undone
+     * with the {@link BookElementBuilder#unSigned()}.
+     *
+     * @param book the target book stack
+     * @return the builder
+     * @throws IllegalArgumentException if the stack is not a book
+     */
+    public static BookElementBuilder from(ItemStack book) {
+        if (!book.getItem().builtInRegistryHolder().is(ItemTags.LECTERN_BOOKS)) {
+            throw new IllegalArgumentException("Item must be a type of book");
+        }
+        return new BookElementBuilder(book);
+    }
+
+    /**
+     * Returns the contents of the specified page.
+     *
+     * @param book  the book to get the page from
+     * @param index the page index, from 0
+     * @return the contents of the page or empty if page does not exist
+     * @throws IllegalArgumentException if the item is not a book
+     */
+    public static Component getPageContents(ItemStack book, int index) {
+        WrittenBookContent component = book.getOrDefault(DataComponents.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT);
+        if (index < component.pages().size()) {
+            return component.pages().get(index).raw();
+        }
+        return Component.empty();
+    }
+
+    /**
+     * Returns the contents of the specified page.
+     *
+     * @param book  the book element builder to get the page from
+     * @param index the page index, from 0
+     * @return the contents of the page or empty if page does not exist
+     */
+    public static Component getPageContents(BookElementBuilder book, int index) {
+        return getPageContents(book.itemStack, index);
     }
 
     /**
@@ -157,16 +208,11 @@ public class BookElementBuilder extends GuiElementBuilder {
      * stack creation.
      *
      * @return this book builder
-     * @see BookElementBuilder#signed() 
+     * @see BookElementBuilder#signed()
      */
     public BookElementBuilder unSigned() {
         this.setItem(Items.WRITABLE_BOOK);
         return this;
-    }
-
-    @Override
-    public GuiElementBuilder setItem(Item item) {
-        return super.setItem(item);
     }
 
     /**
@@ -181,55 +227,7 @@ public class BookElementBuilder extends GuiElementBuilder {
         if (!itemStack.has(DataComponents.WRITTEN_BOOK_CONTENT)) {
             itemStack.set(DataComponents.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT);
         }
-        return this.itemStack.copy();
-    }
-
-    /**
-     * Constructs BookElementBuilder based on the supplied book.
-     * Useful for making changes to existing books.
-     * <br>
-     * The method will check for the existence of a 'title'
-     * and 'author' tag, if either is found it will assume
-     * the book has been signed. This can be undone
-     * with the {@link BookElementBuilder#unSigned()}.
-     *
-     *
-     * @param book the target book stack
-     * @return the builder
-     * @throws IllegalArgumentException if the stack is not a book
-     */
-    public static BookElementBuilder from(ItemStack book) {
-        if (!book.getItem().builtInRegistryHolder().is(ItemTags.LECTERN_BOOKS)) {
-            throw new IllegalArgumentException("Item must be a type of book");
-        }
-        return new BookElementBuilder(book);
-    }
-
-    /**
-     * Returns the contents of the specified page.
-     *
-     * @param book  the book to get the page from
-     * @param index the page index, from 0
-     * @return the contents of the page or empty if page does not exist
-     * @throws IllegalArgumentException if the item is not a book
-     */
-    public static Component getPageContents(ItemStack book, int index) {
-        WrittenBookContent component = book.getOrDefault(DataComponents.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT);
-        if (index < component.pages().size()) {
-            return component.pages().get(index).raw();
-        }
-        return Component.empty();
-    }
-
-    /**
-     * Returns the contents of the specified page.
-     *
-     * @param book  the book element builder to get the page from
-     * @param index the page index, from 0
-     * @return the contents of the page or empty if page does not exist
-     */
-    public static Component getPageContents(BookElementBuilder book, int index) {
-        return getPageContents(book.itemStack, index);
+        return this.asStack();
     }
 
 }

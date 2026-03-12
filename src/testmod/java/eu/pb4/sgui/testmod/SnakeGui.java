@@ -73,16 +73,16 @@ public class SnakeGui extends LayeredGui {
         this.controller = controller;
 
         controller.setSlot(1, new GuiElementBuilder(Items.MAGMA_CREAM).setName(Component.literal("^"))
-            .setCallback((x, y, z) -> changeDirection(Direction.UP)));
+            .setCallback(() -> changeDirection(Direction.UP)));
 
         controller.setSlot(3, new GuiElementBuilder(Items.MAGMA_CREAM).setName(Component.literal("<"))
-            .setCallback((x, y, z) -> changeDirection(Direction.LEFT)));
+            .setCallback(() -> changeDirection(Direction.LEFT)));
 
         controller.setSlot(5, new GuiElementBuilder(Items.MAGMA_CREAM).setName(Component.literal(">"))
-            .setCallback((x, y, z) -> changeDirection(Direction.RIGHT)));
+            .setCallback(() -> changeDirection(Direction.RIGHT)));
 
         controller.setSlot(7, new GuiElementBuilder(Items.MAGMA_CREAM).setName(Component.literal("v"))
-            .setCallback((x, y, z) -> changeDirection(Direction.DOWN)));
+            .setCallback(() -> changeDirection(Direction.DOWN)));
 
         controller.setSlot(4, new GuiElementBuilder(Items.WHITE_STAINED_GLASS_PANE).setName(Component.empty()));
 

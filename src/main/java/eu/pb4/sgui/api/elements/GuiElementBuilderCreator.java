@@ -11,7 +11,7 @@ import java.util.function.Consumer;
  * @see AnimatedGuiElementBuilder
  * @see BookElementBuilder
  */
-public interface GuiElementBuilderInterface<T extends GuiElementBuilderInterface<T>> {
+public interface GuiElementBuilderCreator<T extends GuiElementBuilderCreator<T>> {
     /**
      * Set the callback to execute when this element
      * is clicked inside a gui.
@@ -20,17 +20,6 @@ public interface GuiElementBuilderInterface<T extends GuiElementBuilderInterface
      * @return this element builder
      */
     T setCallback(GuiElement.ClickCallback callback);
-
-    /**
-     * Set the callback to execute when this element
-     * is clicked inside a gui.
-     *
-     * @param callback the callback
-     * @return this element builder
-     */
-    default T setCallback(GuiElement.ItemClickCallback callback) {
-        return this.setCallback((GuiElement.ClickCallback) callback);
-    }
 
     default T setCallback(Runnable callback) {
         return this.setCallback((a, b, c, d) -> callback.run());

@@ -6,22 +6,25 @@ import eu.pb4.sgui.api.gui.SlotBasedGui;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.function.Consumer;
+
 /**
  * Gui Element Interface
  * <br>
  * This is the interface all GuiElements are based from. It contains
  * the bare basic methods for what is required to display and trigger
  * GuiElements.
- *
+ * <p>
  * Elements are typically not constructed directly, but rather through a GuiElementBuilder.
- * @see GuiElementBuilderInterface
  *
+ * @see GuiElementBuilderCreator
  * @see SimpleGuiElement
  * @see AnimatedGuiElement
  */
 @SuppressWarnings({"unused"})
 public interface GuiElement {
-    ClickCallback EMPTY_CALLBACK = (x,y,z,a) -> {};
+    ClickCallback EMPTY_CALLBACK = (x, y, z, a) -> {
+    };
 
     /**
      * Returns the elements currently displayed stack
@@ -65,27 +68,12 @@ public interface GuiElement {
 
     }
 
-    /**
-     * Item Click Callback
-     * <br>
-     * The callback used to execute actions when an
-     * element is clicked.
-     */
-    @FunctionalInterface
-    interface ItemClickCallback extends ClickCallback {
+    static ClickCallback callback(Runnable runnable) {
+        return (index, type, action, gui) -> runnable.run();
+    }
 
-        /**
-         * Executed when a SimpleGuiElement is clicked.
-         *
-         * @param index  the slot index
-         * @param type   the simplified type of click
-         * @param action the Minecraft action type
-         */
-        void click(int index, ClickType type, ContainerInput action);
-
-        default void click(int index, ClickType type, ContainerInput action, SlotBasedGui gui) {
-            this.click(index, type, action);
-        }
+    static ClickCallback callback(Consumer<ClickType> clickTypeConsumer) {
+        return (index, type, action, gui) -> clickTypeConsumer.accept(type);
     }
 
     /**
@@ -96,10 +84,10 @@ public interface GuiElement {
      */
     @FunctionalInterface
     interface ClickCallback {
-
         /**
          * Executed when a SimpleGuiElement is clicked.
-         *  @param index  the slot index
+         *
+         * @param index  the slot index
          * @param type   the simplified type of click
          * @param action the Minecraft action type
          * @param gui    the gui being source of the click

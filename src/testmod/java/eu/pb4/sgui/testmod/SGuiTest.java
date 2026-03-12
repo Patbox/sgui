@@ -86,7 +86,7 @@ public class SGuiTest implements ModInitializer {
                     Items.IRON_PICKAXE.getDefaultInstance(),
                     Items.STONE_PICKAXE.getDefaultInstance(),
                     Items.WOODEN_PICKAXE.getDefaultInstance()
-            }, 10, false, (x, y, z) -> {
+            }, 10, false, (x, y, z, w) -> {
             }));
 
             gui.setSlot(2, new AnimatedGuiElementBuilder()
@@ -102,12 +102,12 @@ public class SGuiTest implements ModInitializer {
             for (int x = 3; x < gui.getSize(); x++) {
                 ItemStack itemStack = Items.STONE.getDefaultInstance();
                 itemStack.setCount(x);
-                gui.setSlot(x, new SimpleGuiElement(itemStack, (index, clickType, actionType) -> {
+                gui.setSlot(x, new SimpleGuiElement(itemStack, (index, clickType, actionType, w) -> {
                 }));
             }
 
             gui.setSlot(5, new GuiElementBuilder(Items.PLAYER_HEAD)
-                    .setSkullOwner(
+                    .setProfileSkinTexture(
                             "ewogICJ0aW1lc3RhbXAiIDogMTYxOTk3MDIyMjQzOCwKICAicHJvZmlsZUlkIiA6ICI2OTBkMDM2OGM2NTE0OGM5ODZjMzEwN2FjMmRjNjFlYyIsCiAgInByb2ZpbGVOYW1lIiA6ICJ5emZyXzciLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDI0OGVhYTQxNGNjZjA1NmJhOTY5ZTdkODAxZmI2YTkyNzhkMGZlYWUxOGUyMTczNTZjYzhhOTQ2NTY0MzU1ZiIsCiAgICAgICJtZXRhZGF0YSIgOiB7CiAgICAgICAgIm1vZGVsIiA6ICJzbGltIgogICAgICB9CiAgICB9CiAgfQp9",
                             null, null)
                     .setName(Component.literal("Battery"))
@@ -130,7 +130,7 @@ public class SGuiTest implements ModInitializer {
                     .addLoreLine(Component.literal("More lore").withStyle(ChatFormatting.RED))
                     .hideTooltip()
                     .setCount(3)
-                    .setCallback((index, clickType, actionType) -> gui.close())
+                    .setCallback(() -> gui.close())
             );
 
             gui.setSlot(8, new GuiElementBuilder()
@@ -142,7 +142,7 @@ public class SGuiTest implements ModInitializer {
                     .addLoreLine(Component.literal("Some lore"))
                     .addLoreLine(Component.literal("More lore").withStyle(ChatFormatting.RED))
                     .setCount(1)
-                    .setCallback((index, clickType, actionType) -> {
+                    .setCallback((index, clickType, actionType, s) -> {
                         player.sendSystemMessage(Component.literal("derg "), false);
                         ItemStack item = gui.getSlotElement(index).getItemStack();
                         if (clickType == ClickType.MOUSE_LEFT) {
@@ -178,7 +178,7 @@ public class SGuiTest implements ModInitializer {
             };
 
             gui.setTitle(Component.literal("Nice"));
-            gui.setSlot(1, new SimpleGuiElement(Items.DIAMOND_AXE.getDefaultInstance(), (index, clickType, actionType) -> {
+            gui.setSlot(1, new SimpleGuiElement(Items.DIAMOND_AXE.getDefaultInstance(), (index, clickType, actionType, w) -> {
                 ItemStack item = gui.getSlotElement(index).getItemStack();
                 if (clickType == ClickType.MOUSE_LEFT) {
                     item.setCount(item.getCount() == 1 ? item.getCount() : item.getCount() - 1);
@@ -188,7 +188,7 @@ public class SGuiTest implements ModInitializer {
                 ((SimpleGuiElement) gui.getSlotElement(index)).setItemStack(item);
             }));
 
-            gui.setSlot(2, new SimpleGuiElement(Items.SLIME_BALL.getDefaultInstance(), (index, clickType, actionType) -> {
+            gui.setSlot(2, new SimpleGuiElement(Items.SLIME_BALL.getDefaultInstance(), (index, clickType, actionType, w) -> {
                 player.sendSystemMessage(Component.literal(gui.getInput()), false);
             }));
 
@@ -284,9 +284,9 @@ public class SGuiTest implements ModInitializer {
                 }
             };
 
-            gui.setSlot(0, new GuiElementBuilder(Items.BARRIER, 8).setCallback((x, y, z) -> gui.close()));
+            gui.setSlot(0, new GuiElementBuilder(Items.BARRIER, 8).setCallback(() -> gui.close()));
             gui.setSlot(2, new GuiElementBuilder(Items.IRON_AXE).hideDefaultTooltip());
-            gui.setSlot(6, new GuiElementBuilder(Items.BARRIER, 9).setCallback((x, y, z) -> gui.onClose()));
+            gui.setSlot(6, new GuiElementBuilder(Items.BARRIER, 9).setCallback(() -> gui.onClose()));
 
             gui.setTitle(Component.literal("Close gui to test switching"));
             gui.open();
@@ -448,13 +448,13 @@ public class SGuiTest implements ModInitializer {
             Layer controller = new Layer(3, 3);
 
             controller.setSlot(1, new GuiElementBuilder(Items.SLIME_BALL).setName(Component.literal("^"))
-                    .setCallback((x, y, z) -> movingView.setY(movingView.getY() - 1)));
+                    .setCallback(() -> movingView.setY(movingView.getY() - 1)));
             controller.setSlot(3, new GuiElementBuilder(Items.SLIME_BALL).setName(Component.literal("<"))
-                    .setCallback((x, y, z) -> movingView.setX(movingView.getX() - 1)));
+                    .setCallback(() -> movingView.setX(movingView.getX() - 1)));
             controller.setSlot(5, new GuiElementBuilder(Items.SLIME_BALL).setName(Component.literal(">"))
-                    .setCallback((x, y, z) -> movingView.setX(movingView.getX() + 1)));
+                    .setCallback(() -> movingView.setX(movingView.getX() + 1)));
             controller.setSlot(7, new GuiElementBuilder(Items.SLIME_BALL).setName(Component.literal("v"))
-                    .setCallback((x, y, z) -> movingView.setY(movingView.getY() + 1)));
+                    .setCallback(() -> movingView.setY(movingView.getY() + 1)));
 
             controller.setSlot(4, new GuiElementBuilder(Items.WHITE_STAINED_GLASS_PANE).setName(Component.empty().copy()));
 
@@ -526,7 +526,7 @@ public class SGuiTest implements ModInitializer {
                     Items.IRON_PICKAXE.getDefaultInstance(),
                     Items.STONE_PICKAXE.getDefaultInstance(),
                     Items.WOODEN_PICKAXE.getDefaultInstance()
-            }, 10, false, (x, y, z) -> {
+            }, 10, false, (x, y, z, w) -> {
             }));
 
             gui.setSlot(1, new GuiElementBuilder(Items.SPECTRAL_ARROW).setCount((int) (player.level().getGameTime() % 128)));
@@ -544,12 +544,12 @@ public class SGuiTest implements ModInitializer {
             for (int x = 3; x < gui.getSize(); x++) {
                 ItemStack itemStack = Items.STONE.getDefaultInstance();
                 itemStack.setCount(x);
-                gui.setSlot(x, new SimpleGuiElement(itemStack, (index, clickType, actionType) -> {
+                gui.setSlot(x, new SimpleGuiElement(itemStack, (_, _, _, _) -> {
                 }));
             }
 
             gui.setSlot(9, new GuiElementBuilder(Items.PLAYER_HEAD)
-                    .setSkullOwner(
+                    .setProfileSkinTexture(
                             "ewogICJ0aW1lc3RhbXAiIDogMTYxOTk3MDIyMjQzOCwKICAicHJvZmlsZUlkIiA6ICI2OTBkMDM2OGM2NTE0OGM5ODZjMzEwN2FjMmRjNjFlYyIsCiAgInByb2ZpbGVOYW1lIiA6ICJ5emZyXzciLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDI0OGVhYTQxNGNjZjA1NmJhOTY5ZTdkODAxZmI2YTkyNzhkMGZlYWUxOGUyMTczNTZjYzhhOTQ2NTY0MzU1ZiIsCiAgICAgICJtZXRhZGF0YSIgOiB7CiAgICAgICAgIm1vZGVsIiA6ICJzbGltIgogICAgICB9CiAgICB9CiAgfQp9",
                             null, null)
                     .setName(Component.literal("Battery"))
@@ -570,7 +570,7 @@ public class SGuiTest implements ModInitializer {
                     .addLoreLine(Component.literal("Some lore"))
                     .addLoreLine(Component.literal("More lore").withStyle(ChatFormatting.RED))
                     .setCount(3)
-                    .setCallback((index, clickType, actionType) -> gui.close())
+                    .setCallback(() -> gui.close())
             );
 
             gui.setSlot(8, new GuiElementBuilder()
@@ -581,7 +581,7 @@ public class SGuiTest implements ModInitializer {
                     .addLoreLine(Component.literal("Some lore"))
                     .addLoreLine(Component.literal("More lore").withStyle(ChatFormatting.RED))
                     .setCount(1)
-                    .setCallback((index, clickType, actionType) -> {
+                    .setCallback((index, clickType, _, _) -> {
                         player.sendSystemMessage(Component.literal("derg "), false);
                         ItemStack item = gui.getSlotElement(index).getItemStack();
                         if (clickType == ClickType.MOUSE_LEFT) {
