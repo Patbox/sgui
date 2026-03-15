@@ -1,6 +1,7 @@
 package eu.pb4.sgui.mixin;
 
 import com.mojang.authlib.GameProfile;
+import eu.pb4.sgui.api.containerwrappers.AbstractWrapperMenu;
 import eu.pb4.sgui.impl.PlayerExtensions;
 import eu.pb4.sgui.api.containerwrappers.SguiScreenHandlerFactory;
 import org.spongepowered.asm.mixin.Mixin;
@@ -48,8 +49,8 @@ public abstract class ServerPlayerEntityMixin extends Player implements PlayerEx
 
     @Inject(method = "die", at = @At("TAIL"))
     private void sgui$onDeath(DamageSource source, CallbackInfo ci) {
-        if (this.containerMenu instanceof VirtualScreenHandlerInterface handler) {
-            handler.getGui().close(true);
+        if (this.containerMenu instanceof AbstractWrapperMenu handler) {
+            handler.getBackingGui().close(true);
         }
     }
 
