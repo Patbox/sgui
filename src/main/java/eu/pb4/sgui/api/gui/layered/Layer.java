@@ -86,12 +86,12 @@ public class Layer implements SlotHolder {
     }
 
     @Override
-    public GuiElement getSlotElement(int index) {
+    public GuiElement getGuiElement(int index) {
         return this.elements[index];
     }
 
     @Override
-    public Slot getSlotRedirect(int index) {
+    public Slot getCustomSlot(int index) {
         return this.slots[index];
     }
 

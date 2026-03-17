@@ -49,7 +49,7 @@ public class WrappingSlot extends Slot {
 
     @Override
     public ItemStack getItem() {
-        var x = this.gui.getSlotElement(this.getContainerSlot());
+        var x = this.gui.getGuiElement(this.getContainerSlot());
         if (x == null) {
             return ItemStack.EMPTY;
         }

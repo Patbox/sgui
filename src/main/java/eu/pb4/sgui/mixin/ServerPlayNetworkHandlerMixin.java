@@ -62,7 +62,7 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonPacketLi
 
                 ClickType type = ClickType.toClickType(packet.containerInput(), button, slot);
                 boolean ignore = gui.onAnyClick(slot, type, packet.containerInput());
-                if (ignore && !handler.getBackingGui().getLockPlayerInventory() && (slot >= handler.getBackingGui().getSize() || slot < 0 || handler.getBackingGui().getSlotRedirect(slot) != null)) {
+                if (ignore && !handler.getBackingGui().getLockPlayerInventory() && (slot >= handler.getBackingGui().getSize() || slot < 0 || handler.getBackingGui().getCustomSlot(slot) != null)) {
                     return;
                 }
 

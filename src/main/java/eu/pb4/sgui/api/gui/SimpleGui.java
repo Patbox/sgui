@@ -163,7 +163,7 @@ public class SimpleGui extends BaseSlotGui {
      * Returns if this gui has slot redirects.
      *
      * @return <code>true</code> if this gui has slot redirects
-     * @see SimpleGui#getSlotRedirect(int)
+     * @see SimpleGui#getCustomSlot(int)
      */
     public boolean isRedirectingSlots() {
         return this.hasRedirects;

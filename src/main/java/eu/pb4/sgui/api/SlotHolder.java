@@ -227,26 +227,26 @@ public interface SlotHolder {
      *
      * @param index the slot index
      * @return the element or <code>null</code> if empty
-     * @see SlotHolder#getSlotRedirect(int)
+     * @see SlotHolder#getCustomSlot(int)
      */
     @Nullable
-    GuiElement getSlotElement(int index);
+    GuiElement getGuiElement(int index);
 
     /**
      * Returns the external slot the referenced slot is redirecting to.
      *
      * @param index the slot index
      * @return the element or <code>null</code> if no redirect
-     * @see SlotHolder#getSlotElement(int)
+     * @see SlotHolder#getGuiElement(int)
      */
     @Nullable
-    Slot getSlotRedirect(int index);
+    Slot getCustomSlot(int index);
 
     /**
      * Returns if this gui has slot redirects.
      *
      * @return <code>true</code> if this gui has slot redirects
-     * @see SlotHolder#getSlotRedirect(int)
+     * @see SlotHolder#getCustomSlot(int)
      */
     boolean isRedirectingSlots();
 }

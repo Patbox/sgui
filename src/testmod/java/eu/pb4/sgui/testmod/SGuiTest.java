@@ -144,13 +144,13 @@ public class SGuiTest implements ModInitializer {
                     .setCount(1)
                     .setCallback((index, clickType, actionType, s) -> {
                         player.sendSystemMessage(Component.literal("derg "), false);
-                        ItemStack item = gui.getSlotElement(index).getItemStack();
+                        ItemStack item = gui.getGuiElement(index).getItemStack();
                         if (clickType == ClickType.MOUSE_LEFT) {
                             item.setCount(item.getCount() == 1 ? item.getCount() : item.getCount() - 1);
                         } else if (clickType == ClickType.MOUSE_RIGHT) {
                             item.setCount(item.getCount() + 1);
                         }
-                        ((SimpleGuiElement) gui.getSlotElement(index)).setItemStack(item);
+                        ((SimpleGuiElement) gui.getGuiElement(index)).setItemStack(item);
 
                         if (item.getCount() <= player.getEnderChestInventory().getContainerSize()) {
                             gui.setSlot(4, new Slot(player.getEnderChestInventory(), item.getCount() - 1, 0, 0));
@@ -179,13 +179,13 @@ public class SGuiTest implements ModInitializer {
 
             gui.setTitle(Component.literal("Nice"));
             gui.setSlot(1, new SimpleGuiElement(Items.DIAMOND_AXE.getDefaultInstance(), (index, clickType, actionType, w) -> {
-                ItemStack item = gui.getSlotElement(index).getItemStack();
+                ItemStack item = gui.getGuiElement(index).getItemStack();
                 if (clickType == ClickType.MOUSE_LEFT) {
                     item.setCount(item.getCount() == 1 ? item.getCount() : item.getCount() - 1);
                 } else if (clickType == ClickType.MOUSE_RIGHT) {
                     item.setCount(item.getCount() + 1);
                 }
-                ((SimpleGuiElement) gui.getSlotElement(index)).setItemStack(item);
+                ((SimpleGuiElement) gui.getGuiElement(index)).setItemStack(item);
             }));
 
             gui.setSlot(2, new SimpleGuiElement(Items.SLIME_BALL.getDefaultInstance(), (index, clickType, actionType, w) -> {
@@ -583,13 +583,13 @@ public class SGuiTest implements ModInitializer {
                     .setCount(1)
                     .setCallback((index, clickType, _, _) -> {
                         player.sendSystemMessage(Component.literal("derg "), false);
-                        ItemStack item = gui.getSlotElement(index).getItemStack();
+                        ItemStack item = gui.getGuiElement(index).getItemStack();
                         if (clickType == ClickType.MOUSE_LEFT) {
                             item.setCount(item.getCount() == 1 ? item.getCount() : item.getCount() - 1);
                         } else if (clickType == ClickType.MOUSE_RIGHT) {
                             item.setCount(item.getCount() + 1);
                         }
-                        ((SimpleGuiElement) gui.getSlotElement(index)).setItemStack(item);
+                        ((SimpleGuiElement) gui.getGuiElement(index)).setItemStack(item);
 
                         if (item.getCount() <= player.getEnderChestInventory().getContainerSize()) {
                             gui.setSlot(4, new Slot(player.getEnderChestInventory(), item.getCount() - 1, 0, 0));
@@ -661,7 +661,7 @@ public class SGuiTest implements ModInitializer {
                 if (type != ClickType.OFFHAND_SWAP) {
                     return;
                 }
-                var offhand = gui.getSlotElement(9);
+                var offhand = gui.getGuiElement(9);
                 if (offhand == null || offhand.getItemStack().isEmpty()) {
                     gui.setSlot(9, elements[0].getItemStack());
                     elements[0].setItemStack(ItemStack.EMPTY);

@@ -103,9 +103,9 @@ public class LayeredGui implements SlotBasedGui {
 
             if (slot == null && element == null) {
                 this.gui.clearSlot(i);
-            } else if (this.gui.getSlotElement(i) != element && element != null) {
+            } else if (this.gui.getGuiElement(i) != element && element != null) {
                 this.gui.setSlot(i, element);
-            } else if (this.gui.getSlotRedirect(i) != slot && slot != null) {
+            } else if (this.gui.getCustomSlot(i) != slot && slot != null) {
                 this.gui.setSlot(i, slot);
             }
         }
@@ -152,13 +152,13 @@ public class LayeredGui implements SlotBasedGui {
     }
 
 
-    public GuiElement getSlotElement(int index) {
-        return this.backgroundLayer.getSlotElement(index);
+    public GuiElement getGuiElement(int index) {
+        return this.backgroundLayer.getGuiElement(index);
     }
 
 
-    public Slot getSlotRedirect(int index) {
-        return this.backgroundLayer.getSlotRedirect(index);
+    public Slot getCustomSlot(int index) {
+        return this.backgroundLayer.getCustomSlot(index);
     }
 
 

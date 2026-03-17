@@ -30,7 +30,7 @@ public class HotbarScreenHandler extends SlotBasedWrapperMenu {
     protected void setupSlots(Player player) {
         for (int n = 0; n < this.getBackingGui().getSize(); n++) {
             int nR = HotbarGui.VANILLA_TO_GUI_IDS[n];
-            Slot slot = this.getBackingGui().getSlotRedirect(nR);
+            Slot slot = this.getBackingGui().getCustomSlot(nR);
             if (slot != null) {
                 this.addSlot(slot);
             } else {

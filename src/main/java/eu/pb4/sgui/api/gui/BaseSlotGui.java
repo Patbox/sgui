@@ -64,7 +64,7 @@ public abstract class BaseSlotGui implements SlotBasedGui {
     }
 
     @Override
-    public GuiElement getSlotElement(int index) {
+    public GuiElement getGuiElement(int index) {
         if (index >= 0 && index < this.size) {
             return this.elements[index];
         }
@@ -72,7 +72,7 @@ public abstract class BaseSlotGui implements SlotBasedGui {
     }
 
     @Override
-    public Slot getSlotRedirect(int index) {
+    public Slot getCustomSlot(int index) {
         if (index >= 0 && index < this.size) {
             return this.slotRedirects[index];
         }

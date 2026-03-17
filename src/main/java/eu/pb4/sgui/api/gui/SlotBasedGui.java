@@ -34,7 +34,7 @@ public interface SlotBasedGui extends SlotHolder, GuiLike {
      */
     @ApiStatus.Internal
     default boolean click(int index, ClickType type, ContainerInput action) {
-        GuiElement element = this.getSlotElement(index);
+        GuiElement element = this.getGuiElement(index);
         if (element != null) {
             element.getGuiCallback().click(index, type, action, this);
         }
@@ -98,7 +98,7 @@ public interface SlotBasedGui extends SlotHolder, GuiLike {
     @Nullable
     default Slot getSlotRedirectOrPlayer(int index) {
         if (index < this.getSize()) {
-            return this.getSlotRedirect(index);
+            return this.getCustomSlot(index);
         }
 
         if (this.getPlayer().containerMenu instanceof SlotBasedWrapperMenu virt && virt.getBackingGui() == this && index < virt.slots.size()) {

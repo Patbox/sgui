@@ -124,13 +124,13 @@ public class SnakeGui extends LayeredGui {
             return;
         }
         if (this.direction.button != -1) {
-            SimpleGuiElement oldButton = ((SimpleGuiElement) this.controller.getSlotElement(this.direction.button));
+            SimpleGuiElement oldButton = ((SimpleGuiElement) this.controller.getGuiElement(this.direction.button));
             oldButton.setItemStack(GuiElementBuilder.from(oldButton.getItemStack()).setItem(Items.MAGMA_CREAM).asStack());
         }
 
         this.direction = direction;
 
-        SimpleGuiElement button = ((SimpleGuiElement) this.controller.getSlotElement(direction.button));
+        SimpleGuiElement button = ((SimpleGuiElement) this.controller.getGuiElement(direction.button));
         button.setItemStack(GuiElementBuilder.from(button.getItemStack()).setItem(Items.SLIME_BALL).asStack());
     }
 

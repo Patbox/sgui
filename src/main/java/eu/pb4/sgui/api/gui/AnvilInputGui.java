@@ -8,7 +8,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Anvil Input Helper
@@ -89,7 +88,7 @@ public class AnvilInputGui extends SimpleGui {
     public void receiveInput(String input) {
         this.inputText = input;
         this.onInput(input);
-        GuiElement element = this.getSlotElement(2);
+        GuiElement element = this.getGuiElement(2);
         ItemStack stack = ItemStack.EMPTY;
         if (element != null) {
             stack = element.getItemStack();
