@@ -129,7 +129,6 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonPacketLi
 
             if (handler.getBackingGui().canPlayerClose()) {
                 handler.getBackingGui().onPlayerClose(true);
-                this.sgui$previousScreen = this.player.containerMenu;
             } else {
                 handler.getBackingGui().onPlayerClose(false);
                 var screenHandler = this.player.containerMenu;
@@ -146,25 +145,6 @@ public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonPacketLi
 
         }
     }
-
-    @Inject(method = "handleContainerClose", at = @At("TAIL"))
-    private void sgui$executeClosing(ServerboundContainerClosePacket packet, CallbackInfo info) {
-        try {
-            if (this.sgui$previousScreen != null) {
-                if (this.sgui$previousScreen instanceof AbstractWrapperMenu screenHandler) {
-                    screenHandler.getBackingGui().close(true);
-                }
-            }
-        } catch (Throwable e) {
-            if (this.sgui$previousScreen instanceof AbstractWrapperMenu screenHandler) {
-                screenHandler.getBackingGui().handleException(e);
-            } else {
-                e.printStackTrace();
-            }
-        }
-        this.sgui$previousScreen = null;
-    }
-
 
     @Inject(method = "handleRenameItem", at = @At("TAIL"))
     private void sgui$catchRenamingWithCustomGui(ServerboundRenameItemPacket packet, CallbackInfo ci) {

@@ -6,11 +6,13 @@ import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.datafixers.util.Either;
 import eu.pb4.sgui.api.SguiUtils;
+import eu.pb4.sgui.mixin.BuilderAccessor;
 import eu.pb4.sgui.mixin.StaticAccessor;
 import it.unimi.dsi.fastutil.objects.ReferenceSortedSets;
 import net.minecraft.core.ClientAsset;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -21,21 +23,17 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Unit;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.PlayerSkin;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.component.CustomModelData;
-import net.minecraft.world.item.component.ItemLore;
-import net.minecraft.world.item.component.ResolvableProfile;
-import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.*;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 
 /**
  * Item Stack Builder
@@ -44,8 +42,9 @@ import java.util.UUID;
  */
 @SuppressWarnings({"unused"})
 public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
-    protected ItemStack itemStack = new ItemStack(Items.WHITE_DYE);
-    protected SimpleGuiElement.ClickCallback callback = GuiElement.EMPTY_CALLBACK;
+    protected Item item = Items.WHITE_DYE;
+    protected int count = 1;
+    protected DataComponentPatch.Builder components = DataComponentPatch.builder();
     protected boolean hideComponentTooltips;
     protected boolean noTooltips;
 
@@ -62,7 +61,7 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
      * @return this element builder
      */
     public Self setItem(Item item) {
-        this.itemStack = new ItemStack(item.builtInRegistryHolder(), this.itemStack.getCount(), this.itemStack.getComponentsPatch());
+        this.item = item;
         return (Self) this;
     }
 
@@ -73,7 +72,7 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
      * @return this element builder
      */
     public Self setName(Component name) {
-        this.itemStack.set(DataComponents.CUSTOM_NAME, name.copy().withStyle(SguiUtils.STYLE_CLEARER));
+        this.components.set(DataComponents.CUSTOM_NAME, name.copy().withStyle(SguiUtils.STYLE_CLEARER));
         return (Self) this;
     }
 
@@ -84,7 +83,7 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
      * @return this element builder
      */
     public Self setItemName(Component name) {
-        this.itemStack.set(DataComponents.ITEM_NAME, name.copy());
+        this.components.set(DataComponents.ITEM_NAME, name.copy());
         return (Self) this;
     }
 
@@ -95,7 +94,7 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
      * @return this element builder
      */
     public Self setRarity(Rarity rarity) {
-        this.itemStack.set(DataComponents.RARITY, rarity);
+        this.components.set(DataComponents.RARITY, rarity);
         return (Self) this;
     }
 
@@ -106,7 +105,7 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
      * @return this element builder
      */
     public Self setCount(int count) {
-        this.itemStack.setCount(count);
+        this.count = count;
         return (Self) this;
     }
 
@@ -118,7 +117,7 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
      * @return this element builder
      */
     public Self setMaxCount(int count) {
-        this.itemStack.set(DataComponents.MAX_STACK_SIZE, count);
+        this.components.set(DataComponents.MAX_STACK_SIZE, count);
         return (Self) this;
     }
 
@@ -134,7 +133,7 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
             l.add(t.copy().withStyle(SguiUtils.STYLE_CLEARER));
         }
 
-        this.itemStack.set(DataComponents.LORE, new ItemLore(l));
+        this.components.set(DataComponents.LORE, new ItemLore(l));
         return (Self) this;
     }
 
@@ -145,7 +144,7 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
      * @return this element builder
      */
     public Self setLoreRaw(List<Component> lore) {
-        this.itemStack.set(DataComponents.LORE, new ItemLore(lore));
+        this.components.set(DataComponents.LORE, new ItemLore(lore));
         return (Self) this;
     }
 
@@ -156,7 +155,10 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
      * @return this element builder
      */
     public Self addLoreLine(Component lore) {
-        this.itemStack.update(DataComponents.LORE, ItemLore.EMPTY, lore.copy().withStyle(SguiUtils.STYLE_CLEARER), ItemLore::withLineAdded);
+        //noinspection unchecked
+        var component = this.getModifiedComponent(DataComponents.LORE);
+        this.components.set(DataComponents.LORE, (component != null ? component : ItemLore.EMPTY).withLineAdded(lore.copy().withStyle(SguiUtils.STYLE_CLEARER)));
+
         return (Self) this;
     }
 
@@ -167,7 +169,9 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
      * @return this element builder
      */
     public Self addLoreLineRaw(Component lore) {
-        this.itemStack.update(DataComponents.LORE, ItemLore.EMPTY, lore, ItemLore::withLineAdded);
+        //noinspection unchecked
+        var component = this.getModifiedComponent(DataComponents.LORE);
+        this.components.set(DataComponents.LORE, (component != null ? component : ItemLore.EMPTY).withLineAdded(lore));
         return (Self) this;
     }
 
@@ -179,7 +183,7 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
      * @return this element builder
      */
     public Self setDamage(int damage) {
-        this.itemStack.set(DataComponents.DAMAGE, damage);
+        this.components.set(DataComponents.DAMAGE, damage);
         return (Self) this;
     }
 
@@ -190,33 +194,35 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
      * @return this element builder
      */
     public Self setMaxDamage(int damage) {
-        this.itemStack.set(DataComponents.MAX_DAMAGE, damage);
-        return (Self) this;
-    }
-
-    /**
-     * Disables all default components on an item.
-     * @return this element builder
-     */
-    public Self noDefaults() {
-        for (var x : this.itemStack.getItem().components()) {
-            if (x.type() == DataComponents.ITEM_MODEL) {
-                continue;
-            }
-            if (this.itemStack.get(x.type()) == x.value()) {
-                this.itemStack.set(x.type(), null);
-            }
-        }
+        this.components.set(DataComponents.MAX_DAMAGE, damage);
         return (Self) this;
     }
 
     @Nullable
     public <T> T getComponent(DataComponentType<T> type) {
-        return this.itemStack.get(type);
+        var opt = ((BuilderAccessor) this.components).getMap().get(type);
+
+        //noinspection unchecked,deprecation
+        return opt != null ? (T) opt.orElse(null) : this.item.builtInRegistryHolder().isBound() ? this.item.components().get(type) : null;
+    }
+
+
+    @Nullable
+    public <T> T getModifiedComponent(DataComponentType<T> type) {
+        var opt = ((BuilderAccessor) this.components).getMap().get(type);
+
+        //noinspection unchecked,deprecation
+        return opt != null ? (T) opt.orElse(null) : null;
     }
 
     public <T> Self setComponent(DataComponentType<T> type, @Nullable T value) {
-        this.itemStack.set(type, value);
+        this.components.set(type, value);
+        return (Self) this;
+    }
+
+    public <T> Self updateComponent(DataComponentType<T> componentType, T defaultValue, Function<T, T> function) {
+        var value = this.getComponent(componentType);
+        this.setComponent(componentType, function.apply(value != null ? value : defaultValue));
         return (Self) this;
     }
 
@@ -247,7 +253,15 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
      * @return this element builder
      */
     public Self enchant(Holder<Enchantment> enchantment, int level) {
-        this.itemStack.enchant(enchantment, level);
+        var ench = this.getModifiedComponent(DataComponents.ENCHANTMENTS);
+        if (ench == null) {
+            ench = ItemEnchantments.EMPTY;
+        }
+
+        var mut = new ItemEnchantments.Mutable(ench);
+        mut.set(enchantment, level);
+
+        this.components.set(DataComponents.ENCHANTMENTS, mut.toImmutable());
         return (Self) this;
     }
 
@@ -281,7 +295,7 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
      * @return this element builder
      */
     public Self glow() {
-        this.itemStack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
+        this.components.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
         return (Self) this;
     }
 
@@ -291,7 +305,7 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
      * @return this element builder
      */
     public Self glow(boolean value) {
-        this.itemStack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, value);
+        this.components.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, value);
         return (Self) this;
     }
 
@@ -301,7 +315,7 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
      * @return this element builder
      */
     public Self setCustomModelData(List<Float> floats, List<Boolean> flags, List<String> strings, List<Integer> colors) {
-        this.itemStack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(floats, flags, strings, colors));
+        this.components.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(floats, flags, strings, colors));
         return (Self) this;
     }
 
@@ -312,12 +326,12 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
      * @return this element builder
      */
     public Self model(Identifier model) {
-        this.itemStack.set(DataComponents.ITEM_MODEL, model);
+        this.components.set(DataComponents.ITEM_MODEL, model);
         return (Self) this;
     }
 
     public Self model(Item model) {
-        this.itemStack.set(DataComponents.ITEM_MODEL, model.components().get(DataComponents.ITEM_MODEL));
+        this.components.set(DataComponents.ITEM_MODEL, model.components().get(DataComponents.ITEM_MODEL));
         return (Self) this;
     }
 
@@ -327,7 +341,7 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
      * @return this element builder
      */
     public Self unbreakable() {
-        this.itemStack.set(DataComponents.UNBREAKABLE, Unit.INSTANCE);
+        this.components.set(DataComponents.UNBREAKABLE, Unit.INSTANCE);
         return (Self) this;
     }
 
@@ -374,7 +388,7 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
     }
 
     public Self setProfile(ResolvableProfile component) {
-        this.itemStack.set(DataComponents.PROFILE, component);
+        this.components.set(DataComponents.PROFILE, component);
         return (Self) this;
     }
 
@@ -396,12 +410,13 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
      * @return this builder as a stack
      */
     public ItemStack asStack() {
-        var copy = itemStack.copy();
+        var copy = new ItemStack(this.item, this.count);
+        copy.applyComponents(this.components.build());
         if (this.noTooltips) {
             copy.set(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(true, ReferenceSortedSets.emptySet()));
         } else if (this.hideComponentTooltips) {
             var comp = TooltipDisplay.DEFAULT;
-            for (var entry : this.itemStack.getComponents()) {
+            for (var entry : copy.getComponents()) {
                 if (entry.type() != DataComponents.ITEM_NAME && entry.type() != DataComponents.CUSTOM_NAME && entry.type() != DataComponents.LORE) {
                     comp = comp.withHidden(entry.type(), true);
                 }

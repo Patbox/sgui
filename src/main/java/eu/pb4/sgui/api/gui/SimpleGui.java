@@ -1,7 +1,6 @@
 package eu.pb4.sgui.api.gui;
 
 import eu.pb4.sgui.api.SguiUtils;
-import eu.pb4.sgui.api.elements.SimpleGuiElement;
 import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.mixin.ScreenHandlerAccessor;
 import eu.pb4.sgui.api.containerwrappers.SlotBasedWrapperMenu;
@@ -22,7 +21,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.display.RecipeDisplayId;
 
 /**
@@ -229,16 +227,16 @@ public class SimpleGui extends BaseSlotGui {
     }
 
     @Override
-    public void close(boolean screenHandlerIsClosed) {
-        if ((this.isOpen() || screenHandlerIsClosed) && !this.reOpen) {
-            if (!screenHandlerIsClosed && this.player.containerMenu == this.wrappedMenu) {
+    public void close(boolean skipSync) {
+        if ((this.isOpen() || skipSync) && !this.reOpen) {
+            if (!skipSync && this.player.containerMenu == this.wrappedMenu) {
                 this.player.closeContainer();
                 this.wrappedMenu = null;
             }
 
             this.player.containerMenu.sendAllDataToRemote();
 
-            this.onClose();
+            this.onManualClose();
         } else {
             this.reOpen = false;
         }

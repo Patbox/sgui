@@ -160,20 +160,20 @@ public class SignGui implements GuiLike {
     }
 
     @Override
-    public void close(boolean alreadyClosed) {
+    public void close(boolean skipSync) {
         if (this.open && !this.reOpen) {
             this.open = false;
             this.reOpen = false;
 
             this.player.connection.send(new ClientboundBlockUpdatePacket(player.level(), signEntity.getBlockPos()));
 
-            if (alreadyClosed && this.player.containerMenu == this.screenHandler) {
+            if (skipSync && this.player.containerMenu == this.screenHandler) {
                 this.player.doCloseContainer();
             } else {
                 this.player.closeContainer();
             }
 
-            this.onClose();
+            this.onManualClose();
         } else {
             this.reOpen = false;
             this.open();

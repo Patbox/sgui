@@ -94,7 +94,7 @@ public class SGuiTest implements ModInitializer {
                     .setItem(Items.DIAMOND_AXE).setDamage(150).unbreakable().saveItemStack()
                     .setItem(Items.GOLDEN_AXE).glow().saveItemStack()
                     .setItem(Items.IRON_AXE).enchant(objectCommandContext.getSource().registryAccess(), Enchantments.AQUA_AFFINITY, 1).hideDefaultTooltip().saveItemStack()
-                    .setItem(Items.STONE_AXE).noDefaults().saveItemStack()
+                    //.setItem(Items.STONE_AXE).noDefaults().saveItemStack()
                     .setItem(Items.WOODEN_AXE).saveItemStack()
                     .setInterval(10).setRandom(true)
             );
@@ -171,9 +171,9 @@ public class SGuiTest implements ModInitializer {
             ServerPlayer player = objectCommandContext.getSource().getPlayer();
             AnvilInputGui gui = new AnvilInputGui(player, true) {
                 @Override
-                public void onClose() {
+                public void onManualClose() {
                     player.sendSystemMessage(Component.literal(this.getInput()), false);
-                    super.onClose();
+                    super.onManualClose();
                 }
             };
 
@@ -248,12 +248,12 @@ public class SGuiTest implements ModInitializer {
                 }
 
                 @Override
-                public void onClose() {
+                public void onManualClose() {
                     if (this.forceReopen) {
                         this.open();
                     }
                     this.forceReopen = false;
-                    super.onClose();
+                    super.onManualClose();
                 }
 
                 @Override
@@ -274,8 +274,8 @@ public class SGuiTest implements ModInitializer {
             ServerPlayer player = objectCommandContext.getSource().getPlayer();
             SimpleGui gui = new SimpleGui(MenuType.GENERIC_3x3, player, true) {
                 @Override
-                public void onClose() {
-                    super.onClose();
+                public void onManualClose() {
+                    super.onManualClose();
 
                     SimpleGui gui = new SimpleGui(MenuType.GENERIC_9x1, player, true);
                     gui.setTitle(Component.literal("If you can take it, it's broken"));
@@ -286,7 +286,7 @@ public class SGuiTest implements ModInitializer {
 
             gui.setSlot(0, new GuiElementBuilder(Items.BARRIER, 8).setCallback(() -> gui.close()));
             gui.setSlot(2, new GuiElementBuilder(Items.IRON_AXE).hideDefaultTooltip());
-            gui.setSlot(6, new GuiElementBuilder(Items.BARRIER, 9).setCallback(() -> gui.onClose()));
+            gui.setSlot(6, new GuiElementBuilder(Items.BARRIER, 9).setCallback(() -> gui.onManualClose()));
 
             gui.setTitle(Component.literal("Close gui to test switching"));
             gui.open();
@@ -334,9 +334,9 @@ public class SGuiTest implements ModInitializer {
                 }
 
                 @Override
-                public void onClose() {
+                public void onManualClose() {
                     this.player.sendSystemMessage(Component.literal("Input was: " + this.getLine(0).toString()), false);
-                    super.onClose();
+                    super.onManualClose();
                 }
 
                 @Override
@@ -480,9 +480,9 @@ public class SGuiTest implements ModInitializer {
                 }
 
                 @Override
-                public void onClose() {
+                public void onManualClose() {
                     player.sendSystemMessage(Component.literal("CLOSE!"), false);
-                    super.onClose();
+                    super.onManualClose();
                 }
 
                 @Override
@@ -722,9 +722,9 @@ public class SGuiTest implements ModInitializer {
                 }
 
                 @Override
-                public void onClose() {
+                public void onManualClose() {
                     player.connection.send(new ClientboundUpdateRecipesPacket(serverRecipeManager.getSynchronizedItemProperties(), serverRecipeManager.getSynchronizedStonecutterRecipes()));
-                    super.onClose();
+                    super.onManualClose();
                 }
             };
 

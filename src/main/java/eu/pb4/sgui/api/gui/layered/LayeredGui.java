@@ -211,8 +211,8 @@ public class LayeredGui implements SlotBasedGui {
     }
 
     @Override
-    public void close(boolean screenHandlerIsClosed) {
-        this.gui.close(screenHandlerIsClosed);
+    public void close(boolean skipSync) {
+        this.gui.close(skipSync);
     }
 
     @Override

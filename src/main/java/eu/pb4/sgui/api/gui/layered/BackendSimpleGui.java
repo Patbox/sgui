@@ -25,8 +25,8 @@ class BackendSimpleGui extends SimpleGui {
     }
 
     @Override
-    public void onClose() {
-        this.gui.onClose();
+    public void onManualClose() {
+        this.gui.onManualClose();
     }
 
     @Override
@@ -35,8 +35,8 @@ class BackendSimpleGui extends SimpleGui {
     }
 
     @Override
-    public void onScreenHandlerClosed() {
-        this.gui.onScreenHandlerClosed();
+    public void onRemoved() {
+        this.gui.onRemoved();
     }
 
     @Override

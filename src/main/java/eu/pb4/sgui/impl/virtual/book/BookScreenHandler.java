@@ -92,7 +92,7 @@ public class BookScreenHandler extends AbstractWrapperMenu {
     public void removed(Player player) {
         super.removed(player);
         try {
-            this.getBackingGui().onScreenHandlerClosed();
+            this.getBackingGui().onRemoved();
         } catch (Throwable e) {
             this.getBackingGui().handleException(e);
         }

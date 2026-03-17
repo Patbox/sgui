@@ -289,16 +289,16 @@ public class HotbarGui extends BaseSlotGui {
     }
 
     @Override
-    public void close(boolean screenHandlerIsClosed) {
-        if ((this.isOpen() || screenHandlerIsClosed) && !this.reOpen) {
-            if (!screenHandlerIsClosed && this.player.containerMenu == this.screenHandler) {
+    public void close(boolean skipSync) {
+        if ((this.isOpen() || skipSync) && !this.reOpen) {
+            if (!skipSync && this.player.containerMenu == this.screenHandler) {
                 this.player.closeContainer();
                 this.player.connection.send(new ClientboundSetHeldSlotPacket(this.player.getInventory().getSelectedSlot()));
             }
 
             this.player.containerMenu.sendAllDataToRemote();
 
-            this.onClose();
+            this.onManualClose();
         } else {
             this.reOpen = false;
         }

@@ -6,6 +6,8 @@ import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.datafixers.util.Either;
 import eu.pb4.sgui.api.SguiUtils;
+import eu.pb4.sgui.mixin.BuilderAccessor;
+import eu.pb4.sgui.mixin.DataComponentPatchAccessor;
 import eu.pb4.sgui.mixin.StaticAccessor;
 import it.unimi.dsi.fastutil.objects.ReferenceSortedSets;
 import net.minecraft.core.ClientAsset;
@@ -58,7 +60,7 @@ public final class ItemStackBuilder extends BaseItemStackBuilder<ItemStackBuilde
      * @param item the item to use
      */
     public ItemStackBuilder(Item item) {
-        this.itemStack = new ItemStack(item);
+        this.item = item;
     }
 
     /**
@@ -78,7 +80,8 @@ public final class ItemStackBuilder extends BaseItemStackBuilder<ItemStackBuilde
      * @param count the number of items
      */
     public ItemStackBuilder(Item item, int count) {
-        this.itemStack = new ItemStack(item, count);
+        this.item = item;
+        this.count = count;
     }
 
     /**
@@ -87,7 +90,9 @@ public final class ItemStackBuilder extends BaseItemStackBuilder<ItemStackBuilde
      * @param stack  the item stack to use
      */
     public ItemStackBuilder(ItemStack stack) {
-        this.itemStack = stack.copy();
+        this.item = stack.getItem();
+        this.count = stack.getCount();
+        ((BuilderAccessor) this.components).getMap().putAll(((DataComponentPatchAccessor) (Object) stack.getComponentsPatch()).getMap());
     }
 
     /**

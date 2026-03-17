@@ -30,7 +30,7 @@ public abstract class AbstractWrapperMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return true;
+        return this.gui.stillValid();
     }
 
 
@@ -58,7 +58,7 @@ public abstract class AbstractWrapperMenu extends AbstractContainerMenu {
     public void removed(Player player) {
         super.removed(player);
         try {
-            this.gui.onScreenHandlerClosed();
+            this.gui.onRemoved();
         } catch (Throwable e) {
             this.gui.handleException(e);
         }

@@ -1,5 +1,8 @@
 package eu.pb4.sgui.api.elements;
 
+import eu.pb4.sgui.mixin.BuilderAccessor;
+import eu.pb4.sgui.mixin.DataComponentPatchAccessor;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -17,7 +20,7 @@ import net.minecraft.world.item.ItemStack;
 @SuppressWarnings({"unused"})
 public final class GuiElementBuilder extends BaseItemStackBuilder<GuiElementBuilder>
         implements GuiElementBuilderCreator<GuiElementBuilder> {
-    protected SimpleGuiElement.ClickCallback callback = GuiElement.EMPTY_CALLBACK;
+    private SimpleGuiElement.ClickCallback callback = GuiElement.EMPTY_CALLBACK;
 
     /**
      * Constructs a GuiElementBuilder with the default options
@@ -31,7 +34,7 @@ public final class GuiElementBuilder extends BaseItemStackBuilder<GuiElementBuil
      * @param item the item to use
      */
     public GuiElementBuilder(Item item) {
-        this.itemStack = new ItemStack(item);
+        this.item = item;
     }
 
     /**
@@ -51,7 +54,8 @@ public final class GuiElementBuilder extends BaseItemStackBuilder<GuiElementBuil
      * @param count the number of items
      */
     public GuiElementBuilder(Item item, int count) {
-        this.itemStack = new ItemStack(item, count);
+        this.item = item;
+        this.count = count;
     }
 
     /**
@@ -60,7 +64,9 @@ public final class GuiElementBuilder extends BaseItemStackBuilder<GuiElementBuil
      * @param stack the item stack to use
      */
     public GuiElementBuilder(ItemStack stack) {
-        this.itemStack = stack.copy();
+        this.item = stack.getItem();
+        this.count = stack.getCount();
+        ((BuilderAccessor) this.components).getMap().putAll(((DataComponentPatchAccessor) (Object) stack.getComponentsPatch()).getMap());
     }
 
     /**

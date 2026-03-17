@@ -185,16 +185,16 @@ public class BookGui implements GuiLike {
     }
 
     @Override
-    public void close(boolean screenHandlerIsClosed) {
+    public void close(boolean skipSync) {
         if (this.isOpen() && !this.reOpen) {
             //noinspection removal
             this.reOpen = false;
 
-            if (!screenHandlerIsClosed && this.player.containerMenu == this.screenHandler) {
+            if (!skipSync && this.player.containerMenu == this.screenHandler) {
                 this.player.closeContainer();
             }
 
-            this.onClose();
+            this.onManualClose();
         } else {
             this.reOpen = false;
         }

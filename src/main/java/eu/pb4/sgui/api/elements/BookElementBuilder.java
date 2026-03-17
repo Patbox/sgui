@@ -1,5 +1,8 @@
 package eu.pb4.sgui.api.elements;
 
+import eu.pb4.sgui.mixin.BuilderAccessor;
+import eu.pb4.sgui.mixin.DataComponentPatchAccessor;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.network.Filterable;
@@ -48,7 +51,9 @@ public class BookElementBuilder extends BaseItemStackBuilder<BookElementBuilder>
 
     private BookElementBuilder(ItemStack stack) {
         super();
-        this.itemStack = stack.copy();
+        this.setItem(stack.getItem());
+        this.setCount(stack.getCount());
+        ((BuilderAccessor) this.components).getMap().putAll(((DataComponentPatchAccessor) (Object) stack.getComponentsPatch()).getMap());
     }
 
     /**
@@ -95,7 +100,14 @@ public class BookElementBuilder extends BaseItemStackBuilder<BookElementBuilder>
      * @return the contents of the page or empty if page does not exist
      */
     public static Component getPageContents(BookElementBuilder book, int index) {
-        return getPageContents(book.itemStack, index);
+        WrittenBookContent component = book.getComponent(DataComponents.WRITTEN_BOOK_CONTENT);
+        if (component == null) {
+            component = DEFAULT_WRITTEN_COMPONENT;
+        }
+        if (index < component.pages().size()) {
+            return component.pages().get(index).raw();
+        }
+        return Component.empty();
     }
 
     /**
@@ -107,7 +119,7 @@ public class BookElementBuilder extends BaseItemStackBuilder<BookElementBuilder>
      * @see BookElementBuilder#setPage(int, Component...)
      */
     public BookElementBuilder addPage(Component... lines) {
-        this.itemStack.update(DataComponents.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT, original -> {
+        this.updateComponent(DataComponents.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT, original -> {
             List<Filterable<Component>> updatedPages = new LinkedList<>(original.pages());
             var text = Component.empty();
             for (Component line : lines) {
@@ -120,7 +132,7 @@ public class BookElementBuilder extends BaseItemStackBuilder<BookElementBuilder>
     }
 
     public BookElementBuilder addPage(Component text) {
-        this.itemStack.update(DataComponents.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT, original -> {
+        this.updateComponent(DataComponents.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT, original -> {
             List<Filterable<Component>> updatedPages = new LinkedList<>(original.pages());
             updatedPages.add(Filterable.passThrough(text));
             return new WrittenBookContent(original.title(), original.author(), original.generation(), updatedPages, original.resolved());
@@ -139,7 +151,7 @@ public class BookElementBuilder extends BaseItemStackBuilder<BookElementBuilder>
      * @see BookElementBuilder#addPage(Component...)
      */
     public BookElementBuilder setPage(int index, Component... lines) {
-        this.itemStack.update(DataComponents.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT, original -> {
+        this.updateComponent(DataComponents.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT, original -> {
             List<Filterable<Component>> updatedPages = new LinkedList<>(original.pages());
             var text = Component.empty();
             for (Component line : lines) {
@@ -152,7 +164,7 @@ public class BookElementBuilder extends BaseItemStackBuilder<BookElementBuilder>
     }
 
     public BookElementBuilder setPage(int index, Component text) {
-        this.itemStack.update(DataComponents.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT, original -> {
+        this.updateComponent(DataComponents.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT, original -> {
             List<Filterable<Component>> updatedPages = new LinkedList<>(original.pages());
             updatedPages.set(index, Filterable.passThrough(text));
             return new WrittenBookContent(original.title(), original.author(), original.generation(), updatedPages, original.resolved());
@@ -168,7 +180,7 @@ public class BookElementBuilder extends BaseItemStackBuilder<BookElementBuilder>
      * @return this book builder
      */
     public BookElementBuilder setAuthor(String author) {
-        this.itemStack.update(DataComponents.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT, original -> {
+        this.updateComponent(DataComponents.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT, original -> {
             return new WrittenBookContent(original.title(), author, original.generation(), original.pages(), original.resolved());
         });
         this.signed();
@@ -183,7 +195,7 @@ public class BookElementBuilder extends BaseItemStackBuilder<BookElementBuilder>
      * @return this book builder
      */
     public BookElementBuilder setTitle(String title) {
-        this.itemStack.update(DataComponents.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT, original -> {
+        this.updateComponent(DataComponents.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT, original -> {
             return new WrittenBookContent(Filterable.passThrough(title), original.author(), original.generation(), original.pages(), original.resolved());
         });
         this.signed();
@@ -224,10 +236,11 @@ public class BookElementBuilder extends BaseItemStackBuilder<BookElementBuilder>
      */
     @Override
     public ItemStack asStack() {
-        if (!itemStack.has(DataComponents.WRITTEN_BOOK_CONTENT)) {
-            itemStack.set(DataComponents.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT);
+        var out = this.asStack();
+        if (!out.has(DataComponents.WRITTEN_BOOK_CONTENT)) {
+            out.set(DataComponents.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT);
         }
-        return this.asStack();
+        return out;
     }
 
 }

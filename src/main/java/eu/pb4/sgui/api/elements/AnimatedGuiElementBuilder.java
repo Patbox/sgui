@@ -1,5 +1,6 @@
 package eu.pb4.sgui.api.elements;
 
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -61,7 +62,9 @@ public final class AnimatedGuiElementBuilder extends BaseItemStackBuilder<Animat
      */
     public AnimatedGuiElementBuilder saveItemStack() {
         this.itemStacks.add(this.asStack());
-        this.itemStack = new ItemStack(Items.STONE);
+        this.item = Items.WHITE_DYE;
+        this.components = DataComponentPatch.builder();
+        this.count = 1;
         return this;
     }
 

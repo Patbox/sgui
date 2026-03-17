@@ -70,15 +70,15 @@ public interface GuiLike {
     /**
      * Used internally for closing the gui.
      *
-     * @param alreadyClosed Is set to true, if gui's ScreenHandler is already closed and close packet shouldn't be sent
-     * @see GuiLike#onClose()
+     * @param skipSync Is set to true, if gui's ScreenHandler is already closed and close packet shouldn't be sent
+     * @see GuiLike#onManualClose()
      */
-    void close(boolean alreadyClosed);
+    void close(boolean skipSync);
 
     /**
      * Closes the current gui
      *
-     * @see GuiLike#onClose()
+     * @see GuiLike#onManualClose()
      */
     default void close() {
         this.close(false);
@@ -106,7 +106,7 @@ public interface GuiLike {
      * Executes when the screen is closed with GuiLike#close
      * Which can be called by your code or outside of it.
      */
-    default void onClose() {
+    default void onManualClose() {
     }
 
     /**
@@ -121,7 +121,7 @@ public interface GuiLike {
      * Executes when the screen handler is closed.
      * This method might be executed multiple times.
      */
-    default void onScreenHandlerClosed() {
+    default void onRemoved() {
     }
 
     /**
@@ -167,5 +167,9 @@ public interface GuiLike {
 
     default boolean resetMousePosition() {
         return false;
+    }
+
+    default boolean stillValid() {
+        return true;
     }
 }
