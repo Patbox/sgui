@@ -1,17 +1,18 @@
-package eu.pb4.sgui.impl.virtual.book;
+package eu.pb4.sgui.api.containerwrappers;
 
-import eu.pb4.sgui.api.containerwrappers.AbstractWrapperMenu;
 import eu.pb4.sgui.api.gui.BookGui;
 import eu.pb4.sgui.api.containerwrappers.slot.WrappingSlot;
+import eu.pb4.sgui.impl.virtual.book.BookInventory;
+import eu.pb4.sgui.impl.virtual.book.BookSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class BookScreenHandler extends AbstractWrapperMenu {
+public class WrapperBookGuiContainerMenu extends AbstractWrapperMenu {
     private final BookGui gui;
 
-    public BookScreenHandler(int syncId, BookGui gui, Player player) {
+    public WrapperBookGuiContainerMenu(int syncId, BookGui gui, Player player) {
         super(MenuType.LECTERN, syncId, gui);
         this.gui = gui;
 

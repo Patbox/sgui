@@ -3,7 +3,7 @@ package eu.pb4.sgui.mixin;
 import com.mojang.authlib.GameProfile;
 import eu.pb4.sgui.api.containerwrappers.AbstractWrapperMenu;
 import eu.pb4.sgui.impl.PlayerExtensions;
-import eu.pb4.sgui.api.containerwrappers.SguiScreenHandlerFactory;
+import eu.pb4.sgui.api.containerwrappers.GuiLikeMenuProvider;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -33,7 +33,7 @@ public abstract class ServerPlayerEntityMixin extends Player implements PlayerEx
 
     @Inject(method = "openMenu", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;closeContainer()V", shift = At.Shift.BEFORE))
     private void sgui$dontForceCloseFor(MenuProvider factory, CallbackInfoReturnable<OptionalInt> cir) {
-        if (factory instanceof SguiScreenHandlerFactory<?> sguiScreenHandlerFactory && !sguiScreenHandlerFactory.gui().resetMousePosition()) {
+        if (factory instanceof GuiLikeMenuProvider<?> sguiScreenHandlerFactory && !sguiScreenHandlerFactory.gui().resetMousePosition()) {
             this.sgui$ignoreNext = true;
         }
     }

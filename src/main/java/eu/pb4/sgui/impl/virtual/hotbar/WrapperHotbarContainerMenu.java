@@ -13,11 +13,11 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-public class HotbarScreenHandler extends SlotBasedWrapperMenu {
+public class WrapperHotbarContainerMenu extends SlotBasedWrapperMenu {
     private final int x = 0;
     public NonNullList<ItemStack> slotsOld = null;
 
-    public HotbarScreenHandler(@Nullable MenuType<?> type, int syncId, SlotBasedGui gui, Player player) {
+    public WrapperHotbarContainerMenu(@Nullable MenuType<?> type, int syncId, SlotBasedGui gui, Player player) {
         super(type, syncId, gui, player);
     }
 

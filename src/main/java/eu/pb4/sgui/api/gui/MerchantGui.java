@@ -1,6 +1,6 @@
 package eu.pb4.sgui.api.gui;
 
-import eu.pb4.sgui.api.containerwrappers.SguiScreenHandlerFactory;
+import eu.pb4.sgui.api.containerwrappers.GuiLikeMenuProvider;
 import eu.pb4.sgui.impl.virtual.merchant.VirtualMerchant;
 import eu.pb4.sgui.impl.virtual.merchant.VirtualMerchantScreenHandler;
 import eu.pb4.sgui.impl.virtual.merchant.VirtualTradeOutputSlot;
@@ -222,7 +222,7 @@ public class MerchantGui extends SimpleGui {
     @Override
     protected boolean sendGui() {
         this.reOpen = true;
-        OptionalInt opSyncId = player.openMenu(new SguiScreenHandlerFactory<>(this, (syncId, playerInventory, playerx) -> new VirtualMerchantScreenHandler(syncId, this.player, this.merchant, this, this.merchantInventory)));
+        OptionalInt opSyncId = player.openMenu(new GuiLikeMenuProvider<>(this, (syncId, playerInventory, playerx) -> new VirtualMerchantScreenHandler(syncId, this.player, this.merchant, this, this.merchantInventory)));
         if (opSyncId.isPresent()) {
             this.syncId = opSyncId.getAsInt();
             this.wrappedMenu = (VirtualMerchantScreenHandler) this.player.containerMenu;

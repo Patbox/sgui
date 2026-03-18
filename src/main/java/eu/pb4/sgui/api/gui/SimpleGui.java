@@ -4,7 +4,7 @@ import eu.pb4.sgui.api.SguiUtils;
 import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.mixin.ScreenHandlerAccessor;
 import eu.pb4.sgui.api.containerwrappers.SlotBasedWrapperMenu;
-import eu.pb4.sgui.api.containerwrappers.SguiScreenHandlerFactory;
+import eu.pb4.sgui.api.containerwrappers.GuiLikeMenuProvider;
 import eu.pb4.sgui.api.containerwrappers.slot.WrappingSlot;
 import java.util.ArrayList;
 import java.util.OptionalInt;
@@ -176,7 +176,7 @@ public class SimpleGui extends BaseSlotGui {
      */
     protected boolean sendGui() {
         this.reOpen = true;
-        OptionalInt temp = this.player.openMenu(SguiScreenHandlerFactory.ofDefault(this));
+        OptionalInt temp = this.player.openMenu(GuiLikeMenuProvider.ofDefault(this));
         this.reOpen = false;
         if (temp.isPresent()) {
             this.syncId = temp.getAsInt();
@@ -215,7 +215,7 @@ public class SimpleGui extends BaseSlotGui {
         }
     }
 
-    public AbstractContainerMenu openAsScreenHandler(int syncId, Inventory playerInventory, Player player) {
+    public AbstractContainerMenu openAsMenu(int syncId, Inventory playerInventory, Player player) {
         if (this.player.hasDisconnected() || player != this.player || this.isOpen()) {
             return null;
         } else {

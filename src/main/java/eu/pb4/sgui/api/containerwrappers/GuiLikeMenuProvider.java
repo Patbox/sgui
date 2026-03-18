@@ -9,7 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuConstructor;
 
-public record SguiScreenHandlerFactory<T extends GuiLike>(T gui, MenuConstructor factory) implements MenuProvider {
+public record GuiLikeMenuProvider<T extends GuiLike>(T gui, MenuConstructor factory) implements MenuProvider {
 
     @Override
     public Component getDisplayName() {
@@ -25,7 +25,7 @@ public record SguiScreenHandlerFactory<T extends GuiLike>(T gui, MenuConstructor
         return factory.createMenu(syncId, playerInventory, player);
     }
 
-    public static <T extends SlotBasedGui> SguiScreenHandlerFactory<T> ofDefault(T gui) {
-        return new SguiScreenHandlerFactory<>(gui, ((syncId, inv, player) -> new SlotBasedWrapperMenu(gui.getType(), syncId, gui, player)));
+    public static <T extends SlotBasedGui> GuiLikeMenuProvider<T> ofDefault(T gui) {
+        return new GuiLikeMenuProvider<>(gui, ((syncId, inv, player) -> new SlotBasedWrapperMenu(gui.getType(), syncId, gui, player)));
     }
 }

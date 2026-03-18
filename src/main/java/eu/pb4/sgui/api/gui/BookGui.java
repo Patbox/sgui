@@ -2,8 +2,8 @@ package eu.pb4.sgui.api.gui;
 
 import eu.pb4.sgui.api.ScreenProperty;
 import eu.pb4.sgui.api.elements.BookElementBuilder;
-import eu.pb4.sgui.api.containerwrappers.SguiScreenHandlerFactory;
-import eu.pb4.sgui.impl.virtual.book.BookScreenHandler;
+import eu.pb4.sgui.api.containerwrappers.GuiLikeMenuProvider;
+import eu.pb4.sgui.api.containerwrappers.WrapperBookGuiContainerMenu;
 import java.util.OptionalInt;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,7 +25,7 @@ public class BookGui implements GuiLike {
     protected ItemStack book;
     protected int page = 0;
     protected boolean reOpen = false;
-    protected BookScreenHandler screenHandler = null;
+    protected WrapperBookGuiContainerMenu containerMenu = null;
 
     protected int syncId = -1;
 
@@ -143,7 +143,7 @@ public class BookGui implements GuiLike {
 
     @Override
     public boolean isOpen() {
-        return this.screenHandler == this.player.containerMenu;
+        return this.containerMenu == this.player.containerMenu;
     }
 
     @Override
@@ -151,22 +151,22 @@ public class BookGui implements GuiLike {
         var state = false;
         if (!this.player.hasDisconnected() && !this.isOpen()) {
             this.beforeOpen();
-            state = this.setupScreenHandler();
+            state = this.setupMenu();
             this.afterOpen();
         }
         return state;
     }
 
-    protected boolean setupScreenHandler() {
+    protected boolean setupMenu() {
         //noinspection removal
         this.onOpen();
         this.reOpen = true;
-        OptionalInt temp = this.player.openMenu(new SguiScreenHandlerFactory<>(this, (syncId, inv, player) -> new BookScreenHandler(syncId, this, player)));
+        OptionalInt temp = this.player.openMenu(new GuiLikeMenuProvider<>(this, (syncId, inv, player) -> new WrapperBookGuiContainerMenu(syncId, this, player)));
         this.reOpen = false;
         if (temp.isPresent()) {
             this.syncId = temp.getAsInt();
-            if (this.player.containerMenu instanceof BookScreenHandler) {
-                this.screenHandler = (BookScreenHandler) this.player.containerMenu;
+            if (this.player.containerMenu instanceof WrapperBookGuiContainerMenu) {
+                this.containerMenu = (WrapperBookGuiContainerMenu) this.player.containerMenu;
                 this.sendProperty(ScreenProperty.SELECTED, this.page);
                 return true;
             }
@@ -190,7 +190,7 @@ public class BookGui implements GuiLike {
             //noinspection removal
             this.reOpen = false;
 
-            if (!skipSync && this.player.containerMenu == this.screenHandler) {
+            if (!skipSync && this.player.containerMenu == this.containerMenu) {
                 this.player.closeContainer();
             }
 

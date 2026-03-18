@@ -46,7 +46,7 @@ public class SignGui implements GuiLike {
     protected final ServerPlayer player;
     protected boolean open = false;
     protected boolean reOpen = false;
-    protected FakeMenu screenHandler;
+    protected FakeMenu containerMenu;
     private final Component[] texts = new Component[4];
 
     /**
@@ -120,9 +120,9 @@ public class SignGui implements GuiLike {
      * This requires closing and reopening the gui, causing a flicker.
      */
     public void updateSign() {
-        if (this.player.containerMenu == this.screenHandler) {
+        if (this.player.containerMenu == this.containerMenu) {
             this.reOpen = true;
-            this.player.connection.send(new ClientboundContainerClosePacket(this.screenHandler.containerId));
+            this.player.connection.send(new ClientboundContainerClosePacket(this.containerMenu.containerId));
         } else {
             this.open();
         }
@@ -141,13 +141,13 @@ public class SignGui implements GuiLike {
     public boolean open() {
         this.reOpen = true;
 
-        if (this.player.containerMenu != this.player.inventoryMenu && this.player.containerMenu != this.screenHandler) {
+        if (this.player.containerMenu != this.player.inventoryMenu && this.player.containerMenu != this.containerMenu) {
             this.player.closeContainer();
         }
-        if (screenHandler == null) {
-            this.screenHandler = new FakeMenu(this);
+        if (containerMenu == null) {
+            this.containerMenu = new FakeMenu(this);
         }
-        this.player.containerMenu = this.screenHandler;
+        this.player.containerMenu = this.containerMenu;
 
         this.player.connection.send(new ClientboundBlockUpdatePacket(this.signEntity.getBlockPos(), this.type));
         this.player.connection.send(this.signEntity.getUpdatePacket());
@@ -167,7 +167,7 @@ public class SignGui implements GuiLike {
 
             this.player.connection.send(new ClientboundBlockUpdatePacket(player.level(), signEntity.getBlockPos()));
 
-            if (skipSync && this.player.containerMenu == this.screenHandler) {
+            if (skipSync && this.player.containerMenu == this.containerMenu) {
                 this.player.doCloseContainer();
             } else {
                 this.player.closeContainer();

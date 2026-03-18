@@ -3,7 +3,7 @@ package eu.pb4.sgui.api.gui;
 import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.mixin.ServerPlayerEntityAccessor;
-import eu.pb4.sgui.impl.virtual.hotbar.HotbarScreenHandler;
+import eu.pb4.sgui.impl.virtual.hotbar.WrapperHotbarContainerMenu;
 import eu.pb4.sgui.api.containerwrappers.slot.WrappingSlot;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -39,7 +39,7 @@ public class HotbarGui extends BaseSlotGui {
     public static final int[] VANILLA_TO_GUI_IDS = rotateArray(GUI_TO_VANILLA_IDS);
     protected int selectedSlot = 0;
     protected boolean hasRedirects = false;
-    private HotbarScreenHandler screenHandler;
+    private WrapperHotbarContainerMenu containerMenu;
     private int clicksPerTick;
 
     public HotbarGui(ServerPlayer player) {
@@ -77,7 +77,7 @@ public class HotbarGui extends BaseSlotGui {
     public void setSlot(int index, GuiElement element) {
         super.setSlot(index, element);
         if (this.isOpen() && this.autoUpdate) {
-            this.screenHandler.setSlot(GUI_TO_VANILLA_IDS[index], new WrappingSlot(this, index, 0, 0));
+            this.containerMenu.setSlot(GUI_TO_VANILLA_IDS[index], new WrappingSlot(this, index, 0, 0));
         }
     }
 
@@ -85,7 +85,7 @@ public class HotbarGui extends BaseSlotGui {
         super.setSlot(index, slot);
 
         if (this.isOpen() && this.autoUpdate) {
-            this.screenHandler.setSlot(GUI_TO_VANILLA_IDS[index], slot);
+            this.containerMenu.setSlot(GUI_TO_VANILLA_IDS[index], slot);
         }
         this.hasRedirects = true;
     }
@@ -95,8 +95,8 @@ public class HotbarGui extends BaseSlotGui {
         super.clearSlot(index);
 
         if (this.isOpen() && this.autoUpdate) {
-            if (this.screenHandler != null) {
-                this.screenHandler.setSlot(GUI_TO_VANILLA_IDS[index], new WrappingSlot(this, index, 0, 0));
+            if (this.containerMenu != null) {
+                this.containerMenu.setSlot(GUI_TO_VANILLA_IDS[index], new WrappingSlot(this, index, 0, 0));
             }
         }
     }
@@ -126,25 +126,25 @@ public class HotbarGui extends BaseSlotGui {
             return false;
         } else {
             this.beforeOpen();
-            this.openScreenHandler();
+            this.openMenu();
             this.afterOpen();
             return true;
         }
     }
 
-    private void openScreenHandler() {
+    private void openMenu() {
         this.onOpen();
 
-        if (this.player.containerMenu != this.player.inventoryMenu && this.player.containerMenu != this.screenHandler) {
+        if (this.player.containerMenu != this.player.inventoryMenu && this.player.containerMenu != this.containerMenu) {
             this.player.closeContainer();
         }
 
-        if (this.screenHandler == null) {
-            this.screenHandler = new HotbarScreenHandler(null, 0, this, this.player);
+        if (this.containerMenu == null) {
+            this.containerMenu = new WrapperHotbarContainerMenu(null, 0, this, this.player);
         }
 
-        this.player.containerMenu = this.screenHandler;
-        ((ServerPlayerEntityAccessor) this.player).callInitMenu(this.screenHandler);
+        this.player.containerMenu = this.containerMenu;
+        ((ServerPlayerEntityAccessor) this.player).callInitMenu(this.containerMenu);
 
         this.player.connection.send(new ClientboundSetHeldSlotPacket(this.selectedSlot));
     }
@@ -291,7 +291,7 @@ public class HotbarGui extends BaseSlotGui {
     @Override
     public void close(boolean skipSync) {
         if ((this.isOpen() || skipSync) && !this.reOpen) {
-            if (!skipSync && this.player.containerMenu == this.screenHandler) {
+            if (!skipSync && this.player.containerMenu == this.containerMenu) {
                 this.player.closeContainer();
                 this.player.connection.send(new ClientboundSetHeldSlotPacket(this.player.getInventory().getSelectedSlot()));
             }
