@@ -3,8 +3,10 @@ package eu.pb4.sgui.api.containerwrappers;
 import eu.pb4.sgui.api.SguiUtils;
 import eu.pb4.sgui.api.gui.SlotBasedGui;
 import eu.pb4.sgui.api.containerwrappers.slot.WrappingSlot;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -47,16 +49,16 @@ public class SlotBasedWrapperMenu extends AbstractWrapperMenu {
                 }
             }
         } else {
-            Inventory playerInventory = player.getInventory();
-            for (n = 0; n < 3; ++n) {
-                for (m = 0; m < 9; ++m) {
-                    this.addSlot(new Slot(playerInventory, m + n * 9 + 9, 0, 0));
-                }
-            }
+            this.addStandardInventorySlots(player.getInventory(), 0, 0);
+        }
+    }
 
-            for (n = 0; n < 9; ++n) {
-                this.addSlot(new Slot(playerInventory, n, 0, 0));
-            }
+    @Override
+    public void transferState(AbstractContainerMenu otherContainer) {
+        if (this.gui.isIncludingPlayer()) {
+            SguiUtils.invalidateContainerMenu(otherContainer);
+        } else {
+            super.transferState(otherContainer);
         }
     }
 
@@ -72,6 +74,17 @@ public class SlotBasedWrapperMenu extends AbstractWrapperMenu {
     @Override
     public SlotBasedGui getBackingGui() {
         return this.gui;
+    }
+
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+    }
+
+    @Override
+    public void postRemoved(ServerPlayer player) {
+        SguiUtils.invalidateContainerMenu(player.containerMenu);
+        super.postRemoved(player);
     }
 
     @Override
@@ -97,6 +110,7 @@ public class SlotBasedWrapperMenu extends AbstractWrapperMenu {
     public @NonNull Slot addSlot(Slot slot) {
         return super.addSlot(slot);
     }
+
 
     public void setSlot(int index, Slot slot) {
         this.slots.set(index, slot);

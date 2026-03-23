@@ -2,6 +2,10 @@ package eu.pb4.sgui.api.containerwrappers;
 
 import eu.pb4.sgui.api.gui.GuiLike;
 import eu.pb4.sgui.api.containerwrappers.slot.WrappingSlot;
+import eu.pb4.sgui.api.gui.SlotBasedGui;
+import eu.pb4.sgui.impl.FauxHashedStack;
+import eu.pb4.sgui.mixin.ScreenHandlerAccessor;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerListener;
@@ -59,6 +63,14 @@ public abstract class AbstractWrapperMenu extends AbstractContainerMenu {
         super.removed(player);
         try {
             this.gui.onRemoved();
+        } catch (Throwable e) {
+            this.gui.handleException(e);
+        }
+    }
+
+    public void postRemoved(ServerPlayer serverPlayer) {
+        try {
+            this.gui.afterRemoval();
         } catch (Throwable e) {
             this.gui.handleException(e);
         }

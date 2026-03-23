@@ -172,4 +172,6 @@ public interface GuiLike {
     default boolean stillValid() {
         return true;
     }
+
+    default void afterRemoval() {};
 }

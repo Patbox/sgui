@@ -2,7 +2,11 @@ package eu.pb4.sgui.api;
 
 import eu.pb4.sgui.api.containerwrappers.AbstractWrapperMenu;
 import eu.pb4.sgui.api.gui.GuiLike;
+import eu.pb4.sgui.impl.FauxHashedStack;
 import eu.pb4.sgui.impl.PlayerExtensions;
+import eu.pb4.sgui.mixin.ScreenHandlerAccessor;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.UnaryOperator;
@@ -37,6 +41,21 @@ public final class SguiUtils {
 
     public static void sendCurrentMenu(ServerPlayer player) {
         player.connection.send(new ClientboundContainerSetContentPacket(player.containerMenu.containerId, player.containerMenu.incrementStateId(), player.containerMenu.getItems(), player.containerMenu.getCarried()));
+    }
+
+    public static void invalidatePlayerInventory(ServerPlayer player) {
+        invalidateContainerMenu(player.inventoryMenu);
+
+    }
+
+    public static void invalidateContainerMenu(ServerPlayer player) {
+        invalidateContainerMenu(player.containerMenu);
+    }
+
+    public static void invalidateContainerMenu(AbstractContainerMenu menu) {
+        for (var x : ((ScreenHandlerAccessor) menu).getRemoteSlots()) {
+            x.receive(FauxHashedStack.INSTANCE);
+        }
     }
 
     public static void sendPlayerInventory(ServerPlayer player) {

@@ -81,7 +81,7 @@ public class SimpleGui extends BaseSlotGui {
     @Override
     public void setSlot(int index, GuiElement element) {
         super.setSlot(index, element);
-        if (this.isOpen() && this.autoUpdate) {
+        if (this.wrappedMenu != null && this.autoUpdate) {
             this.wrappedMenu.setSlot(index, new WrappingSlot(this, index, 0, 0));
         }
     }
@@ -89,7 +89,7 @@ public class SimpleGui extends BaseSlotGui {
     @Override
     public void setSlot(int index, Slot slot) {
         super.setSlot(index, slot);
-        if (this.isOpen() && this.autoUpdate) {
+        if (this.wrappedMenu != null && this.autoUpdate) {
             this.wrappedMenu.setSlot(index, slot);
         }
     }
@@ -98,7 +98,7 @@ public class SimpleGui extends BaseSlotGui {
     public void clearSlot(int index) {
         super.clearSlot(index);
         this.hasRedirects = true;
-        if (this.isOpen() && this.autoUpdate) {
+        if (this.wrappedMenu != null && this.autoUpdate) {
             this.wrappedMenu.setSlot(index, new WrappingSlot(this, index, 0, 0));
         }
     }

@@ -1,9 +1,12 @@
 package eu.pb4.sgui.mixin;
 
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.authlib.GameProfile;
 import eu.pb4.sgui.api.containerwrappers.AbstractWrapperMenu;
 import eu.pb4.sgui.impl.PlayerExtensions;
 import eu.pb4.sgui.api.containerwrappers.GuiLikeMenuProvider;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -51,6 +54,19 @@ public abstract class ServerPlayerEntityMixin extends Player implements PlayerEx
     private void sgui$onDeath(DamageSource source, CallbackInfo ci) {
         if (this.containerMenu instanceof AbstractWrapperMenu handler) {
             handler.getBackingGui().close(true);
+        }
+    }
+
+    @Inject(method = "doCloseContainer", at = @At("HEAD"))
+    private void storeCurrentMenu(CallbackInfo ci, @Share("previous") LocalRef<AbstractContainerMenu> ref) {
+        ref.set(this.containerMenu);
+    }
+
+
+    @Inject(method = "doCloseContainer", at = @At("TAIL"))
+    private void useCurrentMenu(CallbackInfo ci, @Share("previous") LocalRef<AbstractContainerMenu> ref) {
+        if (ref.get() instanceof AbstractWrapperMenu menu) {
+            menu.postRemoved((ServerPlayer) (Object) this);
         }
     }
 

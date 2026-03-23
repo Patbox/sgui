@@ -236,7 +236,7 @@ public class BookElementBuilder extends BaseItemStackBuilder<BookElementBuilder>
      */
     @Override
     public ItemStack asStack() {
-        var out = this.asStack();
+        var out = super.asStack();
         if (!out.has(DataComponents.WRITTEN_BOOK_CONTENT)) {
             out.set(DataComponents.WRITTEN_BOOK_CONTENT, DEFAULT_WRITTEN_COMPONENT);
         }
