@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.network.Filterable;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.WrittenBookContent;
 
@@ -54,6 +55,13 @@ public class BookElementBuilder extends BaseItemStackBuilder<BookElementBuilder>
         this.setItem(stack.getItem());
         this.setCount(stack.getCount());
         ((BuilderAccessor) this.components).getMap().putAll(((DataComponentPatchAccessor) (Object) stack.getComponentsPatch()).getMap());
+    }
+
+    public BookElementBuilder(ItemStackTemplate stack) {
+        super();
+        this.item = stack.item().value();
+        this.count = stack.count();
+        ((BuilderAccessor) this.components).getMap().putAll(((DataComponentPatchAccessor) (Object) stack.components()).getMap());
     }
 
     /**

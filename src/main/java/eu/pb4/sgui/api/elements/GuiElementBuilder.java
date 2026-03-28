@@ -6,6 +6,7 @@ import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 
 /**
  * Gui Element Builder
@@ -67,6 +68,17 @@ public final class GuiElementBuilder extends BaseItemStackBuilder<GuiElementBuil
         this.item = stack.getItem();
         this.count = stack.getCount();
         ((BuilderAccessor) this.components).getMap().putAll(((DataComponentPatchAccessor) (Object) stack.getComponentsPatch()).getMap());
+    }
+
+    /**
+     * Constructs a GuiElementBuilder with the specified ItemStack
+     *
+     * @param stack the item stack to use
+     */
+    public GuiElementBuilder(ItemStackTemplate stack) {
+        this.item = stack.item().value();
+        this.count = stack.count();
+        ((BuilderAccessor) this.components).getMap().putAll(((DataComponentPatchAccessor) (Object) stack.components()).getMap());
     }
 
     /**

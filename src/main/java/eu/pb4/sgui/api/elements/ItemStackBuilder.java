@@ -23,10 +23,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Unit;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.PlayerSkin;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.component.ResolvableProfile;
@@ -94,6 +91,13 @@ public final class ItemStackBuilder extends BaseItemStackBuilder<ItemStackBuilde
         this.count = stack.getCount();
         ((BuilderAccessor) this.components).getMap().putAll(((DataComponentPatchAccessor) (Object) stack.getComponentsPatch()).getMap());
     }
+
+    public ItemStackBuilder(ItemStackTemplate stack) {
+        this.item = stack.item().value();
+        this.count = stack.count();
+        ((BuilderAccessor) this.components).getMap().putAll(((DataComponentPatchAccessor) (Object) stack.components()).getMap());
+    }
+
 
     /**
      * Constructs a ItemStackBuilder based on the supplied stack.
