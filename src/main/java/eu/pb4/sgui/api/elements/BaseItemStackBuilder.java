@@ -42,7 +42,7 @@ import java.util.function.Function;
  */
 @SuppressWarnings({"unused"})
 public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
-    protected Item item = Items.WHITE_DYE;
+    protected Item item = Items.TRIAL_KEY;
     protected int count = 1;
     protected DataComponentPatch.Builder components = DataComponentPatch.builder();
     protected boolean hideComponentTooltips;

@@ -35,16 +35,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Mixin(ServerGamePacketListenerImpl.class)
-public abstract class ServerPlayNetworkHandlerMixin extends ServerCommonPacketListenerImpl {
+public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPacketListenerImpl {
 
     @Shadow
     public ServerPlayer player;
     @Unique
     private boolean sgui$bookIgnoreClose = false;
-    @Unique
-    private AbstractContainerMenu sgui$previousScreen = null;
 
-    public ServerPlayNetworkHandlerMixin(MinecraftServer server, Connection connection, CommonListenerCookie clientData) {
+    public ServerGamePacketListenerImplMixin(MinecraftServer server, Connection connection, CommonListenerCookie clientData) {
         super(server, connection, clientData);
     }
 

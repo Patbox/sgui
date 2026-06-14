@@ -62,7 +62,7 @@ public final class AnimatedGuiElementBuilder extends BaseItemStackBuilder<Animat
      */
     public AnimatedGuiElementBuilder saveItemStack() {
         this.itemStacks.add(this.asStack());
-        this.item = Items.WHITE_DYE;
+        this.item = Items.TRIAL_KEY;
         this.components = DataComponentPatch.builder();
         this.count = 1;
         return this;

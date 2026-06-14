@@ -10,7 +10,7 @@
     "ScreenHandlerMixin",
     "ServerPlayerEntityAccessor",
     "ServerPlayerEntityMixin",
-    "ServerPlayNetworkHandlerMixin",
+    "ServerGamePacketListenerImplMixin",
     "SignBlockEntityAccessor",
     "StaticAccessor"
   ],

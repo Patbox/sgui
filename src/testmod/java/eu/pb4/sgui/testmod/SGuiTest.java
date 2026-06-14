@@ -274,8 +274,8 @@ public class SGuiTest implements ModInitializer {
             ServerPlayer player = objectCommandContext.getSource().getPlayer();
             SimpleGui gui = new SimpleGui(MenuType.GENERIC_3x3, player, true) {
                 @Override
-                public void onManualClose() {
-                    super.onManualClose();
+                public void afterRemoval() {
+                    super.afterRemoval();
 
                     SimpleGui gui = new SimpleGui(MenuType.GENERIC_9x1, player, true);
                     gui.setTitle(Component.literal("If you can take it, it's broken"));
@@ -286,7 +286,7 @@ public class SGuiTest implements ModInitializer {
 
             gui.setSlot(0, new GuiElementBuilder(Items.BARRIER, 8).setCallback(() -> gui.close()));
             gui.setSlot(2, new GuiElementBuilder(Items.IRON_AXE).hideDefaultTooltip());
-            gui.setSlot(6, new GuiElementBuilder(Items.BARRIER, 9).setCallback(() -> gui.onManualClose()));
+            gui.setSlot(6, new GuiElementBuilder(Items.BARRIER, 9).setCallback(() -> gui.afterRemoval()));
 
             gui.setTitle(Component.literal("Close gui to test switching"));
             gui.open();
@@ -428,7 +428,7 @@ public class SGuiTest implements ModInitializer {
         try {
             ServerPlayer player = objectCommandContext.getSource().getPlayer();
             LayeredGui gui = new LayeredGui(MenuType.GENERIC_9x6, player, true);
-            GuiElementBuilder elementBuilder = new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE).setName(Component.empty());
+            GuiElementBuilder elementBuilder = new GuiElementBuilder(Items.STAINED_GLASS_PANE.gray()).setName(Component.empty());
             for (int a = 0; a < 9; a++) {
                 for (int b = 0; b < 5; b++) {
                     gui.setSlot(a + (b * 2) * 9, elementBuilder);
@@ -456,7 +456,7 @@ public class SGuiTest implements ModInitializer {
             controller.setSlot(7, new GuiElementBuilder(Items.SLIME_BALL).setName(Component.literal("v"))
                     .setCallback(() -> movingView.setY(movingView.getY() + 1)));
 
-            controller.setSlot(4, new GuiElementBuilder(Items.WHITE_STAINED_GLASS_PANE).setName(Component.empty().copy()));
+            controller.setSlot(4, new GuiElementBuilder(Items.STAINED_GLASS_PANE.white()).setName(Component.empty().copy()));
 
             gui.addLayer(controller, 5, 6).setZIndex(5);
 

@@ -66,6 +66,11 @@ public interface SlotBasedGui extends SlotHolder, GuiLike {
         return false;
     }
 
+    default boolean onSetSelectedBundleItemIndex(int slotIndex, int selectedItemIndex) {
+        return false;
+    }
+
+
     /**
      * Whether spectators can click on slots.
      *

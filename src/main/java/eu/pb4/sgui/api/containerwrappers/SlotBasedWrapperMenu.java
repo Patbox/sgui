@@ -120,4 +120,11 @@ public class SlotBasedWrapperMenu extends AbstractWrapperMenu {
     protected boolean moveItemStackTo(ItemStack stack, int startIndex, int endIndex, boolean fromLast) {
         return this.gui.insertItem(stack, startIndex, endIndex, fromLast);
     }
+
+    @Override
+    public void setSelectedBundleItemIndex(int slotIndex, int selectedItemIndex) {
+        if (!this.gui.onSetSelectedBundleItemIndex(slotIndex, selectedItemIndex)) {
+            super.setSelectedBundleItemIndex(slotIndex, selectedItemIndex);
+        }
+    }
 }

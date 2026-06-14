@@ -23,7 +23,7 @@ import java.util.Random;
 public class SnakeGui extends LayeredGui {
 
     static ItemStack create(BannerPatternLayers component) {
-        ItemStack stack = Items.GRAY_BANNER.getDefaultInstance();
+        ItemStack stack = Items.BANNER.gray().getDefaultInstance();
         stack.set(DataComponents.BANNER_PATTERNS, component);
         stack.set(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(true, ReferenceSortedSets.emptySet()));
         return stack;
@@ -84,7 +84,7 @@ public class SnakeGui extends LayeredGui {
         controller.setSlot(7, new GuiElementBuilder(Items.MAGMA_CREAM).setName(Component.literal("v"))
             .setCallback(() -> changeDirection(Direction.DOWN)));
 
-        controller.setSlot(4, new GuiElementBuilder(Items.WHITE_STAINED_GLASS_PANE).setName(Component.empty()));
+        controller.setSlot(4, new GuiElementBuilder(Items.STAINED_GLASS_PANE.white()).setName(Component.empty()));
 
         this.addLayer(controller, 3, 6).setZIndex(5);
 
@@ -108,7 +108,7 @@ public class SnakeGui extends LayeredGui {
 
         Layer backdrop = new Layer(4, 9);
 
-        GuiElementBuilder builder = new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE).setName(Component.empty());
+        GuiElementBuilder builder = new GuiElementBuilder(Items.STAINED_GLASS_PANE.gray()).setName(Component.empty());
 
         while (backdrop.getFirstEmptySlot() != -1) {
             backdrop.addSlot(builder);
@@ -202,7 +202,7 @@ public class SnakeGui extends LayeredGui {
             this.gameplayLayer.setSlot(pos.index(), Items.GOLDEN_APPLE.getDefaultInstance());
         }
 
-        ItemStack stack = this.gameover ? Items.GRAY_WOOL.getDefaultInstance() : Items.GREEN_WOOL.getDefaultInstance();
+        ItemStack stack = this.gameover ? Items.WOOL.gray().getDefaultInstance() : Items.WOOL.green().getDefaultInstance();
         for (Pos pos : this.snakeParts) {
             this.gameplayLayer.setSlot(pos.index(), stack);
         }
