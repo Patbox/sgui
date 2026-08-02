@@ -76,6 +76,10 @@ public interface GuiElement {
         return (index, type, action, gui) -> clickTypeConsumer.accept(type);
     }
 
+    default boolean onSetSelectedBundleItemIndex(SlotBasedGui slotBasedGui, int slotIndex, int selectedItemIndex) {
+        return false;
+    }
+
     /**
      * Gui-Aware Item Click Callback
      * <br>

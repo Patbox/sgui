@@ -67,6 +67,11 @@ public interface SlotBasedGui extends SlotHolder, GuiLike {
     }
 
     default boolean onSetSelectedBundleItemIndex(int slotIndex, int selectedItemIndex) {
+        var element = this.getGuiElement(slotIndex);
+        if (element != null) {
+            return element.onSetSelectedBundleItemIndex(this, slotIndex, selectedItemIndex);
+        }
+
         return false;
     }
 

@@ -13,6 +13,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.ClickEvent;
@@ -30,7 +31,9 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.BundleContents;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.SelectableRecipe;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
@@ -44,6 +47,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -100,10 +104,16 @@ public class SGuiTest implements ModInitializer {
             );
 
             for (int x = 3; x < gui.getSize(); x++) {
-                ItemStack itemStack = Items.STONE.getDefaultInstance();
-                itemStack.setCount(x);
-                gui.setSlot(x, new SimpleGuiElement(itemStack, (index, clickType, actionType, w) -> {
-                }));
+                var stack = new GuiElementBuilder(Items.BUNDLE).setComponent(DataComponents.BUNDLE_CONTENTS, new BundleContents(List.of(
+                        new ItemStackTemplate(Items.STONE, DataComponentPatch.builder().set(DataComponents.MAX_STACK_SIZE, -1).build()),
+                        new ItemStackTemplate(Items.STONE, DataComponentPatch.builder().set(DataComponents.MAX_STACK_SIZE, -1).build()),
+                        new ItemStackTemplate(Items.STONE, DataComponentPatch.builder().set(DataComponents.MAX_STACK_SIZE, -1).build()),
+                        new ItemStackTemplate(Items.STONE, DataComponentPatch.builder().set(DataComponents.MAX_STACK_SIZE, -1).build()),
+                        new ItemStackTemplate(Items.STONE, DataComponentPatch.builder().set(DataComponents.MAX_STACK_SIZE, -1).build())
+                ))).asStack();
+                gui.setSlot(x, new SimpleGuiElement(stack, GuiElement.EMPTY_CALLBACK) {
+
+                });
             }
 
             gui.setSlot(5, new GuiElementBuilder(Items.PLAYER_HEAD)
