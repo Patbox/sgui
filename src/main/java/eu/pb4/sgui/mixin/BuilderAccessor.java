@@ -9,5 +9,5 @@ import java.util.Optional;
 @org.spongepowered.asm.mixin.Mixin(net.minecraft.core.component.DataComponentPatch.Builder.class)
 public interface BuilderAccessor {
     @Accessor
-    Reference2ObjectMap<DataComponentType<?>, Optional<?>> getMap();
+    Reference2ObjectMap<DataComponentType<?>, Object> getMap();
 }

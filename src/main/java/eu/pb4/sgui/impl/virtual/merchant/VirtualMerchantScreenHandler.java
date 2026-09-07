@@ -3,6 +3,7 @@ package eu.pb4.sgui.impl.virtual.merchant;
 import eu.pb4.sgui.api.gui.MerchantGui;
 import eu.pb4.sgui.api.containerwrappers.SlotBasedWrapperMenu;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
@@ -87,16 +88,16 @@ public class VirtualMerchantScreenHandler extends SlotBasedWrapperMenu {
             if (!playerEntity.isAlive() || playerEntity instanceof ServerPlayer && ((ServerPlayer)playerEntity).hasDisconnected()) {
                 ItemStack itemStack = this.merchantInventory.removeItemNoUpdate(0);
                 if (!itemStack.isEmpty()) {
-                    playerEntity.drop(itemStack, false);
+                    playerEntity.drop(itemStack, false, Prediction.SERVER_ONLY);
                 }
 
                 itemStack = this.merchantInventory.removeItemNoUpdate(1);
                 if (!itemStack.isEmpty()) {
-                    playerEntity.drop(itemStack, false);
+                    playerEntity.drop(itemStack, false, Prediction.SERVER_ONLY);
                 }
             } else if (playerEntity instanceof ServerPlayer) {
-                playerEntity.getInventory().placeItemBackInInventory(this.merchantInventory.removeItemNoUpdate(0));
-                playerEntity.getInventory().placeItemBackInInventory(this.merchantInventory.removeItemNoUpdate(1));
+                playerEntity.getInventory().placeItemBackInInventory(this.merchantInventory.removeItemNoUpdate(0), Prediction.SERVER_ONLY);
+                playerEntity.getInventory().placeItemBackInInventory(this.merchantInventory.removeItemNoUpdate(1), Prediction.SERVER_ONLY);
             }
 
         }

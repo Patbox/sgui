@@ -2,6 +2,8 @@ package eu.pb4.sgui.api.gui;
 
 import eu.pb4.sgui.api.containerwrappers.FakeMenu;
 import eu.pb4.sgui.impl.virtual.sign.VirtualSignBlockEntity;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.entity.SignTextSlot;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
@@ -56,7 +58,7 @@ public class SignGui implements GuiLike {
      */
     public SignGui(ServerPlayer player)  {
         this.player = player;
-        this.signEntity = new VirtualSignBlockEntity(player.level(), new BlockPos(player.blockPosition().getX(), Math.min(player.level().getMaxY(), player.blockPosition().getY() + 5), player.blockPosition().getZ()), Blocks.OAK_SIGN.defaultBlockState());
+        this.signEntity = new VirtualSignBlockEntity(player.level(), new BlockPos(player.blockPosition().getX(), Mth.clamp(player.blockPosition().getY() + 5, player.level().getMinY(), player.level().getMaxY()), player.blockPosition().getZ()), Blocks.OAK_SIGN.defaultBlockState());
     }
 
     /**
@@ -66,7 +68,7 @@ public class SignGui implements GuiLike {
      * @param text the Text for the line, note that all formatting is stripped when the player closes the sign
      */
     public void setLine(int line, Component text) {
-        this.signEntity.updateText(signText -> signText.setMessage(line, text), true);
+        this.signEntity.updateText(signText -> signText.asMutable().setLine(line, text).asImmutable(), SignTextSlot.FRONT);
         this.sendLineUpdate.add(line);
         this.texts[line] = text;
 
@@ -91,7 +93,7 @@ public class SignGui implements GuiLike {
      * @param color the default sign color
      */
     public void setColor(DyeColor color) {
-        this.signEntity.updateText(signText -> signText.setColor(color), true);
+        this.signEntity.updateText(signText -> signText.asMutable().setColor(color).asImmutable(), SignTextSlot.FRONT);
 
         if (this.open && this.autoUpdate) {
             this.updateSign();
@@ -122,7 +124,7 @@ public class SignGui implements GuiLike {
     public void updateSign() {
         if (this.player.containerMenu == this.containerMenu) {
             this.reOpen = true;
-            this.player.connection.send(new ClientboundContainerClosePacket(this.containerMenu.containerId));
+            //this.player.connection.send(new ClientboundContainerClosePacket(this.containerMenu.containerId));
         } else {
             this.open();
         }
@@ -151,7 +153,7 @@ public class SignGui implements GuiLike {
 
         this.player.connection.send(new ClientboundBlockUpdatePacket(this.signEntity.getBlockPos(), this.type));
         this.player.connection.send(this.signEntity.getUpdatePacket());
-        this.player.connection.send(new ClientboundOpenSignEditorPacket(this.signEntity.getBlockPos(), true));
+        this.player.connection.send(new ClientboundOpenSignEditorPacket(this.signEntity.getBlockPos(), SignTextSlot.FRONT));
 
         this.reOpen = false;
         this.open = true;
@@ -198,7 +200,7 @@ public class SignGui implements GuiLike {
         if (this.reOpen && this.sendLineUpdate.contains(line)) {
             this.sendLineUpdate.remove((Integer) line);
         } else {
-            this.signEntity.getFrontText().setMessage(line, text);
+            this.signEntity.setText(this.signEntity.getText(SignTextSlot.FRONT).asMutable().setLine(line, text).asImmutable(), SignTextSlot.FRONT);
             this.texts[line] = text;
         }
     }

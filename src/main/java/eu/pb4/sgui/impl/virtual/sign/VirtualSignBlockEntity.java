@@ -5,10 +5,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
+import net.minecraft.world.level.block.entity.SignTextSlot;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * SignBlockEntity which doesn't invoke {@link SignBlockEntity#markUpdated()}
+ * SignBlockEntity which doesn't invoke {@link SignBlockEntity#setChanged()}
  */
 public class VirtualSignBlockEntity extends SignBlockEntity {
 
@@ -22,7 +23,7 @@ public class VirtualSignBlockEntity extends SignBlockEntity {
     }
 
     private boolean setBackText(SignText backText) {
-        if (backText != this.getBackText()) {
+        if (backText != this.getText(SignTextSlot.BACK)) {
             ((SignBlockEntityAccessor) this).setBackText(backText);
             return true;
         } else {
@@ -31,7 +32,7 @@ public class VirtualSignBlockEntity extends SignBlockEntity {
     }
 
     private boolean setFrontText(SignText frontText) {
-        if (frontText != this.getFrontText()) {
+        if (frontText != this.getText(SignTextSlot.FRONT)) {
             ((SignBlockEntityAccessor) this).setFrontText(frontText);
             return true;
         } else {

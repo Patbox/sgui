@@ -15,6 +15,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.Removed;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -203,7 +204,7 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
         var opt = ((BuilderAccessor) this.components).getMap().get(type);
 
         //noinspection unchecked,deprecation
-        return opt != null ? (T) opt.orElse(null) : this.item.builtInRegistryHolder().isBound() ? this.item.components().get(type) : null;
+        return opt != null ? (T) Removed.removedToNull(opt) : this.item.builtInRegistryHolder().isBound() ? this.item.components().get(type) : null;
     }
 
 
@@ -212,7 +213,7 @@ public class BaseItemStackBuilder<Self extends BaseItemStackBuilder<Self>> {
         var opt = ((BuilderAccessor) this.components).getMap().get(type);
 
         //noinspection unchecked,deprecation
-        return opt != null ? (T) opt.orElse(null) : null;
+        return opt != null ? (T) Removed.removedToNull(opt) : null;
     }
 
     public <T> Self setComponent(DataComponentType<T> type, @Nullable T value) {

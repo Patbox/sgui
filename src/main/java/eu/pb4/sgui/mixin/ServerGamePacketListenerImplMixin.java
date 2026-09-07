@@ -172,8 +172,8 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
     private void sgui$catchSignUpdate(ServerboundSignUpdatePacket packet, List<FilteredText> signText, CallbackInfo ci) {
         try {
             if (this.player.containerMenu instanceof FakeMenu fake && fake.getBackingGui() instanceof SignGui gui) {
-                for (int i = 0; i < packet.getLines().length; i++) {
-                    gui.setLineInternal(i, Component.literal(packet.getLines()[i]));
+                for (int i = 0; i < packet.lines().size(); i++) {
+                    gui.setLineInternal(i, Component.literal(packet.lines().get(i)));
                 }
                 gui.close(true);
                 ci.cancel();
@@ -233,8 +233,8 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
         }
     }
 
-    @Inject(method = "handleAnimate", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V"), cancellable = true)
-    private void sgui$clickHandSwing(ServerboundSwingPacket packet, CallbackInfo ci) {
+    @Inject(method = "handlePunch", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V"), cancellable = true)
+    private void sgui$clickHandSwing(ServerboundPunchPacket packet, CallbackInfo ci) {
         if (this.player.containerMenu instanceof WrapperHotbarContainerMenu screenHandler) {
             var gui = screenHandler.getBackingGui();
             if (!gui.onHandSwing()) {
@@ -258,14 +258,14 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
         if (this.player.containerMenu instanceof WrapperHotbarContainerMenu handler) {
             var gui = handler.getBackingGui();
 
-            if (!gui.onClickBlock(packet.getHitResult())) {
-                var pos = packet.getHitResult().getBlockPos();
+            if (!gui.onClickBlock(packet.hitResult())) {
+                var pos = packet.hitResult().getBlockPos();
                 handler.syncSelectedSlot();
 
                 this.send(new ClientboundBlockUpdatePacket(pos, this.player.level().getBlockState(pos)));
-                pos = pos.relative(packet.getHitResult().getDirection());
+                pos = pos.relative(packet.hitResult().getDirection());
                 this.send(new ClientboundBlockUpdatePacket(pos, this.player.level().getBlockState(pos)));
-                this.send(new ClientboundBlockChangedAckPacket(packet.getSequence()));
+                this.send(new ClientboundBlockChangedAckPacket(packet.sequence()));
 
                 ci.cancel();
             }
