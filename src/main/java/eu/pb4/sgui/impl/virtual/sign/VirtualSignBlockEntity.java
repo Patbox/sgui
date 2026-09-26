@@ -18,8 +18,18 @@ public class VirtualSignBlockEntity extends SignBlockEntity {
         this.setLevel(world);
     }
 
-    public boolean setText(SignText text, boolean front) {
-        return front ? this.setFrontText(text) : this.setBackText(text);
+    @Override
+    public void setChanged() {
+
+    }
+
+    @Override
+    public void setText(SignText text, SignTextSlot slot) {
+        if (slot == SignTextSlot.FRONT) {
+            this.setFrontText(text);
+        } else {
+            this.setBackText(text);
+        }
     }
 
     private boolean setBackText(SignText backText) {

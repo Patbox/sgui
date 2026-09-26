@@ -2,7 +2,9 @@ package eu.pb4.sgui.api.gui;
 
 import eu.pb4.sgui.api.containerwrappers.FakeMenu;
 import eu.pb4.sgui.impl.virtual.sign.VirtualSignBlockEntity;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignTextSlot;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -151,9 +153,11 @@ public class SignGui implements GuiLike {
         }
         this.player.containerMenu = this.containerMenu;
 
-        this.player.connection.send(new ClientboundBlockUpdatePacket(this.signEntity.getBlockPos(), this.type));
-        this.player.connection.send(this.signEntity.getUpdatePacket());
-        this.player.connection.send(new ClientboundOpenSignEditorPacket(this.signEntity.getBlockPos(), SignTextSlot.FRONT));
+        this.player.connection.send(new ClientboundBundlePacket(List.of(
+                new ClientboundBlockUpdatePacket(this.signEntity.getBlockPos(), this.type),
+                this.signEntity.getUpdatePacket(),
+                new ClientboundOpenSignEditorPacket(this.signEntity.getBlockPos(), SignTextSlot.FRONT)
+        )));
 
         this.reOpen = false;
         this.open = true;
@@ -167,8 +171,6 @@ public class SignGui implements GuiLike {
             this.open = false;
             this.reOpen = false;
 
-            this.player.connection.send(new ClientboundBlockUpdatePacket(player.level(), signEntity.getBlockPos()));
-
             if (skipSync && this.player.containerMenu == this.containerMenu) {
                 this.player.doCloseContainer();
             } else {
@@ -179,6 +181,19 @@ public class SignGui implements GuiLike {
         } else {
             this.reOpen = false;
             this.open();
+        }
+    }
+
+    @Override
+    public void onRemoved() {
+        if (!this.player.hasDisconnected()) {
+            this.player.connection.send(new ClientboundBlockUpdatePacket(player.level(), signEntity.getBlockPos()));
+            if (this.player.level().getBlockEntity(signEntity.getBlockPos()) instanceof BlockEntity blockEntity) {
+                var p = blockEntity.getUpdatePacket();
+                if (p != null) {
+                    this.player.connection.send(p);
+                }
+            }
         }
     }
 
